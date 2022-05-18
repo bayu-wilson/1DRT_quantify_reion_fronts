@@ -1,0 +1,20 @@
+#!/bin/bash
+
+echo "Making a movie!"
+python input_files/get_rho_fluc.py
+for t_max in 10 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85 90 95 100 105 110 115 120 125 130 135 140 145 150 155 
+do
+	echo $t_max
+  sed -i '' "s/^inline constexpr double t_max.*/inline constexpr double t_max \{${t_max}\}\; \/\/Runtime (in Myr)/" user_inputs.h
+  sed -i '' "s/^inline constexpr char spec_output\[\].*/inline constexpr char spec_output\[\] \{ \"output_files\/spectrum_hydro_${t_max}myr\.txt\"\}\;/" user_inputs.h
+  sed -i '' "s/^inline constexpr char gas_output\[\].*/inline constexpr char gas_output\[\] \{ \"output_files\/gas_test_hydro_${t_max}myr\.txt\"\}\;/" user_inputs.h
+  sed -i '' "s/^inline constexpr char otf_output\[\].*/inline constexpr char otf_output\[\] \{ \"output_files\/otf_test_hydro_${t_max}myr\.txt\"\}\;/" user_inputs.h
+  sed -i '' "s/^inline constexpr char otf_output_bayu\[\].*/inline constexpr char otf_output_bayu\[\] \{ \"output_files\/otf_bayu_${t_max}myr\.txt\"\}\; \/\/added 21\/12\/10/" user_inputs.h
+  make clean
+  make
+  ./1d_radtransfer.x
+done
+
+cp output_files/spectrum_hydro_* output_files/fd_may-16/
+cp output_files/otf_bayu_* output_files/fd_may-16/
+cp output_files/gas_test_hydro_* output_files/fd_may-16/
