@@ -1,6 +1,5 @@
 //this file is rather unique. when main.cc is run, it includes this file so
 //I believe the preprocessor compiles this before compiling main.
-
 #include <math.h>
 #include "global_variables.h"
 

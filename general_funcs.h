@@ -18,7 +18,7 @@ double remainder_chris(double a, double b);
 double b_nu(double nu, double T);
 double power_law(double r, double r0, double A, double alpha);
 
-double trapz_int(double y[], double x[], int n); //TODO: uncomment this
+double trapz_int(double y[], double x[], int n);
 double cum_trapz_int(double y[], double x[], int n);
 
 double interpolate(double x[], double y[], double x0, int n);

@@ -28,12 +28,9 @@ void init_grid()
     {
 			r[i] = r[i]*kpc_to_cm;
       delta_r[i-1] = r[i] - r[i-1];
-
-			// rho_total[i] = rho_total[i]/10;s
 		}
 	}
-	//if grids are not user-defined, generate a linear spatial grid and a
-	//logarithmic frequency grid
+	//if grids are not user-defined, generate a linear spatial grid and a logarithmic frequency grid
 	else
   {
 		//spatial grid
@@ -43,10 +40,8 @@ void init_grid()
 			r[i]       = (R0 + i*dr)*kpc_to_cm;
 			delta_r[i-1] = dr*kpc_to_cm;
 		}
-
 	}
 }
-
 
 void init_gas()
 {
@@ -62,7 +57,6 @@ void init_gas()
 			rho_prev[i]  = rho_total[i];
 
 			f_H1[i] = power_law(r[i], r[0], fH1_0, fH1_index);
-
 			if (f_H1[i] > 1.)
 			{
 				f_H1[i] = fH1_0;
@@ -94,9 +88,9 @@ void init_gas()
 	}
 
 	//compute other important quantities
-	for (int i{ 0 }; i < N_r; i++)  {
-
-		//number densities //NOTE: WHY IS THIS DONE TWICE?
+	for (int i{ 0 }; i < N_r; i++)
+	{
+		//number densities
 		nH[i]         = (1. - Y)*rho_total[i]/m_H;
 		nH_prev[i]    = nH[i];
 		nHe[i]        = Y*rho_total[i]/(4.*m_H);
@@ -117,12 +111,14 @@ void init_gas()
 		n_tot_prev[i] = nH[i] + nHe[i] + ne[i];
 
 		//recombination coefficients
-		if (strcmp(rec_case, "A") == 0)  {
+		if (strcmp(rec_case, "A") == 0)
+		{
 			recomb_H2[i]  = alphaA_H2(temp[i]);
 			recomb_He2[i] = alphaA_He2(temp[i]);
 			recomb_He3[i] = alphaA_He3(temp[i]);
 		}
-		else  {
+		else
+		{
 			recomb_H2[i]  = alphaB_H2(temp[i]);
 			recomb_He2[i] = alphaB_He2(temp[i]);
 			recomb_He3[i] = alphaB_He3(temp[i]);
@@ -193,10 +189,9 @@ void init_intensity()
 			delta_nu[j - 1] = nu[j] - nu[j - 1];
 		}
 
-		if (strcmp(spectrum, "BLACKBODY") == 0) //PROBABLY USING THIS ONE
+		if (strcmp(spectrum, "BLACKBODY") == 0)
 		{
 			double temp_dlog_nu = (temp_nu_max - temp_nu_min)/(500. - 1.);
-
 			for (int j{ 0 }; j < 500; j++)
 			{
 				temp_nu[j] = pow(10,temp_nu_min + j*temp_dlog_nu);
@@ -204,7 +199,6 @@ void init_intensity()
 			}
 
 			norm = trapz_int(phi_nu, temp_nu, 500);
-
 			for (int j{ 0 }; j < N_nu; j++)
 			{
 				phii            = interpolate(temp_nu, phi_nu, nu[j], 500);

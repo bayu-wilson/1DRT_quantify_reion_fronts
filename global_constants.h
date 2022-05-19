@@ -10,6 +10,7 @@ namespace g_constants
   // numbers
   inline constexpr double pi { 3.14159 };
   inline constexpr double e  { 2.71828 };
+
   //Fundamental constants
   inline constexpr double h { 6.626068e-27 }; //Planck's constant (erg s)
   inline constexpr double h_eV { 4.135667e-15 }; // Planck's constant (eV s)
@@ -45,7 +46,6 @@ namespace g_constants
   inline constexpr double yr_to_s { 3.154e7 };
   inline constexpr double ev_to_erg { 1.6022e-12 };
   inline constexpr double eV_cgs { 1.60218e-12 };
-
 }
 
 #endif
