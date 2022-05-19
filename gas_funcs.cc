@@ -157,7 +157,6 @@ void update_heat_cool()
 void solve_ion(double ne[])
 {
 	//solve the ionizing balance equation for H usin a 1st order implicit backwards-difference scheme
-	//ASDF
 	#pragma omp parallel for if (parallel)
 	for (int i=0; i < N_r; i++)
 	{
@@ -233,7 +232,6 @@ void update_chem()  {
 			recomb_He2[i] += Dalpha_He2(temp[i]);
 		}
 	}
-	//ASDF
 	#pragma omp parallel for if (parallel)
 	for (int j=0; j < 5; j++)  {
 		solve_ion(ne);
