@@ -1,0 +1,18 @@
+# Compiled source #
+###################
+*.o
+*.x
+
+# Other #
+#########
+forChris*
+*.ipynb
+output_files/*
+plotting_routines/*
+
+# un-ignore these files #
+#########################
+!.gitignore
+!output_files/otf_bayu_100myr.txt
+!output_files/gas_test_hydro_100myr.txt
+!output_files/otf_test_hydro_100myr.txt
