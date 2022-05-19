@@ -36,8 +36,8 @@ namespace user_inputs
   inline constexpr bool temp_ev       { TRUE }; //temperature evolution flag
   inline constexpr bool hydro			    { FALSE }; //include hydrodynamics flag
 
-  inline constexpr bool QSO_spec       { TRUE }; //CHRIS 05/16/22: output QSO spectrum?
-  inline constexpr bool add_background { TRUE }; //CHRIS 05/17/22: add uniform background?
+  inline constexpr bool QSO_spec       { FALSE }; //CHRIS 05/16/22: output QSO spectrum?
+  inline constexpr bool add_background { FALSE }; //CHRIS 05/17/22: add uniform background?
 
   //input files (if user-defined)
   inline constexpr char grid[]            { "input_files/rho_fluc_line0001.txt" };
@@ -74,6 +74,7 @@ inline constexpr char otf_output_bayu[] { "output_files/otf_bayu_100myr.txt"}; /
   inline constexpr double T_source { 1.e5 }; //Source temperature (if blackbody)
   inline constexpr double alpha    { 1.5 }; //spectral power law index if spectrum is a power law.
   inline constexpr double Lum      = 6.e56*g_constants::h*nu_min*alpha/(alpha - 1); //for power law index L_MW = 1e43 erg/s
+  inline constexpr double Gam0     = 1e-13;
   // inline constexpr double Lum      = 4.e56*g_constants::h*nu_min*alpha/(alpha - 1); //for power law index L_MW = 1e43 erg/s
   // inline constexpr double Lum      = 1e57*g_constants::h*nu_min*alpha/(alpha - 1); //for power law index
   // inline constexpr double Lum      { 5e48*4.155*k_B*T_source}; //Luminosity in erg/s for blackbody
