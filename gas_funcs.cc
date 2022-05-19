@@ -22,6 +22,8 @@ using user_inputs::recomb_cool;
 using user_inputs::coll_ion;
 using user_inputs::spectrum;
 using user_inputs::parallel;
+using user_inputs::add_background; //CHRIS 05/17/22
+using user_inputs::Gam0;
 
 //compute photoionization rates for HI, HeI, and HeII
 void update_gamma()
@@ -65,6 +67,11 @@ void update_gamma()
 			gamma_H1_tot[i]  += cic_H1(temp[i])*ne[i];
 			gamma_He1_tot[i] += cic_He1(temp[i])*ne[i];
 			gamma_He2_tot[i] += cic_He2(temp[i])*ne[i];
+		}
+		//CHRIS 05/17/22: add uniform background
+		if ( add_background == TRUE)  {
+			gamma_H1_tot[i] += Gam0;
+			gamma_He1_tot[i] += Gam0;
 		}
 	}
 }
