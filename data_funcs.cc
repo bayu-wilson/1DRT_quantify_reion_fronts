@@ -1,19 +1,26 @@
 #include <math.h>
+#include <fstream> //CHRIS: 05/16/22
+#include <string> //CHRIS: 05/16/22
 #include "global_variables.h"
 #include "general_funcs.h"
 #include "user_inputs.h"
 #include "global_constants.h"
 #include "data_funcs.h"
 #include "io_funcs.h"
+#include "cosmo_funcs.h"
+using namespace std; //CHRIS: 05/16/22
 
 using g_constants::yr_to_s;
 using user_inputs::N_output;
 using user_inputs::t_max;
+using user_inputs::z; //CHRIS: 05/16/22
+using user_inputs::gas_output; //CHRIS: 05/16/22
 using g_constants::pi;
 using g_constants::c;
 using g_constants::chi_He;
 using g_constants::lambda_lya_cm;
 using g_constants::h;
+using g_constants::kpc; //CHRIS: 05/16/22
 
 //Volume-weighted average
 double calc_vol_avg(double f[], int n)
@@ -87,4 +94,69 @@ double* calc_ifront_flux_method()
 	*(flux_vel + 1) = vel_IF;
 	*(flux_vel + 2) = nH_boundary;
  	return flux_vel;
+}
+
+//CHRIS: 05/16/22
+//Subroutine to calculate a mock QSO spectrum starting at r = R0
+//Optional flag adds a neutral island along the sightline with a specified central position and width
+
+double* tau_bf(double wav_em[], double NHI[])
+{
+	int sigma_ind = 3.;
+	double lymanlimit = 911.267;
+	double *tau_bf_out = (double*) malloc(sizeof(double) * N_r);
+
+	*(tau_bf_out + 0) = 0.;
+	for (int i=1; i<N_r; i++)
+	{
+		*(tau_bf_out + i) = 0.;
+		double lam1 = wav_em[i];
+		for (int j=0; j<i; j++)
+		{
+			double dlam = wav_em[i]*(wav_em[j]/wav_em[j+1] - 1.);
+			*(tau_bf_out + i) += g_constants::sigma0*NHI[j]*pow(lam1 + dlam/2., sigma_ind)/pow(lymanlimit, sigma_ind);
+			lam1 += dlam;
+		}
+	}
+	return tau_bf_out;
+}
+
+void calc_mock_QSO_spec()
+{
+	double delta_v     [N_r - 1]{}; //velocity differential
+	double wav         [N_r]{};
+	double flux        [N_r]{};
+	double NHI         [N_r-1]{};
+	double a = 1./(1.+user_inputs::z);
+	double lymanlimit = 911.76;
+
+	wav[0] = lymanlimit;
+	for (int i = 1; i<N_r; i++)
+	{
+		delta_v[i-1]   = (r[i] - r[i-1])*H(a);
+		wav[i]         = wav[i-1]/(1.+delta_v[i-1]/g_constants::c);
+		NHI[i-1]       = delta_r[i-1]*(nH1[i] + nH1[i-1])/2.;
+	}
+
+	double *tau_912 = tau_bf(wav, NHI);
+
+	for (int i = 0; i<N_r; i++)
+	{
+		double tau = *(tau_912 + i);
+		flux[i] = exp(-tau);
+	}
+
+	ofstream file;
+	string s1  = "./output_files/QSO_spec_z=";
+	string z_string = to_string(z);
+	s1 = s1 + z_string;
+	const char *spec_output = s1.c_str();
+	file.open(spec_output, ios::out | ios::binary);
+
+	for (int i=0; i<N_r; i++)
+	{
+		file.write((char*)&wav[i],  sizeof(double));
+		file.write((char*)&flux[i], sizeof(double));
+	}
+	file.close();
 }

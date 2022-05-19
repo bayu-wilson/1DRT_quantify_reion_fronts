@@ -36,6 +36,8 @@ namespace user_inputs
   inline constexpr bool temp_ev       { TRUE }; //temperature evolution flag
   inline constexpr bool hydro			    { FALSE }; //include hydrodynamics flag
 
+  inline constexpr bool QSO_spec       { TRUE }; //CHRIS 05/16/22: output QSO spectrum?
+  inline constexpr bool add_background { TRUE }; //CHRIS 05/17/22: add uniform background?
 
   //input files (if user-defined)
   inline constexpr char grid[]            { "input_files/rho_fluc_line0001.txt" };

@@ -7,6 +7,7 @@
 #include <omp.h>
 #include "rt_funcs.h"
 #include "user_inputs.h"
+#include "data_funcs.h" //CHRIS 05/16/22
 
 // Standard library headers
 #include <stdio.h>
@@ -14,12 +15,11 @@
 
 using user_inputs::hydro;
 using user_inputs::temp_ev;
+using user_inputs::QSO_spec; //CHRIS 05/16/22
 
 int main()
 {
-  clock_t start, end; //to measure performance
-  double start_all, end_all;
-	double cpu_time_used;
+  double start_all, end_all;//to measure performance
   int nProcessors=omp_get_num_procs();
   omp_set_num_threads(nProcessors);
   printf("omp_get_num_procs(): %d\n", nProcessors);
@@ -140,6 +140,10 @@ int main()
   write_spectrum(); //from io_funcs.cc, writing the data to files
   bool_initial_gas = FALSE;
   write_gas(bool_initial_gas);
+
+  if (QSO_spec == TRUE)  { //CHRIS 05/16/22: output QSO spectrum to output_files
+  calc_mock_QSO_spec();
+  }
 
   end_all   = omp_get_wtime();
   printf("\nProgram complete, real-time: \t%.3e seconds\n",end_all-start_all);
