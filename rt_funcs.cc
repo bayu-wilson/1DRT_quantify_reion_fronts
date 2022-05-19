@@ -25,54 +25,42 @@ using namespace rates;
 void update_dt()
 {
 	double min_dt;
-
-	//testing
-	if (t/yr_to_s/1e6 < 1.0)
-  {
-		min_dt = min_dt_early;
-	}
-	else
-  {
-		min_dt = min_dt_late;
-	}
-	// min_dt = min_dt_late; // Since we got rid of geometric attenuation, this is no longer necessary
+	min_dt = min_dt_late; // Since we got rid of geometric attenuation, following commented seciton is no longer necessary
+	// //testing
+	// if (t/yr_to_s/1e6 < 1.0)
+  // {
+	// 	min_dt = min_dt_early;
+	// }
+	// else
+  // {
+	// 	min_dt = min_dt_late;
+	// }
 
 	dt = t_max*yr_to_s*1e6/(N_output - 1);
-// dt = min_dt*yr_to_s*1e6;
 
 	//Adaptive time-stepping
-	// double *ifront_H1  = calc_ifront(f_H1, f_H1_step, r, N_r);
-	// double locIF = *(ifront_H1 + 0);
 	double pos_IF    		= interpolate(f_H1, r, 0.5, N_r);
 	double regionIF = (4*2.7+2)*kpc_to_cm;
 
-	//This one seems to help save a substantial amount of time if (parallel).
-	// should work in parallel if each of the cells don't depend on eachother.
-	#pragma omp parallel for if (parallel)
+	#pragma omp parallel for shared(dt) if (parallel)
 	for (int i=0; i < N_r; i++)
   {
 		if ((r[i]>(pos_IF-regionIF)) && (r[i]<(pos_IF+regionIF)))
 		{
 			//chemical timescales
-			if ( (nH1[i] > min_frac*nH[i]) && (abs(tfrac*nH1[i]/dnH1_dt[i]) >  min_dt*yr_to_s*1e6) )
-	    {
-				dt = mind(dt, abs(tfrac*nH1[i]/dnH1_dt[i])); // TODO: THERE IS A PROBLEM WITH dnH1_dt!!!
-				// printf("%.1e ",dnH1_dt[i]);
+			if ( (nH1[i] > min_frac*nH[i]) && (abs(tfrac*nH1[i]/dnH1_dt[i]) >  min_dt*yr_to_s*1e6) ) {
+				dt = mind(dt, abs(tfrac*nH1[i]/dnH1_dt[i]));
 			}
-			if ( (nH2[i] > min_frac*nH[i]) && (abs(tfrac*nH2[i]/dnH2_dt[i]) > min_dt*yr_to_s*1e6) )
-	    {
+			if ( (nH2[i] > min_frac*nH[i]) && (abs(tfrac*nH2[i]/dnH2_dt[i]) > min_dt*yr_to_s*1e6) ) {
 				dt = mind(dt, abs(tfrac*nH2[i]/dnH2_dt[i]));
 			}
-			if ( (nHe1[i] > min_frac*nHe[i]) && (abs(tfrac*nHe1[i]/dnHe1_dt[i]) > min_dt*yr_to_s*1e6) )
-	    {
+			if ( (nHe1[i] > min_frac*nHe[i]) && (abs(tfrac*nHe1[i]/dnHe1_dt[i]) > min_dt*yr_to_s*1e6) ) {
 				dt = mind(dt, abs(tfrac*nHe1[i]/dnHe1_dt[i]));
 			}
-			if ( (nHe2[i] > min_frac*nHe[i]) && (abs(tfrac*nHe2[i]/dnHe2_dt[i]) > min_dt*yr_to_s*1e6) )
-	    {
+			if ( (nHe2[i] > min_frac*nHe[i]) && (abs(tfrac*nHe2[i]/dnHe2_dt[i]) > min_dt*yr_to_s*1e6) ) {
 				dt = mind(dt, abs(tfrac*nHe2[i]/dnHe2_dt[i]));
 			}
-			if ( (nHe3[i] > min_frac*nHe[i]) && (abs(tfrac*nHe3[i]/dnHe3_dt[i]) > min_dt*yr_to_s*1e6) )
-	    {
+			if ( (nHe3[i] > min_frac*nHe[i]) && (abs(tfrac*nHe3[i]/dnHe3_dt[i]) > min_dt*yr_to_s*1e6) ) {
 				dt = mind(dt, abs(tfrac*nHe3[i]/dnHe3_dt[i]));
 			}
 
@@ -118,8 +106,7 @@ void update_step()
 
 void solve_spherical_rt()
 {
-	//parallel is slower?? if (parallel)
-	#pragma omp parallel for
+	#pragma omp parallel for if (parallel)
 	for (int i=1; i < N_r; i++)
 	{
 		for (int j=0; j < N_nu; j++)
@@ -129,7 +116,6 @@ void solve_spherical_rt()
 				double a = 1./delta_r[i-1] + gamma_nu_tot[i][j];
 				double b = pow(r[i-1]/r[i],2.)/delta_r[i-1]*I_nu[i-1][j];
 				I_nu[i][j] = b/a;
-				// printf("%.1e\n", gamma_nu_tot[i][j]);
 			}
 
 			else if (FINITE_C == TRUE)
@@ -156,13 +142,7 @@ void solve_spherical_rt()
 
 void update_gamma_nu()
 {
-	// double dgamma; //NOTE: why was this initialized?
-	//without parallelization it is 2.657e-03 seconds
-
-	//collapse(2)
-	//doesn't really do anything I think if (parallel)
-	// #pragma omp parallel for if (parallel)
-	#pragma omp parallel for
+	#pragma omp parallel for if (parallel)
 	for (int i=0; i < N_r; i++)
 	{
 		for (int j=0; j < N_nu; j++)
@@ -179,8 +159,7 @@ void update_gamma_nu()
 //update the energy density of radiation
 void update_u_nu()
 {
-	//saves some time for if (parallel)
-	#pragma omp parallel for
+	#pragma omp parallel for if (parallel)
 	for (int i=0; i < N_r; i++)
 	{
 		for (int j=0; j < N_nu; j++)
