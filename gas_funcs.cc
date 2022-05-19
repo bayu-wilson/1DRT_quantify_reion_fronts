@@ -28,7 +28,7 @@ using user_inputs::Gam0;
 //compute photoionization rates for HI, HeI, and HeII
 void update_gamma()
 {
-	#pragma omp parallel for
+	#pragma omp parallel for if (parallel)
 	for (int i=0; i < N_r; i++)
 	{
 		gamma_H1_tot[i]  = 0;
@@ -78,7 +78,7 @@ void update_gamma()
 
 void update_heat_cool()
 {
-		#pragma omp parallel for
+		#pragma omp parallel for if (parallel)
 		for (int i=0; i < N_r; i++)
 		{
 			heat_rate[i] = 0;
@@ -157,6 +157,7 @@ void update_heat_cool()
 void solve_ion(double ne[])
 {
 	//solve the ionizing balance equation for H usin a 1st order implicit backwards-difference scheme
+	//ASDF
 	#pragma omp parallel for if (parallel)
 	for (int i=0; i < N_r; i++)
 	{
@@ -210,7 +211,7 @@ void solve_ion(double ne[])
 }
 
 void update_chem()  {
-	#pragma omp parallel for
+	#pragma omp parallel for if (parallel)
 	for (int i=0; i < N_r; i++)
 	{
 		//recombination coefficients
@@ -232,11 +233,12 @@ void update_chem()  {
 			recomb_He2[i] += Dalpha_He2(temp[i]);
 		}
 	}
+	//ASDF
 	#pragma omp parallel for if (parallel)
 	for (int j=0; j < 5; j++)  {
 		solve_ion(ne);
 	}
-	#pragma omp parallel for
+	#pragma omp parallel for if (parallel)
 	for (int i=0; i < N_r; i++)
 	{
 		n_tot[i] = nH[i] + nHe[i] + ne[i];
@@ -278,7 +280,7 @@ void update_thermal()
 {
 	double a;
 	a = 1/(1 + z);
-	#pragma omp parallel for
+	#pragma omp parallel for if (parallel)
 	for (int i=0; i < N_r; i++)
 	{
 		if (hydro == FALSE)

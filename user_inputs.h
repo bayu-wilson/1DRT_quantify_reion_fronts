@@ -18,7 +18,7 @@ using g_constants::h_const;
 
 namespace user_inputs
 {
-  inline constexpr bool parallel     { FALSE }; //parallelization with open-mp
+  inline constexpr bool parallel     { TRUE }; //parallelization with open-mp
 
   inline constexpr char spectrum[] { "POWER" }; // "MONOCHROMATIC", "BLACKBODY", or "POWER".
   inline constexpr char rec_case[] { "B" }; //Use case "A" or "B" recombination coefficients
