@@ -6,18 +6,15 @@ using namespace g_constants;
 using namespace rates;
 double lambda(double T, double Eth)
 {
-
     double K2eV = k_B/eV_cgs;
     double eV2K = 1.0/K2eV;
     double xHI  = Eth*eV2K/T;
     double x    = 2*xHI;
     return x;
-
 }
 
 double F_of_y(double nu, double Eth, double Emax, double E0, double y0, double y1, double yw, double ya, double P)
 {
-
 	double x, y;
 	double E, F;
 
@@ -26,8 +23,7 @@ double F_of_y(double nu, double Eth, double Emax, double E0, double y0, double y
 	y = pow(pow(x,2) + pow(y1,2),0.5);
 	F = (pow(x-1,2) + pow(yw,2))*pow(y,0.5*P - 5.5)*pow(1 + pow(y/ya,0.5),-P);
 
-	if (h_eV*nu >= Eth && h_eV*nu <= Emax)
-  {
+	if (h_eV*nu >= Eth && h_eV*nu <= Emax) {
 		return F;
 	}
 	else  {
@@ -38,42 +34,36 @@ double F_of_y(double nu, double Eth, double Emax, double E0, double y0, double y
 //photoionization cross-sections
 
 //photo-ionization cross-section of HI from Verner et. al. 1996
-double sigmapi_H1(double nu)
-{
+double sigmapi_H1(double nu) {
 	return sigma0_H1*F_of_y(nu, Eth_H1, Emax_H1, E0_H1, y0_H1, y1_H1, yw_H1, ya_H1, P_H1);
 }
 
 //photo-ionization cross-section of HeI from Verner et. al. 1996
-double sigmapi_He1(double nu)
-{
+double sigmapi_He1(double nu) {
 	return sigma0_He1*F_of_y(nu, Eth_He1, Emax_He1, E0_He1, y0_He1, y1_He1, yw_He1, ya_He1, P_He1);
 }
 
 //photo-ionization cross-section of HeII from Verner et. al. 1996
-double sigmapi_He2(double nu)
-{
+double sigmapi_He2(double nu) {
 	return sigma0_He2*F_of_y(nu, Eth_He2, Emax_He2, E0_He2, y0_He2, y1_He2, yw_He2, ya_He2, P_He2);
 }
 
 //collisional ionization rates
 
 //collisional ionization rate of HI from Hui & Gnedin 1996
-double cic_H1(double T)
-{
+double cic_H1(double T) {
 	double x = lambda(T, Eth_H1);
 	return 21.11*pow(T,-1.5)*exp(-x/2.)*pow(x,-1.089)/(pow(1. + pow(x/0.354,0.874),1.101));
 }
 
 //collisional ionization rate of HeI from Hui & Gnedin 1996
-double cic_He1(double T)
-{
+double cic_He1(double T) {
 	double x = lambda(T, Eth_He1);
 	return 32.38*pow(T,-1.5)*exp(-x/2.)*pow(x,-1.146)/(pow(1. + pow(x/0.416,0.987),1.056));
 }
 
 //collisional ionization rate of HeII from Hui & Gnedin 1996
-double cic_He2(double T)
-{
+double cic_He2(double T) {
 	double x = lambda(T, Eth_He2);
 	return 19.95*pow(T,-1.5)*exp(-x/2.)*pow(x,-1.089)/(pow(1. + pow(x/0.553,0.735),1.275));
 }
@@ -81,20 +71,17 @@ double cic_He2(double T)
 //collisional ionization cooling rates
 
 //collisional ionization cooling rate of HI from Hui & Gnedin 1996
-double cicr_H1(double T)
-{
-    return Eth_H1*ev_to_erg*cic_H1(T);
+double cicr_H1(double T) {
+  return Eth_H1*ev_to_erg*cic_H1(T);
 }
 
 //collisional ionization cooling rate of HeI from Hui & Gnedin 1996
-double cicr_He1(double T)
-{
+double cicr_He1(double T) {
 	return Eth_He1*ev_to_erg*cic_He1(T);
 }
 
 //collisional ionization cooling rate of HeII from Hui & Gnedin 1996
-double cicr_He2(double T)
-{
+double cicr_He2(double T) {
 	return Eth_He2*ev_to_erg*cic_He2(T);
 }
 
@@ -257,25 +244,20 @@ double coll_ex_rate_H1_acc(double T)
   // double q_1s_3p = prefix * Omega_1s_3p / 2.0 * exp(-E_1s_3p/(k_B*T)); //remove?
   double q_1s_3d = prefix * Omega_1s_3d / 2.0 * exp(-E_1s_3d/(k_B*T));
   // double q_1s_4p = prefix * Omega_1s_4p / 2.0 * exp(-E_1s_4p/(k_B*T));  //remove?
-
   return q_1s_2p + q_1s_3s + q_1s_3d; //eq. 5 of Cantalupo+2008.  Can be improved.
   // return q_1s_2p + q_1s_3s + q_1s_3d + q_1s_3p +q_1s_4p; //eq. 5 of Cantalupo+2008.  Can be improved.
 
 }
 
-double coll_ex_rate_He1(double T)
-{
+double coll_ex_rate_He1(double T) {
 	return 9.10e-27*pow(T, -0.1687)*pow((1 + pow(T/1e5, 0.5)), -1)*exp(-13179./T);
 }
 
-double coll_ex_rate_He2(double T)
-{
+double coll_ex_rate_He2(double T) {
 	return 5.54e-17*pow(T, -0.397)*pow((1 + pow(T/1e5, 0.5)), -1)*exp(-473638./T);
 }
 
 //compton heating/cooling rate from Hui & Gnedin 1996
-double compton_rate(double z)
-{
-	//return 6.35e-41*Omega_b*pow(h_const, 2.)*m_H*pow(1 + z, 7.);
+double compton_rate(double z) {
 	return 5.6072e-36*pow(1 + z, 4.);
 }
