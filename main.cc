@@ -84,7 +84,7 @@ int main()
           nH2_prev[j] = nH[j];
           nHe1[j] = 0;
           nHe1_prev[j] = 0;
-          f_He1[j]0;
+          f_He1[j]=0;
         }
       }
     }
@@ -103,7 +103,7 @@ int main()
         nH2_prev[j] = nH[j];
         nHe1[j] = 0;
         nHe1_prev[j] = 0;
-        f_He1[j]=;
+        f_He1[j]=0;
         prev_index = j;
       }
     }
