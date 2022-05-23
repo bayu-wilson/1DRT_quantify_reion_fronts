@@ -46,13 +46,13 @@ namespace user_inputs
   inline constexpr char source_spectrum[] { "input_files/spectrum_hydro_10myr.txt" };
 
   //output files
-inline constexpr double t_max {100}; //Runtime (in Myr)
-inline constexpr char spec_output[] { "output_files/spectrum_hydro_100myr.txt"};
-inline constexpr char gas_output[] { "output_files/gas_test_hydro_100myr.txt"};
+inline constexpr double t_max {70}; //Runtime (in Myr)
+inline constexpr char spec_output[] { "output_files/spectrum_hydro_70myr.txt"};
+inline constexpr char gas_output[] { "output_files/gas_test_hydro_70myr.txt"};
   inline constexpr char initial_gas_output[]   { "input_files/gas_test_hydro_000myr.txt"};
 
-inline constexpr char otf_output[] { "output_files/otf_test_hydro_100myr.txt"};
-inline constexpr char otf_output_bayu[] { "output_files/otf_bayu_100myr.txt"}; //added 21/12/10
+inline constexpr char otf_output[] { "output_files/otf_test_hydro_70myr.txt"};
+inline constexpr char otf_output_bayu[] { "output_files/otf_bayu_70myr.txt"}; //added 21/12/10
 
   //grid sizes
   inline constexpr int N_r    { 408 }; //Number of spatial bins 10,000 //1360 //680... stepsize is 0.735 pkpc
@@ -74,7 +74,7 @@ inline constexpr char otf_output_bayu[] { "output_files/otf_bayu_100myr.txt"}; /
   inline constexpr double T_source { 1.e5 }; //Source temperature (if blackbody)
   inline constexpr double alpha    { 1.5 }; //spectral power law index if spectrum is a power law.
   inline constexpr double Lum      { 6.e56*g_constants::h*nu_min*alpha/(alpha - 1) }; //for power law index L_MW = 1e43 erg/s
-  inline constexpr double Gam0     { 1e-13 };
+  inline constexpr double Gam0     { 1e-13 }; // uniform photoionization background
   inline constexpr double region_IF {10}; // region around the IF to check the smallest timescales. This is in units of kpc!!
   // inline constexpr double Lum      = 4.e56*g_constants::h*nu_min*alpha/(alpha - 1); //for power law index L_MW = 1e43 erg/s
   // inline constexpr double Lum      = 1e57*g_constants::h*nu_min*alpha/(alpha - 1); //for power law index

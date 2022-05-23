@@ -12,7 +12,7 @@ echo "Number of lines:"
 wc -l input_files/gas_test_hydro_000myr.txt
 python input_files/get_rho_fluc.py
 
-t_max='100'
+t_max='70'
 sed -i '' "s/^inline constexpr double t_max.*/inline constexpr double t_max \{${t_max}\}\; \/\/Runtime (in Myr)/" user_inputs.h
 sed -i '' "s/^inline constexpr char spec_output\[\].*/inline constexpr char spec_output\[\] \{ \"output_files\/spectrum_hydro_${t_max}myr\.txt\"\}\;/" user_inputs.h
 sed -i '' "s/^inline constexpr char gas_output\[\].*/inline constexpr char gas_output\[\] \{ \"output_files\/gas_test_hydro_${t_max}myr\.txt\"\}\;/" user_inputs.h
