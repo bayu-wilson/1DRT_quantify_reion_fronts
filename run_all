@@ -8,7 +8,7 @@
 ###    sed -i '' "s/^temperature = .*/temperature = 2e4/" get_rho_fluc.py
 ###fi
 
-echo "Number of lines:" 
+echo "Number of lines:"
 wc -l input_files/gas_test_hydro_000myr.txt
 python input_files/get_rho_fluc.py
 
@@ -19,11 +19,10 @@ sed -i '' "s/^inline constexpr char gas_output\[\].*/inline constexpr char gas_o
 sed -i '' "s/^inline constexpr char otf_output\[\].*/inline constexpr char otf_output\[\] \{ \"output_files\/otf_test_hydro_${t_max}myr\.txt\"\}\;/" user_inputs.h
 sed -i '' "s/^inline constexpr char otf_output_bayu\[\].*/inline constexpr char otf_output_bayu\[\] \{ \"output_files\/otf_bayu_${t_max}myr\.txt\"\}\; \/\/added 21\/12\/10/" user_inputs.h
 
-
 make clean
 make
 ./1d_radtransfer.x
 
 python plotting_routines/diagnostics.py
 python plotting_routines/gas_properties.py
-python plotting_routines/iLya_vs_vIF/iLya_vs_flux-v.py  
+python plotting_routines/iLya_vs_vIF/iLya_vs_flux-v.py

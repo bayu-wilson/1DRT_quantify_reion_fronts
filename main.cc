@@ -92,7 +92,7 @@ int main()
     {
       int prev_index{0};
       double IF_rear_loc{};
-      IF_rear_loc = interpolate(f_H1, r, 0.5, N_r);
+      IF_rear_loc = interpolate(f_H1, r, 0.5, N_r); //cm
       for (int j=prev_index;r[j]<IF_rear_loc-10*g_constants::kpc_to_cm;j++)
       {
         nH1[j] = 0;

@@ -2,6 +2,7 @@
 ###################
 *.o
 *.x
+.*
 
 # Other #
 #########
@@ -16,3 +17,8 @@ plotting_routines/*
 !output_files/otf_bayu_100myr.txt
 !output_files/gas_test_hydro_100myr.txt
 !output_files/otf_test_hydro_100myr.txt
+!plotting_routines/gas_properties.py
+!plotting_routines/options.py
+!plotting_routines/movie_gas_properties.py
+!plotting_routines/diagnostics.py
+!plotting_routines/iLya_vs_flux-v.py

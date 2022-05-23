@@ -2,7 +2,7 @@
 
 echo "Making a movie!"
 python input_files/get_rho_fluc.py
-for t_max in 10 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85 90 95 100 105 110 115 120 125 130 135 140 145 150 155 
+for t_max in 10 20 30 40 50 60 70 80 90 100 110 120 130 140 150
 do
 	echo $t_max
   sed -i '' "s/^inline constexpr double t_max.*/inline constexpr double t_max \{${t_max}\}\; \/\/Runtime (in Myr)/" user_inputs.h
@@ -15,6 +15,6 @@ do
   ./1d_radtransfer.x
 done
 
-cp output_files/spectrum_hydro_* output_files/fd_may-16/
-cp output_files/otf_bayu_* output_files/fd_may-16/
-cp output_files/gas_test_hydro_* output_files/fd_may-16/
+cp output_files/spectrum_hydro_* output_files/fd_may-19/
+cp output_files/otf_bayu_* output_files/fd_may-19/
+cp output_files/gas_test_hydro_* output_files/fd_may-19/

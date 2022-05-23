@@ -17,6 +17,7 @@ using user_inputs::temp_ev;
 using user_inputs::min_frac;
 using user_inputs::min_dt_late;
 using user_inputs::min_dt_early;
+using user_inputs::region_IF;
 using g_constants::c;
 using g_constants::pi;
 using g_constants::kpc_to_cm;
@@ -24,6 +25,7 @@ using namespace rates;
 
 void update_dt()
 {
+	// double dt_arr[N_r]{};
 	double min_dt;
 	min_dt = min_dt_late; // Since we got rid of geometric attenuation, following commented seciton is no longer necessary
 	// //testing
@@ -40,12 +42,12 @@ void update_dt()
 
 	//Adaptive time-stepping
 	double pos_IF    		= interpolate(f_H1, r, 0.5, N_r);
-	double regionIF = (4*2.7+2)*kpc_to_cm;
+	// double regionIF = (4*2.7+2)*kpc_to_cm;
 
-	#pragma omp parallel for shared(dt) if (parallel)
+	#pragma omp parallel for reduction(min:dt) if (parallel)
 	for (int i=0; i < N_r; i++)
   {
-		if ((r[i]>(pos_IF-regionIF)) && (r[i]<(pos_IF+regionIF)))
+		if ((r[i]>(pos_IF-region_IF*kpc_to_cm)) && (r[i]<(pos_IF+region_IF*kpc_to_cm)))
 		{
 			//chemical timescales
 			if ( (nH1[i] > min_frac*nH[i]) && (abs(tfrac*nH1[i]/dnH1_dt[i]) >  min_dt*yr_to_s*1e6) ) {
