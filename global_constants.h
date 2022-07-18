@@ -26,7 +26,6 @@ namespace g_constants
   inline constexpr double stef_boltz { 5.6704e-5 }; //stefan-boltzman constant in cgs
   inline constexpr double G_grav { 6.67259e-8 }; // Gravitational constant in cgs units
   inline constexpr double lambda_lya_cm { 1.21567e-5 }; //in cm //added 01/12/2022
-  inline constexpr double lambda_HI_ion_cm { 0.912e-5 }; //in cm //added 06/07/2022
   inline constexpr double chi_He { 0.08 }; // 1+chi factor accounts for single-ionized helium
 
   //Cosmological parameters
@@ -41,9 +40,9 @@ namespace g_constants
 
   //Units
   inline constexpr double ryd_to_ev { 13.6 };
-  inline constexpr double pc_to_cm { 3.086e18 }; //86 not 68
-  inline constexpr double kpc_to_cm { 3.086e21 };
-  inline constexpr double mpc_to_km { 3.086e19 };
+  inline constexpr double pc_to_cm { 3.068e18 };
+  inline constexpr double kpc_to_cm { 3.068e21 };
+  inline constexpr double mpc_to_km { 3.068e19 };
   inline constexpr double yr_to_s { 3.154e7 };
   inline constexpr double ev_to_erg { 1.6022e-12 };
   inline constexpr double eV_cgs { 1.60218e-12 };
