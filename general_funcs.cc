@@ -139,6 +139,47 @@ double cum_trapz_int(double y[], double x[], int n)  {
 	return *cumint;
 }
 
+double find_index(double x[],double x0,int n) // find the index that matches a certain element
+{
+	double index{};
+	for (int i{0};i<n;i++)
+	{
+		if ( ( (x[i] <= x0) && (x[i+1] >= x0) ) || ( (x[i] >= x0) && (x[i+1] <= x0) ) )
+		{
+			if (absd(x[i]-x0)>absd(x[i+1]-x0)) {
+				index=i+1;
+			}
+			else {
+				index=i;
+			}
+			break;
+		}
+	}
+	return index;
+}
+
+// static double y_smooth[]{};
+// double kernel[]{};
+// double y_times_kernel[]{};
+// for (int i=0;i<n;i++)
+// {
+double smooth_gaussian(double x[], double y[], double x_pos,double sigma,int n)
+{
+	double y_smooth{0};
+	double kernel_sum{0};
+	double y_times_kernel_sum{0};
+	double kernel_gauss{0};
+
+	for (int i=0;i<n;i++)
+	{
+		kernel_gauss = exp(-pow((x[i]-x_pos),2)/(2*pow(sigma,2)));
+		kernel_sum += kernel_gauss;
+		y_times_kernel_sum += kernel_gauss*y[i];
+	}
+	y_smooth = y_times_kernel_sum/kernel_sum;
+	return y_smooth;
+}
+
 double interpolate(double x[], double y[], double x0, int n)
 {
 	double y0{ 0.0 };
@@ -267,3 +308,57 @@ void solve_tridiagonal(double x[], int X, double aa[], double bb[], double cc[],
 	for (int ix{ X - 2 }; ix >=0; ix--)
 		x[ix] -= cc[ix] * x[ix + 1];
 }
+
+
+// // for i in range(len(x_vals)):
+//     kernel_sum = 0
+//     yval_times_kernel_sum = 0
+//     x_shift = x_vals[i]
+//     for j in range(len(x_vals)):
+//         kernel = np.exp(-(x_vals[j] - x_shift) ** 2 / (2 * sigma ** 2))
+//         kernel_sum += kernel
+//         yval_times_kernel_sum += y_vals[j]*kernel
+//     smoothed_vals[i] = yval_times_kernel_sum/kernel_sum
+	// double kernel[]{};
+	// double y_times_kernel[]{};
+	// double y_smooth{};
+	// double x_pos_cut{x_pos-x[0]};
+	// printf("%.3e\n", x[i]x_pos);
+	// double sum_top{0};
+	// double sum_bot{0};
+	// for (int i=0;i<n;i++)
+	// {
+	// 	// x[i]-=x[0];
+	// 	kernel[i] = exp(-pow((x[i]-x_pos),2)/(2*pow(sigma,2)));
+	// 	y_times_kernel[i] = y[i] * kernel[i];
+	// 	sum_top+=y_times_kernel[i];
+	// 	sum_bot+=kernel[i];
+	// 	// printf("%.3f %.3f %.3f %.3f %.3f \n",x[i],x_pos, -pow(x[i]-x_pos,2)/(2*pow(sigma,2)), exp(-pow(x[i]-x_pos,2)/(2*pow(sigma,2))), kernel[i]);
+	// }
+	// y_smooth = sumd(y_times_kernel,n)/sumd(kernel,n);
+	// y_smooth = sum_top/sum_bot;
+	// printf("%.1e %.1e %.1e\n", y_smooth,sum_top,sum_bot);
+	// return y_smooth;
+	// for (int i=0;i<n;i++)
+	// {
+	// 	printf("%.1f %.1f %.1f %.1f %d \n",x[i],x_pos, kernel[i], -pow(x[i]-x_pos,2)/(2*pow(sigma,2)), x[i]==x[i]);
+	// }
+	// printf("%f %f\n", sum, sumd(kernel, n));
+	// return y_smooth;
+	// return 0;
+// }
+// }
+// return y_smooth;
+
+// }
+// kernel[i] /= sumd(kernel) //normalize kernel
+// for (int j=0;j<n;j++) {
+// # x_vals = df_bayu_1dRT["radius"]
+// # y_vals = rho_matt_interpolated
+// # sigma = 3
+// # smoothed_vals = np.zeros(y_vals.shape)
+// # for i,x_position in enumerate(x_vals):
+// #     kernel = np.exp(-(x_vals - x_position) ** 2 / (2 * sigma ** 2))
+// #     kernel = kernel / sum(kernel)
+// #     smoothed_vals[i] = sum(y_vals * kernel)
+// # rho_matt_interpolated = smoothed_vals
