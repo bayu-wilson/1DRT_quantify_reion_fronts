@@ -3,10 +3,10 @@
 *.o
 *.x
 .*
+input_files/._*
 
 # Other #
 #########
-forChris*
 *.ipynb
 output_files/*
 plotting_routines/*
