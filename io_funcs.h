@@ -11,7 +11,7 @@ void write_otf_bayu();
 void write_otf_fred(char output_string[]);
 void write_otf_spectrum(char output_string[]);
 void write_spectrum();
-void write_gas(bool bool_initial_gas);
+void write_gas(char output_path[]);
 void loading_bar(double number, double max_number);
 
 #endif
