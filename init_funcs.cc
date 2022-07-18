@@ -17,39 +17,59 @@ using g_constants::pi;
 using namespace user_inputs;
 using namespace rates;
 
-void init_grid(){
-	//generate a linear spatial grid and a logarithmic frequency grid
-	r[0] = R0*kpc_to_cm; //cm // manually initialized r[0] so delta_r can be found next.
-	for (int i{ 1 }; i < N_r; i++){
-		r[i]       = (R0 + i*dr)*kpc_to_cm;
-		delta_r[i-1] = dr*kpc_to_cm;
-	}
+void init_grid()
+{
 	//read in the spatial, frequency, and angular grids if available
-	if (input_grid == TRUE){
-		read_grid_mmc(); //mmc grid is interpolated onto our grid.
+	if (input_grid == TRUE)
+  {
+		read_grid();
+    r[0] = r[0]*kpc_to_cm;
+		for (int i{ 1 }; i < N_r; i++)
+    {
+			r[i] = r[i]*kpc_to_cm;
+      delta_r[i-1] = r[i] - r[i-1];
+		}
+	}
+	//if grids are not user-defined, generate a linear spatial grid and a logarithmic frequency grid
+	else
+  {
+		//spatial grid
+		r[0] = R0*kpc_to_cm;
+		for (int i{ 1 }; i < N_r; i++)
+    {
+			r[i]       = (R0 + i*dr)*kpc_to_cm;
+			delta_r[i-1] = dr*kpc_to_cm;
+		}
 	}
 }
 
-void init_gas(){
-	if (input_grid == TRUE){
+void init_gas()
+{
+	if (input_grid == TRUE)
+  {
 		//do nothing if reading
 	}
-	else {
-		for (int i{ 0 }; i < N_r; i++){
+	else
+  {
+		for (int i{ 0 }; i < N_r; i++)
+		{
 			rho_total[i] = power_law(r[i], r[0], rho_0, rho_index); //rho_0 is in user_inputs.h, it is uniform density (in cgs)
 			rho_prev[i]  = rho_total[i];
 
 			f_H1[i] = power_law(r[i], r[0], fH1_0, fH1_index);
-			if (f_H1[i] > 1.){
+			if (f_H1[i] > 1.)
+			{
 				f_H1[i] = fH1_0;
 			}
 			f_H2[i] = 1. - f_H1[i];
 			f_He1[i] = power_law(r[i], r[0], fHe1_0, fHe1_index);
-			if (f_He1[i] > 1.){
+			if (f_He1[i] > 1.)
+			{
 					f_He1[i] = fHe1_0;
 			}
 			f_He2[i] = power_law(r[i], r[0], fHe2_0, fHe2_index);
-			if (f_He2[i] > 1. - f_He1[i]){
+			if (f_He2[i] > 1. - f_He1[i])
+			{
 				f_He2[i] = 1. - f_He1[i];
 			}
 			f_He3[i]  = 1. - f_He1[i] - f_He2[i];
@@ -68,7 +88,8 @@ void init_gas(){
 	}
 
 	//compute other important quantities
-	for (int i{ 0 }; i < N_r; i++){
+	for (int i{ 0 }; i < N_r; i++)
+	{
 		//number densities
 		nH[i]         = (1. - Y)*rho_total[i]/m_H;
 		nH_prev[i]    = nH[i];
@@ -85,17 +106,19 @@ void init_gas(){
 		nHe3[i]       = f_He3[i]*nHe[i];
 		nHe3_prev[i]  = nHe3[i];
 		ne[i]         = nH2[i] + nHe2[i] + 2.*nHe3[i];
-		ne_prev[i]    = nH2_prev[i] + nHe2_prev[i] + 2.*nHe3_prev[i];
+		ne_prev[i]    = nH2[i] + nHe2[i] + 2.*nHe3[i];
 		n_tot[i]      = nH[i] + nHe[i] + ne[i];
 		n_tot_prev[i] = nH[i] + nHe[i] + ne[i];
 
 		//recombination coefficients
-		if (strcmp(rec_case, "A") == 0){
+		if (strcmp(rec_case, "A") == 0)
+		{
 			recomb_H2[i]  = alphaA_H2(temp[i]);
 			recomb_He2[i] = alphaA_He2(temp[i]);
 			recomb_He3[i] = alphaA_He3(temp[i]);
 		}
-		else{
+		else
+		{
 			recomb_H2[i]  = alphaB_H2(temp[i]);
 			recomb_He2[i] = alphaB_He2(temp[i]);
 			recomb_He3[i] = alphaB_He3(temp[i]);
@@ -142,7 +165,8 @@ void init_gas(){
 	}
 }
 
-void init_intensity(){
+void init_intensity()
+{
 	double norm, phii, log_nu;
 	double temp_nu_min = log10(1e11);
 	double temp_nu_max = log10(1e18);
@@ -150,50 +174,61 @@ void init_intensity(){
 	double phi_nu[500];
 
 	//initialize intensity to be 0 everywhere except at r = 0.  Read in or generate source spectrum.
-	if (input_source == TRUE){
+	if (input_source == TRUE)
+	{
 		read_source();
 	}
-	else {
+	else
+	{
 		//frequency grid
 		nu[0] = nu_min;
-		for (int j{ 1 }; j < N_nu; j++){
+		for (int j{ 1 }; j < N_nu; j++)
+		{
 			log_nu          = log10(nu_min) + j*dlog_nu;
 			nu[j]           = pow(10, log_nu);
 			delta_nu[j - 1] = nu[j] - nu[j - 1];
 		}
 
-		if (strcmp(spectrum, "BLACKBODY") == 0){
+		if (strcmp(spectrum, "BLACKBODY") == 0)
+		{
 			double temp_dlog_nu = (temp_nu_max - temp_nu_min)/(500. - 1.);
-			for (int j{ 0 }; j < 500; j++){
+			for (int j{ 0 }; j < 500; j++)
+			{
 				temp_nu[j] = pow(10,temp_nu_min + j*temp_dlog_nu);
 				phi_nu[j]  = b_nu(pow(10,temp_nu_min + j*temp_dlog_nu), T_source);
 			}
 
 			norm = trapz_int(phi_nu, temp_nu, 500);
-			for (int j{ 0 }; j < N_nu; j++){
+			for (int j{ 0 }; j < N_nu; j++)
+			{
 				phii            = interpolate(temp_nu, phi_nu, nu[j], 500);
 				I_nu_prev[0][j] = Lum/16./pow(pi,2)/pow(R0*kpc_to_cm,2)*phii/norm;
 				I_nu[0][j]      = Lum/16./pow(pi,2)/pow(R0*kpc_to_cm,2)*phii/norm;
 			}
 		}
 
-		else if (strcmp(spectrum, "POWER") == 0){
-			for (int j{ 0 }; j < N_nu; j++) {
+		else if (strcmp(spectrum, "POWER") == 0)
+		{
+			for (int j{ 0 }; j < N_nu; j++)
+			{
 				phii = (alpha - 1)/nu[0]*pow(nu[j]/nu[0],-alpha);
 				I_nu_prev[0][j] = Lum/16./pow(pi,2)/pow(R0*kpc_to_cm,2)*phii;
 				I_nu[0][j]      = Lum/16./pow(pi,2)/pow(R0*kpc_to_cm,2)*phii;
 			}
 		}
 
-		else if (strcmp(spectrum, "MONOCHROMATIC") == 0){
+		else if (strcmp(spectrum, "MONOCHROMATIC") == 0)
+		{
 			I_nu_prev[0][0] = Lum/16./pow(pi,2)/pow(R0*kpc_to_cm,2);
 			I_nu[0][0]      = Lum/16./pow(pi,2)/pow(R0*kpc_to_cm,2);
 		}
 	}
 
 	//initialize to 0 outside the point source.
-	for (int i{ 1 }; i < N_r; i++){
-		for (int j{ 0 }; j < N_nu; j++){
+	for (int i{ 1 }; i < N_r; i++)
+	{
+		for (int j{ 0 }; j < N_nu; j++)
+		{
 			I_nu_prev[i][j] = 0;
 			I_nu[i][j]      = 0;
 		}

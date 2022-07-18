@@ -8,7 +8,6 @@
 #include "data_funcs.h"
 #include "io_funcs.h"
 #include "cosmo_funcs.h"
-#include "rates.h"
 using namespace std; //CHRIS: 05/16/22
 
 using g_constants::yr_to_s;
@@ -22,7 +21,6 @@ using g_constants::chi_He;
 using g_constants::lambda_lya_cm;
 using g_constants::h;
 using g_constants::kpc; //CHRIS: 05/16/22
-using g_constants::lambda_HI_ion_cm;
 
 //Volume-weighted average
 double calc_vol_avg(double f[], int n)
@@ -69,9 +67,8 @@ double* calc_ifront_flux_method()
 	double nH_boundary{};
 	double vel_IF{};
 	double *flux_vel = (double*) malloc(sizeof(double) * 3);
-	// int index_rear_IF{};//DELETE
 
-	double f_H1_IF_rear = 1e-1; //neutral hydrogen fraction at the rear of the IF
+	double f_H1_IF_rear = 0.1; //neutral hydrogen fraction at the rear of the IF
 	for (int i=0;i<(N_r-1);i++) //find index of array at the location closest to 10% neutral
 	{
 		if ((f_H1[i]<f_H1_IF_rear) && (f_H1[i+1]>f_H1_IF_rear))
@@ -82,9 +79,9 @@ double* calc_ifront_flux_method()
 				I_div_nu_pair[1][j] = I_nu[i+1][j]/nu[j]; // int (I_nu / h / nu dnu ) = incident Flux ionizing photons
 				f_H1_pair[0] = f_H1[i];
 				f_H1_pair[1] = f_H1[i+1];
+				index_rear_IF = i; //initialized in global_variables.cc. We track it in order to track the
+													 // spectral evolution in io_funcs.cc: write_spectrum()
 			}
-			// index_rear_IF = i; //initialized in global_variables.cc. We track it in order to track the
-												 // spectral evolution in io_funcs.cc: write_spectrum()
 			break;
 		}
 	}
@@ -95,7 +92,6 @@ double* calc_ifront_flux_method()
 	vel_IF = (c*inc_photon_flux) / (inc_photon_flux + c*nH_boundary*(1+chi_He));
 	*(flux_vel + 0) = inc_photon_flux;
 	*(flux_vel + 1) = vel_IF;
-	// *(flux_vel + 2) = nH[index_rear_IF];
 	*(flux_vel + 2) = nH_boundary;
  	return flux_vel;
 }
@@ -163,10 +159,4 @@ void calc_mock_QSO_spec()
 		file.write((char*)&flux[i], sizeof(double));
 	}
 	file.close();
-}
-
-void get_j_lya() {
-	for (int i{ 0 }; i < N_r; i++) {
-		j_lya[i]=coll_ex_rate_H1_acc(temp[i])*nH1[i]*ne[i]*h*c/lambda_HI_ion_cm/4/pi;
-	}
 }
