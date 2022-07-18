@@ -1,1 +1,0 @@
-step_number	time	timestep	I_lya	inc_photon_flux	nH_boundary	H1_IF_x	H1_IF_v	HI_IF_v_flxMthd	He1_IF_x	He1_IF_v	He3_IF_x	He3_IF_v	width_IF

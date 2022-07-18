@@ -158,11 +158,6 @@ double find_index(double x[],double x0,int n) // find the index that matches a c
 	return index;
 }
 
-// static double y_smooth[]{};
-// double kernel[]{};
-// double y_times_kernel[]{};
-// for (int i=0;i<n;i++)
-// {
 double smooth_gaussian(double x[], double y[], double x_pos,double sigma,int n)
 {
 	double y_smooth{0};

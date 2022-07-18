@@ -69,9 +69,9 @@ int main() {
     if (absd(remainder_chris(t, t_tot/(N_output - 1))) < dt) { //Absolute value of the remainder between time and other chunk of time
       get_j_lya(); //from data_funcs.cc
       char outputstring[300];
-      sprintf(outputstring, "output_files/n%d_gasprops.txt", otf_step);
+      sprintf(outputstring, "output_files/gasprops/n%d_gasprops.txt", otf_step);
       write_otf_fred(outputstring); //otf
-      sprintf(outputstring, "output_files/n%d_spectrum.txt", otf_step);
+      sprintf(outputstring, "output_files/incident_spectra/n%d_spectrum.txt", otf_step);
       write_otf_spectrum(outputstring);
       otf_step+=1;
       update_step(); //from rt_funcs.cc
