@@ -174,12 +174,6 @@ void solve_ion(double ne[])
 					/(1. + gamma_H1_tot[i]*dt + recomb_H2[i]*ne[i]*dt);
 			nH2[i]  = nH[i] - nH1[i];
 		}
-		// if (nH1[i]/nH[i] < 0.01)  {
-		// if (nH1_prev[i]/nH[i] < 0.01) {
-		// 	nH1[i] = recomb_H2[i]*ne[i]*nH[i]/gamma_H1_tot[i];
-		// 	nH2[i]  = nH[i] - nH1[i];
-		// }
-
 
 		//solve the ionizing balance equations for He.  Solve the backwards difference equation for the
 		//species that have the smaller abundances, and solve closing equation for the remaining species.
@@ -211,10 +205,6 @@ void solve_ion(double ne[])
 					/(1. + gamma_He2_tot[i]*dt + recomb_He3[i]*ne[i]*dt);
 			nHe1[i] = nHe[i] - nHe2[i] - nHe3[i];
 		}
-		// if (nHe1_prev[i]/nHe[i] < 0.01) {
-		// 	nHe1[i] = recomb_He2[i]*ne[i]*nHe[i]/gamma_He1_tot[i];
-		// 	nHe2[i] = nHe[i] - nHe1[i] - nHe3[i];
-		// }
 		ne[i]    = nH2[i] + nHe2[i] + 2.*nHe3[i];
 	}
 }
@@ -295,6 +285,7 @@ void update_thermal()
 		{
 			temp[i]	     = (temp[i] + 2./3./k_B/n_tot[i]*(heat_rate[i] - cool_rate[i])*dt)
 						 /(1. + 2*H(a)*dt + 1./n_tot[i]*dne_dt[i]*dt);
+
 			dT_dt[i]     = 2./3./k_B/n_tot[i]*(heat_rate[i] - cool_rate[i])  - 2*H(a)*temp[i]
 					     - temp[i]/n_tot[i]*dne_dt[i];
 			temp_prev[i] = temp[i];
@@ -497,26 +488,5 @@ void update_hydro()  {
 		f_He1[i] = nHe1[i]/nHe[i];
 		f_He2[i] = nHe2[i]/nHe[i];
 		f_He3[i] = nHe3[i]/nHe[i];
-	}
-}
-
-void reduce_hardening() {
-	int prev_index{0};
-	int index_rear_IF = find_index(f_H1, 0.009, N_r);
-	for (int j=prev_index;j<index_rear_IF;j++)
-	{
-		nH1[j] = 0;
-		f_H1[j] = 0;
-		f_H2[j] = 1.;
-		nH1_prev[j] = 0;
-		nH2[j] = nH[j];
-		nHe1[j] = 0;
-		nHe1_prev[j] = 0;
-		f_He1[j]=0;
-		// for (int i=0;i<30;i++)
-		// {
-		//   gamma_nu_tot[j][i] = 0;
-		// }
-		prev_index = j;
 	}
 }
