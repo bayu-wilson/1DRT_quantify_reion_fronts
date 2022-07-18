@@ -27,7 +27,7 @@ namespace user_inputs
   inline constexpr bool spherical        { TRUE }; //Spherical symmetry?  If FALSE use plane-parallel
   inline constexpr bool input_grid       { TRUE }; //User-defined input grid?
   inline constexpr bool input_source     { FALSE }; //User-defined source spectrum?
-  inline constexpr bool save_initial_gas { FALSE }; //save initial grid
+  inline constexpr bool save_initial_gas { TRUE }; //save initial grid
 
   inline constexpr bool recomb_cool       { TRUE }; //Recombination cooling fLag
   inline constexpr bool coll_ion          { TRUE }; //Collisional ionization flag
@@ -41,16 +41,23 @@ namespace user_inputs
 
   inline constexpr bool QSO_spec       { FALSE }; //CHRIS 05/16/22: output QSO spectrum?
   inline constexpr bool add_background { FALSE }; //CHRIS 05/17/22: add uniform background?
+  inline constexpr bool LyC_opacity    { FALSE }; //Chris 06/16/22: make it an option to calculate LyC
+  inline constexpr bool Lyn_series     { FALSE }; //Chris 06/14/22: include Lyn series in QSO spectrum?
+  inline constexpr bool use_tau_GP     { FALSE }; //CHRIS 07/09/22: use Gunn-Petersen approximation to calculate lyman series
+  inline constexpr int  NLyn	         {  39  }; //number of lyman series lines to use
+  inline constexpr int  N_wav          { 1000 }; //number of wavelength bins
+  inline constexpr double wav_start    { 1050.}; //start of the wavelength array
+  inline constexpr double wav_end      { 800. }; //end of the wavelength array
 
   //input files (if user-defined)
   inline constexpr char grid_input[]      { "input_files/spec_xHeII1_003_ls_line0001.dat" };
-  inline constexpr double R_start         { 5317 }; //kpc //choosing a starting point of skewer chunk 
+  inline constexpr double R_start         { 5317 }; //kpc //choosing a starting point of skewer chunk
   inline constexpr char source_spectrum[] { "input_files/spectrum_hydro_10myr.txt" };
 
   inline constexpr double t_max {100}; //Runtime (in Myr)
   //output files
   inline constexpr char gas_output[] { "output_files/gas_test_hydro_100myr.txt"};
-  inline constexpr char initial_gas_output[]   { "input_files/gas_test_hydro_000myr.txt"};
+  inline constexpr char initial_gas_output[]   { "output_files/gas_test_hydro_000myr.txt"};
 
   //grid sizes
   inline constexpr int N_r    { 408 }; //Number of spatial bins 10,000 //1360 //680... stepsize is 0.735 pkpc

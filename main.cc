@@ -17,11 +17,14 @@ using user_inputs::hydro;
 using user_inputs::temp_ev;
 using user_inputs::QSO_spec; //CHRIS 05/16/22
 using user_inputs::save_initial_gas;
+using user_inputs::initial_gas_output;
+using user_inputs::gas_output;
 using user_inputs::correct_hardening;
 
 int main() {
   double start_all, end_all; //to measure performance
   int nProcessors=omp_get_num_procs();
+  char outputstring[300];
   omp_set_num_threads(nProcessors);
   printf("omp_get_num_procs(): %d\n", nProcessors); //depends on the machine this runs on
   start_all = omp_get_wtime();
@@ -29,7 +32,10 @@ int main() {
   set_dlognu(); // from global_variables.cc, frequency step-size in logspace
   init_grid();  //from init_funcs.cc, generate a linear spatial grid
   init_gas(); //from init_funcs.cc, initialize grid with gas distribution and gas properties like ionization fraction
-  write_gas(save_initial_gas); //from io_funcs.cc, saves the initial grid
+  if (save_initial_gas){
+    sprintf(outputstring, initial_gas_output);
+    write_gas(outputstring); //from io_funcs.cc, saves the initial grid
+  }
   init_intensity(); //from init_funcs.cc, initialize the source (probably BB) in the first grid-cell
   update_gamma_nu();  //from rt_funcs.cc, initializes opacity (absorption coefficient)
   // make_output(); //from io_funcs.cc, makes new data files
@@ -68,7 +74,6 @@ int main() {
     // on-the-fly outputs
     if (absd(remainder_chris(t, t_tot/(N_output - 1))) < dt) { //Absolute value of the remainder between time and other chunk of time
       get_j_lya(); //from data_funcs.cc
-      char outputstring[300];
       sprintf(outputstring, "output_files/gasprops/n%d_gasprops.txt", otf_step);
       write_otf_fred(outputstring); //otf
       sprintf(outputstring, "output_files/incident_spectra/n%d_spectrum.txt", otf_step);
@@ -89,10 +94,19 @@ int main() {
 
   // write_spectrum(); //from io_funcs.cc, writing the data to files
   // bool_initial_gas = FALSE;
-  // write_gas(bool_initial_gas);
+  sprintf(outputstring, gas_output);
+  write_gas(outputstring); //from io_funcs.cc, writing the data to files
 
-  if (QSO_spec)  { //CHRIS 05/16/22: output QSO spectrum to output_files
-  calc_mock_QSO_spec();
+  srand (time(NULL));
+  double island_length;
+  double island_pos;
+  int Nqso = 1; //100;
+  if (QSO_spec == TRUE)  { //CHRIS 07/18/22: output QSO spectrum to output_files
+    for (int i = 0; i < Nqso; i++)  {
+      island_length = 0.;
+      island_pos = 0.; //(double) (rand() % 10000 + 300 + 1000000);
+      calc_mock_QSO_spec(island_length, island_pos, i);
+    }
   }
 
   end_all   = omp_get_wtime();

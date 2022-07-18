@@ -19,17 +19,19 @@ using g_constants::c; // cm per sec //added 01/12/2022
 using g_constants::pi;
 
 
-void write_gas(bool bool_initial_gas){
+void write_gas(char output_path[]){
 	FILE *file = NULL;
-	if (bool_initial_gas){
-		file = fopen(initial_gas_output, "w");
-		fprintf(file, "Gas data\n");
-		fprintf(file, "Time: %le\n", t/yr_to_s/1e6);
-	}
-	else{
-		file = fopen(gas_output, "a");
-		fprintf(file, "Time: %le\n", t/yr_to_s/1e6);
-	}
+	// if (bool_initial_gas){
+	// 	file = fopen(initial_gas_output, "w");
+	// 	fprintf(file, "Gas data\n");
+	// 	fprintf(file, "Time: %le\n", t/yr_to_s/1e6);
+	// }
+	// else{
+	// 	file = fopen(gas_output, "a");
+	// 	fprintf(file, "Time: %le\n", t/yr_to_s/1e6);
+	// }
+	file = fopen(output_path, "w");
+	fprintf(file, "Time: %le\n", t/yr_to_s/1e6);
 	fprintf(file, "radius \t");
 	fprintf(file, "rho \t");
 	fprintf(file, "ne \t");
@@ -49,7 +51,6 @@ void write_gas(bool bool_initial_gas){
 	for (int i{ 0 }; i < N_r; i++){
 		fprintf(file, "%le \t", r[i]/kpc_to_cm);
 		fprintf(file, "%le \t", rho_total[i]);
-		// fprintf(file, "%le \t", p_total[i]);
 		fprintf(file, "%le \t", ne[i]);
 		fprintf(file, "%le \t", ne_prev[i]);
 		fprintf(file, "%le \t", dne_dt[i]);
@@ -149,9 +150,9 @@ void make_output(){ //not being used as of 7/15/22
 	// file = fopen(spec_output, "w"); //filenames defined in user_inputs.h
 	// fprintf(file, "Source spectrum\n");
 	// fclose(file);
-	file = fopen(gas_output, "w");
-	fprintf(file, "Gas data\n");
-	fclose(file);
+	// file = fopen(gas_output, "w");
+	// fprintf(file, "Gas data\n");
+	// fclose(file);
 	// file = fopen(otf_output, "w");
 	// fprintf(file, "On-the-fly output\n");
 	// fprintf(file, "\n");
@@ -171,7 +172,7 @@ void make_output(){ //not being used as of 7/15/22
 	// fprintf(file, "He3_IF_x\t");
 	// fprintf(file, "He3_IF_v\t");
 	// fprintf(file, "width_IF\n");
-	// fclose(file);
+	fclose(file);
 }
 
 void read_source(){
