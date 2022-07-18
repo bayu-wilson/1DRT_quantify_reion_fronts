@@ -10,4 +10,5 @@ double* calc_ifront(double x[], double xprev[], double radius[], int n);
 double* calc_ifront_flux_method();
 double* tau_bf(double wav_em[], double NHI[]);
 void calc_mock_QSO_spec();
+void get_j_lya();
 #endif
