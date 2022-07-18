@@ -9,6 +9,8 @@ input_files/._*
 #########
 *.ipynb
 output_files/*
+output_files/gasprops/*
+output_files/incident_spectra/*
 plotting_routines/*
 
 # un-ignore these files #
