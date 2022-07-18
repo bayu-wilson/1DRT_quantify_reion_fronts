@@ -9,7 +9,7 @@ double dlog_nu 				= 0;
 double dt				      = 1e-4*t_max*yr_to_s*1e6/(N_output - 1);
 
 //index of radial coordinate where IF is 10% neutral
-int index_rear_IF {};
+// int index_rear_IF {};
 
 void set_dlognu()  {
 	if (N_nu > 1)  {

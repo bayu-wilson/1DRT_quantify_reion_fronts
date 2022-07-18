@@ -21,10 +21,14 @@ double power_law(double r, double r0, double A, double alpha);
 double trapz_int(double y[], double x[], int n);
 double cum_trapz_int(double y[], double x[], int n);
 
+double find_index(double x[], double x0, int n);
+double smooth_gaussian(double x[], double y[], double x_pos,double sigma,int n);
 double interpolate(double x[], double y[], double x0, int n);
 
 double interpolate_fion(double x[N_x][N_e+1], double y[N_x][N_e], double x0, double x1);
 void solve_tridiagonal(double x[], int X, double aa[], double bb[], double cc[], double dd[]);
+// double sumd(double x, int n);
+// void spline(double x[], double y[], int n, double yp1, double ypn, double y2[]);
 
 
 #endif

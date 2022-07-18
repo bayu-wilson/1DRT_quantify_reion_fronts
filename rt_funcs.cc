@@ -17,7 +17,7 @@ using user_inputs::temp_ev;
 using user_inputs::min_frac;
 using user_inputs::min_dt_late;
 using user_inputs::min_dt_early;
-using user_inputs::region_IF;
+// using user_inputs::region_IF;
 using g_constants::c;
 using g_constants::pi;
 using g_constants::kpc_to_cm;
@@ -25,9 +25,9 @@ using namespace rates;
 
 void update_dt()
 {
-	// double dt_arr[N_r]{};
 	double min_dt;
-	min_dt = min_dt_late; // Since we got rid of geometric attenuation, following commented seciton is no longer necessary
+	// min_dt = min_dt_late; // Since we got rid of geometric attenuation, following commented section is no longer necessary
+	min_dt = min_dt_early;//Bayu
 	// //testing
 	// if (t/yr_to_s/1e6 < 1.0)
   // {
@@ -40,14 +40,11 @@ void update_dt()
 
 	dt = t_max*yr_to_s*1e6/(N_output - 1);
 
-	//Adaptive time-stepping
-	double pos_IF    		= interpolate(f_H1, r, 0.5, N_r);
-	// double regionIF = (4*2.7+2)*kpc_to_cm;
 
 	#pragma omp parallel for reduction(min:dt) if (parallel)
-	for (int i=0; i < N_r; i++)
-  {
-		if ((r[i]>(pos_IF-region_IF*kpc_to_cm)) && (r[i]<(pos_IF+region_IF*kpc_to_cm)))
+	for (int i=0; i < N_r; i++) {
+		// if ((r[i]>(pos_IF-region_IF*kpc_to_cm)) && (r[i]<(pos_IF+region_IF*kpc_to_cm)))
+		// if ((r[i]>back_IF) && (r[i]<front_IF))
 		{
 			//chemical timescales
 			if ( (nH1[i] > min_frac*nH[i]) && (abs(tfrac*nH1[i]/dnH1_dt[i]) >  min_dt*yr_to_s*1e6) ) {
@@ -72,19 +69,15 @@ void update_dt()
 				dt = mind(dt, abs(tfrac*temp[i]/dT_dt[i]));
 			}
 
-			if (hydro == TRUE)
-			{
+			if (hydro == TRUE) {
 				dt = mind(dt, abs(tfrac*delta_r[0]/vel[i]));
-				if ( abs(tfrac*rho_total[i]/drho_dt[i]) > min_dt*yr_to_s*1e6 )
-				{
+				if ( abs(tfrac*rho_total[i]/drho_dt[i]) > min_dt*yr_to_s*1e6 ) {
 					dt = mind(dt, abs(tfrac*rho_total[i]/drho_dt[i]));
 				}
-				if ( abs(tfrac*vel[i]/dvel_dt[i]) > min_dt*yr_to_s*1e6 )
-				{
+				if ( abs(tfrac*vel[i]/dvel_dt[i]) > min_dt*yr_to_s*1e6 ) {
 					dt = mind(dt, abs(tfrac*vel[i]/dvel_dt[i]));
 				}
-				if ( abs(tfrac*e_total[i]/de_dt[i]) > min_dt*yr_to_s*1e6 )
-				{
+				if ( abs(tfrac*e_total[i]/de_dt[i]) > min_dt*yr_to_s*1e6 ) {
 					dt = mind(dt, abs(tfrac*e_total[i]/de_dt[i]));
 				}
 			}
