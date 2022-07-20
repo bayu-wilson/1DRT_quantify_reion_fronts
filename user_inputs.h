@@ -54,7 +54,7 @@ namespace user_inputs
   inline constexpr double R_start         { 5317 }; //kpc //choosing a starting point of skewer chunk
   inline constexpr char source_spectrum[] { "input_files/spectrum_hydro_10myr.txt" };
 
-  inline constexpr double t_max {100}; //Runtime (in Myr)
+  inline constexpr double t_max { 200}; //Runtime (in Myr)
   //output files
   inline constexpr char gas_output[] { "output_files/gas_test_hydro_100myr.txt"};
   inline constexpr char initial_gas_output[]   { "output_files/gas_test_hydro_000myr.txt"};
@@ -71,14 +71,14 @@ namespace user_inputs
 
   inline constexpr double z        { 7.1 }; //redshift
   // inline constexpr double R0       { 1e4 }; //minimum radius of the RT, hydro, temperature and chemistry grids //10,000
-  inline constexpr double R0       { 1e4 }; //minimum radius of the grids //keep large to minimize geometric attenuation
+  inline constexpr double R0       { 1e4 }; //minimum radius of the grids //keep large to minimize geometric attenuation //different than R_start
   inline constexpr double R        { R0+300. }; //Total radius for the spatial grid (in pkpc)
   inline constexpr double nu_min   { 13.6/h_eV }; //Minimum frequency (in Hz)
   inline constexpr double nu_max   { 13.6/h_eV*4 }; //Maximum frequency (in Hz)
   // inline constexpr double nu_max   { 9e3/h_eV }; //Maximum frequency
   inline constexpr double temp_0   { 5e2 }; //Initial gas temperature in K (if not input by user) 1e2 2.e4
   inline constexpr double T_source { 1.e5 }; //Source temperature (if blackbody)
-  inline constexpr double alpha { 1.5 }; //spectral power law index if spectrum is a power law
+  inline constexpr double alpha { 2.5 }; //spectral power law index if spectrum is a power law
   inline constexpr double Lum      { 4.e56*g_constants::h*nu_min*alpha/(alpha - 1) }; //for power law index L_MW = 1e43 erg/s
   inline constexpr double Gam0     { 1e-13 }; // uniform photoionization background
   inline constexpr double frontIF_fHI { 0.9 };
