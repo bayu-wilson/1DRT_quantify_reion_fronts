@@ -24,7 +24,8 @@ fig_name_list = []
 
 initial_grid = pd.read_csv("../output_files/gas_test_hydro_000myr.txt",skiprows=1,delim_whitespace=True)
 initial_nh1 = initial_grid["nH1"]
-spectral_index = 2.5
+spectral_index = 1.5
+
 gasprop_path = "../output_files/gasprops/a={:.1f}/".format(spectral_index)
 spec_path = "../output_files/incident_spectra/a={:.1f}/".format(spectral_index)
 

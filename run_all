@@ -24,8 +24,8 @@
 
 # indices=`cat ./spectral_indices.txt`
 t_max='200'
-sed -i '' "s/^  inline constexpr double t_max.*/  inline constexpr double t_max \{ ${t_max}\}\; \/\/Runtime (in Myr)/" user_inputs.h
-sed -i '' "s/^inline constexpr char gas_output\[\].*/inline constexpr char gas_output\[\] \{ \"output_files\/gas_test_hydro_${t_max}myr\.txt\"\}\;/" user_inputs.h
+sed -i '' "s/^  inline constexpr double t_max.*/  inline constexpr double t_max \{${t_max}\}\; \/\/Runtime (in Myr)/" user_inputs.h
+sed -i '' "s/^  inline constexpr char gas_output\[\].*/  inline constexpr char gas_output\[\] \{\"output_files\/gas_test_hydro_${t_max}myr\.txt\"\}\;/" user_inputs.h
 
 
 indices=($(seq 0.5 0.2 2.5))

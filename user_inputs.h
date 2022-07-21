@@ -56,7 +56,7 @@ namespace user_inputs
 
   inline constexpr double t_max { 200}; //Runtime (in Myr)
   //output files
-  inline constexpr char gas_output[] { "output_files/gas_test_hydro_100myr.txt"};
+  inline constexpr char gas_output[] { "output_files/gas_test_hydro_200myr.txt"};
   inline constexpr char initial_gas_output[]   { "output_files/gas_test_hydro_000myr.txt"};
 
   //grid sizes
