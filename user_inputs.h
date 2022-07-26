@@ -54,13 +54,13 @@ namespace user_inputs
   inline constexpr double R_start         { 5317 }; //kpc //choosing a starting point of skewer chunk
   inline constexpr char source_spectrum[] { "input_files/spectrum_hydro_10myr.txt" };
 
-  inline constexpr double t_max { 200}; //Runtime (in Myr)
+  inline constexpr double t_max {200}; //Runtime (in Myr)
   //output files
-  inline constexpr char gas_output[] { "output_files/gas_test_hydro_200myr.txt"};
+  inline constexpr char gas_output[] {"output_files/gas_test_hydro_200myr.txt"};
   inline constexpr char initial_gas_output[]   { "output_files/gas_test_hydro_000myr.txt"};
 
-  //grid sizes
-  inline constexpr int N_r    { 408 }; //Number of spatial bins 10,000 //1360 //680... stepsize is 0.735 pkpc
+  //grid sizes //N_r->Number of spatial bins 10,000 //1360 //680... stepsize is 0.735 pkpc
+  inline constexpr int N_r { 408 };
   inline constexpr int N_nu   { 30 }; //Number of frequency bins 50
 
   //time stepping

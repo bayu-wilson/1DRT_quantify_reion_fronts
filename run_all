@@ -26,29 +26,31 @@
 t_max='200'
 sed -i '' "s/^  inline constexpr double t_max.*/  inline constexpr double t_max \{${t_max}\}\; \/\/Runtime (in Myr)/" user_inputs.h
 sed -i '' "s/^  inline constexpr char gas_output\[\].*/  inline constexpr char gas_output\[\] \{\"output_files\/gas_test_hydro_${t_max}myr\.txt\"\}\;/" user_inputs.h
-
-
-indices=($(seq 0.5 0.2 2.5))
-len="${#indices[@]}"
-for (( i=0; i<len; i++))
-do
-  echo a=${indices[i]}
-  cd output_files/
-  cd gasprops/
-  mkdir a=${indices[i]} ###create a new folder to store the data files
-  chmod 775 a=${indices[i]} ###755 assigns read, write, and execute permissionto a specific user, group, or others.
-  cd ../
-  cd incident_spectra/
-  mkdir a=${indices[i]}
-  chmod 775 a=${indices[i]}
-  cd ../../
-
-  sed -i '' "s/^  inline constexpr double alpha.*/  inline constexpr double alpha \{ ${indices[i]} \}\; \/\/spectral power law index if spectrum is a power law/" user_inputs.h
-
-  make clean
-  make
-  ./1d_radtransfer.x
-done
+N_r='408'
+sed -i '' "s/^  inline constexpr int N_r.*/  inline constexpr int N_r \{ ${N_r} \}\;/" user_inputs.h
+#
+#
+# indices=($(seq 0.5 0.2 2.5))
+# len="${#indices[@]}"
+# for (( i=0; i<len; i++))
+# do
+#   echo a=${indices[i]}
+#   cd output_files/
+#   cd gasprops/
+#   mkdir a=${indices[i]} ###create a new folder to store the data files
+#   chmod 775 a=${indices[i]} ###755 assigns read, write, and execute permissionto a specific user, group, or others.
+#   cd ../
+#   cd incident_spectra/
+#   mkdir a=${indices[i]}
+#   chmod 775 a=${indices[i]}
+#   cd ../../
+#
+#   sed -i '' "s/^  inline constexpr double alpha.*/  inline constexpr double alpha \{ ${indices[i]} \}\; \/\/spectral power law index if spectrum is a power law/" user_inputs.h
+#
+#   make clean
+#   make
+#   ./1d_radtransfer.x
+# done
 
 
 #//spectral power law index if spectrum is a power law.

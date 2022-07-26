@@ -7,7 +7,7 @@ import pandas as pd
 # sigma="0" #kpc
 # los = "11"
 
-spectral_index = 1.5
+spectral_index = 0.5
 gasprop_path = "../output_files/gasprops/a={:.1f}/".format(spectral_index)
 otf_names = ["step","t","dt","I_lya","Finc","nH_value","locIF","vIF_fd","vIF_fm","T_IF"]
 N_output = 250
@@ -34,26 +34,27 @@ otf_df = pd.DataFrame(output_matrix.T,columns=otf_names)
 locIF = (otf_df["locIF"]/kpc_to_cm-1e4)
 vIF_fm = otf_df["vIF_fm"]/1e5
 mask = (otf_df["t"]>10) & (locIF<(R_sim-width_IF)) & (vIF_fm>=10**2.0) & (vIF_fm<=10**4.0)
-F_lya_otf = otf_df["I_lya"]/(h*c/lambda_lya_cm)*4*pi
-F_inc = otf_df["Finc"]
-flux_ratio = (F_lya_otf/F_inc)[mask]
+F_lya_otf = otf_df["I_lya"][mask]/(h*c/lambda_lya_cm)*4*pi
+F_inc = otf_df["Finc"][mask]
+flux_ratio = (F_lya_otf/F_inc)
 vIF_fm = vIF_fm[mask]
 #FITTING
-a, b = np.polyfit(np.log10(vIF_fm), flux_ratio, 1)
-y_fit = a*np.log10(vIF_fm)+b
+a, b = np.polyfit(np.log10(F_inc*vIF_fm), F_lya_otf, 1)
+y_fit = a*np.log10(F_inc*vIF_fm)+b
 
 # print(a,b)
 
 fig,ax = plt.subplots(1,1)
 fig.set_size_inches(6,6)
-ax.scatter(np.log10(vIF_fm),flux_ratio,s=10)
-ax.plot(np.log10(vIF_fm),y_fit,color="gray",ls="dotted",lw=3,alpha=0.8,label="{:.1f}log10(vIF)+{:.1f}\nalpha={}".format(a,b,spectral_index))
+# ax.scatter(np.log10(vIF_fm),flux_ratio,s=10)
+ax.scatter(np.log10(F_inc*vIF_fm),F_lya_otf,s=10)
+ax.plot(np.log10(F_inc*vIF_fm),y_fit,color="gray",ls="dotted",lw=3,alpha=0.8,label="{:.1f}log10(vIF)+{:.1f}\nalpha={}".format(a,b,spectral_index))
 ax.set_xlabel(r"log$_{10}$v$_{\mathrm{IF}}$ [km s$^{-1}$]",fontsize=fontsize)
 ax.set_ylabel(r"$F^{\mathrm{emit}}_{\mathrm{Ly}\alpha}/F^{\mathrm{inc}}_{\mathrm{ion}}$",fontsize=fontsize)
 ax.legend()
 # ax.set_xlim(2.6,3.8)
 # ax.set_ylim(0.2,0.47)
-plt.savefig("figures/flux_ratio_alpha{}.pdf".format(spectral_index),bbox_inches='tight')
+# plt.savefig("figures/flux_ratio_alpha{}.pdf".format(spectral_index),bbox_inches='tight')
 
 plt.show()
 # plt.xlim(2.6,4.2)

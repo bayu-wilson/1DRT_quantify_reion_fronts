@@ -2,10 +2,12 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 
-matrix = np.zeros((11,11))
+N_matrix = 11
+matrix = np.zeros((N_matrix,N_matrix))
 # matrix2= np.zeros((11,11))
-alpha_list = np.linspace(0.5,2.5,11)
-vIF_bins = np.logspace(2.7,3.6,11)
+alpha_list = np.linspace(0.5,2.5,N_matrix)
+# vIF_bins = np.logspace(2.7,3.6,N_matrix)
+vIF_bins = np.logspace(7.2,7.6,N_matrix)
 otf_names = ["step","t","dt","I_lya","Finc","nH_value","locIF","vIF_fd","vIF_fm","T_IF"]
 N_output = 250
 R_sim = 300
@@ -16,7 +18,7 @@ h = 6.626068e-27
 c = 2.998e10
 lambda_lya_cm = 1.21567e-5
 pi=np.pi
-for i in range(11):
+for i in range(N_matrix):
     spectral_index = alpha_list[i]
     gasprop_path = "../output_files/gasprops/a={:.1f}/".format(spectral_index)
 #     spec_path = "output_files/incident_spectra/a={:.1f}/".format(spectral_index)
@@ -39,14 +41,15 @@ for i in range(11):
     flux_ratio = (F_lya_otf/F_inc)
     vIF_fm = vIF_fm[mask]
 
-    a, b = np.polyfit(np.log10(vIF_fm), flux_ratio[mask], 1)
+    # a, b = np.polyfit(np.log10(vIF_fm), flux_ratio, 1)
+    a, b = np.polyfit(np.log10(F_inc*vIF_fm), F_lya_otf, 1)
     for j in range(11):
         matrix[i][j] = a*np.log10(vIF_bins[j])+b
 
 
 fontsize=20
-levels = np.arange(0,1,0.1)
-# levels = np.arange(2000,12000,1000)
+# levels = np.arange(0,1,0.1)
+levels = np.arange(4000,11000,1000)
 fig, ax = plt.subplots(1)
 fig.set_size_inches(8,8)
 pos = ax.imshow(matrix,origin='lower')
@@ -57,10 +60,10 @@ xlabels = [None]+["{:.1f}".format(i) for i in np.log10(vIF_bins)]
 ylabels = [None]+["{:.1f}".format(i) for i in alpha_list]
 cbar = fig.colorbar(pos, ax=ax, orientation="horizontal", pad=0.15)
 cbar.ax.get_yaxis().labelpad = 30
-cbar.ax.set_xlabel(r"$F^{\mathrm{emit}}_{\mathrm{Ly}\alpha}/F^{\mathrm{inc}}_{\mathrm{ion}}$", rotation=0,fontsize=fontsize)
+# cbar.ax.set_xlabel(r"$F^{\mathrm{emit}}_{\mathrm{Ly}\alpha}/F^{\mathrm{inc}}_{\mathrm{ion}}$", rotation=0,fontsize=fontsize)
 ax.set_xticklabels(xlabels)
 ax.set_yticklabels(ylabels)
-ax.set_xlabel(r"log$_{10}$v$_{\mathrm{IF}}$ [km s$^{-1}$]",fontsize=fontsize)
+# ax.set_xlabel(r"log$_{10}$v$_{\mathrm{IF}}$ [km s$^{-1}$]",fontsize=fontsize)
 ax.set_ylabel(r"Incident spectral index, $\alpha_{\mathrm{IF}}$",fontsize=fontsize)
 
 countour = ax.contour(matrix, levels=levels,origin='lower', colors='red')
