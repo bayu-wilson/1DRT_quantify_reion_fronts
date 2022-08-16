@@ -15,12 +15,14 @@
 
 using user_inputs::hydro;
 using user_inputs::temp_ev;
+using user_inputs::input_grid;
 using user_inputs::QSO_spec; //CHRIS 05/16/22
 using user_inputs::save_initial_gas;
 using user_inputs::initial_gas_output;
 using user_inputs::gas_output;
 using user_inputs::correct_hardening;
 using user_inputs::alpha;
+using user_inputs::skewer;
 
 int main() {
   double start_all, end_all; //to measure performance
@@ -32,6 +34,7 @@ int main() {
 
   set_dlognu(); // from global_variables.cc, frequency step-size in logspace
   init_grid();  //from init_funcs.cc, generate a linear spatial grid
+  // printf("%s\n", "hi");
   init_gas(); //from init_funcs.cc, initialize grid with gas distribution and gas properties like ionization fraction
   if (save_initial_gas){
     sprintf(outputstring, initial_gas_output);
@@ -71,13 +74,23 @@ int main() {
     if ((correct_hardening)&&(t/yr_to_s/1e6>10)) { //from residual neutral gas behind the IF
       reduce_hardening();
     }
-
     // on-the-fly outputs
-    if (absd(remainder_chris(t, t_tot/(N_output - 1))) < dt) { //Absolute value of the remainder between time and other chunk of time
+    if ((absd(remainder_chris(t, t_tot/(N_output - 1))) < dt)&&(input_grid)) {
+      //Absolute value of the remainder between time and other chunk of time
       get_j_lya(); //from data_funcs.cc
-      sprintf(outputstring, "output_files/gasprops/a=%.1f/n%d_gasprops.txt", alpha,otf_step);
+      // printf("output_files/gasprops/sk%s_a=%.3f/n%d_gasprops.txt", skewer, alpha, otf_step);
+      sprintf(outputstring, "output_files/gasprops/sk%s_a=%.3f/n%d_gasprops.txt", skewer, alpha, otf_step);
       write_otf_fred(outputstring); //otf
-      sprintf(outputstring, "output_files/incident_spectra/a=%.1f/n%d_spectrum.txt", alpha,otf_step);
+      sprintf(outputstring, "output_files/incident_spectra/sk%s_a=%.3f/n%d_spectrum.txt", skewer, alpha, otf_step);
+      write_otf_spectrum(outputstring);
+      otf_step+=1;
+      update_step(); //from rt_funcs.cc
+    }
+    else if ((absd(remainder_chris(t, t_tot/(N_output - 1))) < dt)&&(!input_grid)){
+      get_j_lya(); //from data_funcs.cc
+      sprintf(outputstring, "output_files/gasprops/rampup_a=%.3f/n%d_gasprops.txt", alpha, otf_step);
+      write_otf_fred(outputstring); //otf
+      sprintf(outputstring, "output_files/incident_spectra/rampup_a=%.3f/n%d_spectrum.txt", alpha, otf_step);
       write_otf_spectrum(outputstring);
       otf_step+=1;
       update_step(); //from rt_funcs.cc
@@ -115,3 +128,4 @@ int main() {
   printf("`cat Logfile.log` for more information\n");
   return 0;
 }
+
