@@ -16,8 +16,8 @@ plotting_routines/*
 # un-ignore these files #
 #########################
 !.gitignore
-!plotting_routines/flux_ratio.py
-!plotting_routines/IF_movie.py
-!plotting_routines/parameter_space.py
+plotting_routines/flux_ratio.py
+plotting_routines/IF_movie.py
+plotting_routines/parameter_space.py
 !output_files/gasprops/gasprops.md
 !output_files/incident_spectra/incident_spectra.md
