@@ -34,7 +34,7 @@ int main() {
 
   set_dlognu(); // from global_variables.cc, frequency step-size in logspace
   init_grid();  //from init_funcs.cc, generate a linear spatial grid
-  // printf("%s\n", "hi");
+  //printf("%s\n", "hi");
   init_gas(); //from init_funcs.cc, initialize grid with gas distribution and gas properties like ionization fraction
   if (save_initial_gas){
     sprintf(outputstring, initial_gas_output);
@@ -43,7 +43,6 @@ int main() {
   init_intensity(); //from init_funcs.cc, initialize the source (probably BB) in the first grid-cell
   update_gamma_nu();  //from rt_funcs.cc, initializes opacity (absorption coefficient)
   // make_output(); //from io_funcs.cc, makes new data files
-
   int otf_step = 1; //counting on the fly files starting at 1
   double t_tot = t_max*yr_to_s*1e6; //t_max (Myr) defined in user_inputs.h. t_tot is in seconds
   while (t < t_tot) //starting at t=0 to t_tot
@@ -70,7 +69,7 @@ int main() {
 
     //update attenuation coefficient
     update_gamma_nu(); //from rt_funcs.cc
-
+    
     if ((correct_hardening)&&(t/yr_to_s/1e6>10)) { //from residual neutral gas behind the IF
       reduce_hardening();
     }

@@ -26,7 +26,7 @@ namespace user_inputs
 
   inline constexpr bool FINITE_C         { FALSE }; //Finite speed of light?
   inline constexpr bool spherical        { TRUE }; //Spherical symmetry?  If FALSE use plane-parallel
-  inline constexpr bool input_grid       { FALSE }; //User-defined input grid?
+  inline constexpr bool input_grid       { TRUE }; //User-defined input grid?
   inline constexpr bool input_source     { FALSE }; //User-defined source spectrum?
   inline constexpr bool save_initial_gas { TRUE }; //save initial grid
 

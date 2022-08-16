@@ -211,35 +211,19 @@ void write_otf_spectrum(char output_string[]){
 	}
 	fclose(file);
 }
+
 void write_otf_fred(char output_string[]){
 	FILE *file = NULL;
 	file = fopen(output_string, "w");
 	double *ifront_H1  = calc_ifront(f_H1, f_H1_step, r, N_r);
 	// double *ifront_He1 = calc_ifront(f_He1, f_He1_step, r, N_r);
 	// double *ifront_He3 = calc_ifront(f_He3, f_He3_step, r, N_r);
-
-	// double locIF = *(ifront_H1 + 0);  //location of ÎF (50% neutral)
-	std::vector<double> r_IF{}; // vector containing the IF locations
-	std::vector<double> j_lya_IF{}; // vector containing the IF emissivities
-	std::vector<double> nH_IF{}; // vector containing the Hydrogen number densities
-	// double frontIF_loc{interpolate(f_H1, r, frontIF_fHI, N_r)};
-	// double backIF_loc{interpolate(f_H1, r, backIF_fHI, N_r)};
-	// double width_IF_measured{frontIF_loc-backIF_loc};
-	for (int i=0;i<N_r;i++){ //populating the vectors using only the defined IF region
-		// if ((r[i]>backIF_loc)&&(r[i]<frontIF_loc)) //only use region inside IF //BAYU TEST
-		// {
-			r_IF.push_back(r[i]);
-			j_lya_IF.push_back(j_lya[i]);
-			nH_IF.push_back(nH[i]);
-		// }
-	}
-	int numIF {static_cast<int>(r_IF.size())}; //size function of vector doesn't result in an integer directly, "lu" I think
-	double I_lya = trapz_int(&j_lya_IF[0],&r_IF[0],numIF); //integrated lya intensity (not flux yet)
+	
+	double I_lya = trapz_int(j_lya,r,N_r);
 	double *iflux_vel  = calc_ifront_flux_method(); //uses flux method from Treion paper (D'Aloisio et al. 2019) to find the incI & velocity
 	double inc_photon_flux = *(iflux_vel + 0);
 	double vIF_H1 = *(iflux_vel + 1);
-	double nH_avg = *(iflux_vel + 2);
-	// double nH_avg = average(&nH_IF[0], static_cast<int>(nH_IF.size())); //BAYU CHANGE THIS BACK
+	double clump_factor = *(iflux_vel + 2);
 
 	// fprintf(file, "%d \t", step);
 	fprintf(file, "%d \t", step);
@@ -247,11 +231,10 @@ void write_otf_fred(char output_string[]){
 	fprintf(file, "%le \t", dt/yr_to_s/1e6); //Myr
 	fprintf(file, "%le \t", I_lya); //lya intensity
 	fprintf(file, "%le \t", inc_photon_flux); //incident photon flux
-	fprintf(file, "%le \t", nH_avg); // average nH in the IF
+	fprintf(file, "%le \t", clump_factor); // clumping factor inside the IF
 	fprintf(file, "%le \t", *(ifront_H1 + 0)); // IF loc
 	fprintf(file, "%le \t", *(ifront_H1 + 1)); //IF speed (finite differencing)
 	fprintf(file, "%le \t", vIF_H1); //IF speed (flux method)
-	// fprintf(file, "%le \n", width_IF_measured); // width of the IF (inner 99%)
 	fprintf(file, "%le \n", interpolate(f_H1, temp, 0.5, N_r));
 	for (int i{ 0 }; i < N_r; i++){
 		fprintf(file, "%le \t", r[i]/kpc_to_cm);
@@ -265,11 +248,9 @@ void write_otf_fred(char output_string[]){
 		fprintf(file, "%le \t", f_He2[i]);
 		fprintf(file, "%le \t", f_He3[i]);
 		fprintf(file, "%le \n", coll_ex_rate_H1_acc(temp[i]));
-		// fprintf(file, "%le \n", j_lya[i]);//coll_ex_rate_H1_acc(temp[i]));
 	}
 	fclose(file);
 }
-
 
 void loading_bar(double number, double max_number){
 	int barWidth = 70;

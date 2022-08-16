@@ -19,6 +19,8 @@ using user_inputs::gas_output; //CHRIS: 05/16/22
 using user_inputs::LyC_opacity;
 using user_inputs::Lyn_series; //CHRIS 06/14/22
 using user_inputs::use_tau_GP; //CHRIS 07/09/22
+using user_inputs::frontIF_fHI; //BAYU 08/12/22
+using user_inputs::backIF_fHI; //BAYU 08/12/22
 using user_inputs::NLyn;
 using user_inputs::N_wav;
 using user_inputs::wav_start;
@@ -66,6 +68,29 @@ double* calc_ifront(double x[], double xprev[], double radius[], int n)
 	return ifront;
 }
 
+// double calc_clumping_factor_ifront(){//double f[], double rho[], double m, int n){ //BAYU: 08/12/22
+// 	/*
+// 	C = <rho^2>/<rho>^2 = sum(rho^2)/sum(rho)^2 x NIF
+// 	for i in spatial cell
+// 		if inside the IF, sum rho^2, sum rho, sum N
+// 	rho_total
+// 	*/
+// 	// std::vector<double> r_IF{};
+// 	double rho2{0};
+// 	double rho{0};
+// 	int i{0};
+// 	int numIF{0};
+// 	while (f_H1[i]<frontIF_fHI){
+// 		if (f_H1[i]>backIF_fHI){
+// 			rho+=rho_total[i];
+// 			rho2+=pow(rho_total[i],2);
+// 			numIF+=1;
+// 		}
+// 		i+=1;
+// 	}
+// 	return rho2/pow(rho,2)*numIF;
+// }
+
 //Calculate ionization front incident photon flux, velocity, and neutral hydrogen number density
 double* calc_ifront_flux_method()
 {
@@ -76,24 +101,26 @@ double* calc_ifront_flux_method()
 	double nH_boundary{};
 	double vel_IF{};
 	double *flux_vel = (double*) malloc(sizeof(double) * 3);
-	// int index_rear_IF{};//DELETE
-
 	double f_H1_IF_rear = 1e-1; //neutral hydrogen fraction at the rear of the IF
-	for (int i=0;i<(N_r-1);i++) //find index of array at the location closest to 10% neutral
-	{
-		if ((f_H1[i]<f_H1_IF_rear) && (f_H1[i+1]>f_H1_IF_rear))
-		{
-			for (int j=0;j<N_nu;j++)
-			{
-				I_div_nu_pair[0][j] = I_nu[i][j]/nu[j]; //we track I divided by nu in order to do the integration in the next section
-				I_div_nu_pair[1][j] = I_nu[i+1][j]/nu[j]; // int (I_nu / h / nu dnu ) = incident Flux ionizing photons
-				f_H1_pair[0] = f_H1[i];
-				f_H1_pair[1] = f_H1[i+1];
-			}
-			// index_rear_IF = i; //initialized in global_variables.cc. We track it in order to track the
-												 // spectral evolution in io_funcs.cc: write_spectrum()
-			break;
+	double rho2{0};
+	double rho{0};
+	int i{0};
+	int numIF{0};
+	while (f_H1[i]<frontIF_fHI){
+		if (f_H1[i]>backIF_fHI){
+			rho+=rho_total[i];
+			rho2+=pow(rho_total[i],2);
+			numIF+=1;
+			if ((f_H1[i]<f_H1_IF_rear) && (f_H1[i+1]>f_H1_IF_rear))
+				for (int j=0;j<N_nu;j++)
+				{
+					I_div_nu_pair[0][j] = I_nu[i][j]/nu[j]; //we track I divided by nu in order to do the integration in the next section
+					I_div_nu_pair[1][j] = I_nu[i+1][j]/nu[j]; // int (I_nu / h / nu dnu ) = incident Flux ionizing photons
+					f_H1_pair[0] = f_H1[i];
+					f_H1_pair[1] = f_H1[i+1];
+				}
 		}
+		i+=1;
 	}
 	inc_photon_flux_pair[0] = trapz_int(I_div_nu_pair[0],nu,N_nu)*4*pi/h;
 	inc_photon_flux_pair[1] = trapz_int(I_div_nu_pair[1],nu,N_nu)*4*pi/h;
@@ -103,7 +130,7 @@ double* calc_ifront_flux_method()
 	*(flux_vel + 0) = inc_photon_flux;
 	*(flux_vel + 1) = vel_IF;
 	// *(flux_vel + 2) = nH[index_rear_IF];
-	*(flux_vel + 2) = nH_boundary;
+	*(flux_vel + 2) = rho2/pow(rho,2)*numIF; //clumping factor
  	return flux_vel;
 }
 
@@ -550,3 +577,4 @@ void get_j_lya() {
 		j_lya[i]=coll_ex_rate_H1_acc(temp[i])*nH1[i]*ne[i]*h*c/lambda_HI_ion_cm/4/pi;
 	}
 }
+
