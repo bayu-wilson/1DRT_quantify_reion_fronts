@@ -3,6 +3,8 @@
 *.o
 *.x
 .*
+*.out
+core.*
 input_files/._*
 
 # Other #
@@ -11,7 +13,7 @@ input_files/._*
 output_files/*
 output_files/gasprops/*
 output_files/incident_spectra/*
-output_files/hydro_skewers/*
+input_files/hydro_skewers/*
 plotting_routines/*
 
 # un-ignore these files #
