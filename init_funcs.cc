@@ -36,9 +36,14 @@ void init_gas(){
 	}
 	else {
 		for (int i{ 0 }; i < N_r; i++){
-			rho_total[i] = power_law(r[i], r[0], rho_0, rho_index); //rho_0 is in user_inputs.h, it is uniform density (in cgs)
-			rho_prev[i]  = rho_total[i];
-
+			//rho_total[i] = power_law(r[i], r[0], rho_0, rho_index); //rho_0 is in user_inputs.h, it is uniform density (in cgs)
+			if ((i>0.45*N_r)&&(i<0.55*N_r)){
+				rho_total[i] = power_law(r[i]/kpc_to_cm-R0, 1, rho_0/1e4, 5);
+				rho_prev[i]  = rho_total[i];
+			}
+			else{
+				rho_total[i] =rho_0;
+			}
 			f_H1[i] = power_law(r[i], r[0], fH1_0, fH1_index);
 			if (f_H1[i] > 1.){
 				f_H1[i] = fH1_0;

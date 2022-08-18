@@ -95,7 +95,7 @@ int main() {
       update_step(); //from rt_funcs.cc
     }
 
-    loading_bar(t, t_tot); //from io_funcs.cc
+    //loading_bar(t, t_tot); //from io_funcs.cc
     t += dt;
 
     //update time steps using Chris' conservative method
@@ -103,7 +103,7 @@ int main() {
     step += 1; //enumerating the time-steps
   }
 
-  loading_bar(t_tot, t_tot); //done!
+  //loading_bar(t_tot, t_tot); //done!
 
   // write_spectrum(); //from io_funcs.cc, writing the data to files
   // bool_initial_gas = FALSE;

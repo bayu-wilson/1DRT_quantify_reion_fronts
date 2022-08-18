@@ -103,7 +103,7 @@ void read_grid_mmc(){
 
 	int size_mmc {static_cast<int>(R_mmc.size())};
 	if (smooth_field){
-		for (int i=0;i<N_r;i++){
+		for (int i=0;i<size_mmc;i++){
 			rho_mmc.push_back(smooth_gaussian(&R_mmc[0],&rho_temp[0],R_mmc[i],sigma_gauss,size_mmc));
 			T_mmc.push_back(smooth_gaussian(&R_mmc[0],&T_temp[0],R_mmc[i],sigma_gauss,size_mmc));
 		}
