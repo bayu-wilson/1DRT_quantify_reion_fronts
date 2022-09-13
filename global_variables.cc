@@ -3,6 +3,9 @@
 #include <math.h>
 #include "global_variables.h"
 
+//for the hardening correction
+int prev_index{0};
+
 //default differentials
 double dr     			  = (R-R0)/(N_r - 1); //in kpc
 double dlog_nu 				= 0;

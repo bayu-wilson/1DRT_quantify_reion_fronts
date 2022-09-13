@@ -21,6 +21,8 @@ using g_constants::yr_to_s;
 
 void set_dlognu();
 
+extern int prev_index;
+
 //default differentials
 extern double dr        ; //in kpc
 extern double dlog_nu   ;
