@@ -42,7 +42,7 @@ void update_dt()
 
 
 	#pragma omp parallel for reduction(min:dt) if (parallel)
-	for (int i=0; i < N_r; i++) {
+	for (int i=prev_index; i < N_r; i++) {
 		// if ((r[i]>(pos_IF-region_IF*kpc_to_cm)) && (r[i]<(pos_IF+region_IF*kpc_to_cm)))
 		// if ((r[i]>back_IF) && (r[i]<front_IF))
 		{
@@ -101,7 +101,7 @@ void update_step()
 
 void solve_spherical_rt()
 {
-	#pragma omp parallel for if (parallel)
+	// #pragma omp parallel for if (parallel)
 	for (int i=1; i < N_r; i++)
 	{
 		for (int j=0; j < N_nu; j++)

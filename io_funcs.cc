@@ -83,6 +83,7 @@ void read_grid_mmc(){
 	std::vector<double> rho_mmc{};
 	std::vector<double> T_temp{};
 	std::vector<double> T_mmc{};
+	//printf("HI");
 	file = fopen(grid_input, "r");
   fscanf(file, "%s %s %le\n", hd, hd, &z_mmc); //get the redshift of simulation
   fgets(hd,1000,file);
@@ -224,8 +225,9 @@ void write_otf_fred(char output_string[]){
 	double inc_photon_flux = *(iflux_vel + 0);
 	double vIF_H1 = *(iflux_vel + 1);
 	double clump_factor = *(iflux_vel + 2);
-
-	// fprintf(file, "%d \t", step);
+	double density_variance = *(iflux_vel + 3);
+	double width_IF = *(iflux_vel + 4);
+	double nH_avg = *(iflux_vel + 5);
 	fprintf(file, "%d \t", step);
 	fprintf(file, "%le \t", t/yr_to_s/1e6); //Myr
 	fprintf(file, "%le \t", dt/yr_to_s/1e6); //Myr
@@ -235,18 +237,22 @@ void write_otf_fred(char output_string[]){
 	fprintf(file, "%le \t", *(ifront_H1 + 0)); // IF loc
 	fprintf(file, "%le \t", *(ifront_H1 + 1)); //IF speed (finite differencing)
 	fprintf(file, "%le \t", vIF_H1); //IF speed (flux method)
-	fprintf(file, "%le \n", interpolate(f_H1, temp, 0.5, N_r));
+	fprintf(file, "%le \t", interpolate(f_H1, temp, 0.5, N_r));
+	fprintf(file, "%le \t", density_variance);
+	fprintf(file, "%le \t", width_IF);
+	fprintf(file, "%le \n", nH_avg);
 	for (int i{ 0 }; i < N_r; i++){
 		fprintf(file, "%le \t", r[i]/kpc_to_cm);
 		fprintf(file, "%le \t", rho_total[i]);
 		fprintf(file, "%le \t", ne[i]);
-		fprintf(file, "%le \t", ne_prev[i]);
+		fprintf(file, "%le \t", dne_dt[i]);
+		//fprintf(file, "%le \t", ne_prev[i]);
 		fprintf(file, "%le \t", n_tot[i]);
 		fprintf(file, "%le \t", temp[i]);
 		fprintf(file, "%le \t", f_H1[i]);
 		fprintf(file, "%le \t", f_He1[i]);
 		fprintf(file, "%le \t", f_He2[i]);
-		fprintf(file, "%le \t", f_He3[i]);
+		fprintf(file, "%le \t", gamma_H1_tot[i]);
 		fprintf(file, "%le \n", coll_ex_rate_H1_acc(temp[i]));
 	}
 	fclose(file);

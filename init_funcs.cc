@@ -36,14 +36,14 @@ void init_gas(){
 	}
 	else {
 		for (int i{ 0 }; i < N_r; i++){
-			//rho_total[i] = power_law(r[i], r[0], rho_0, rho_index); //rho_0 is in user_inputs.h, it is uniform density (in cgs)
-			if ((i>0.45*N_r)&&(i<0.55*N_r)){
-				rho_total[i] = power_law(r[i]/kpc_to_cm-R0, 1, rho_0/1e4, 5);
-				rho_prev[i]  = rho_total[i];
-			}
-			else{
-				rho_total[i] =rho_0;
-			}
+			rho_total[i] = power_law(r[i], r[0], rho_0, rho_index); //rho_0 is in user_inputs.h, it is uniform density (in cgs)
+			//if ((i>0.45*N_r)&&(i<0.55*N_r)){
+			//	rho_total[i] = power_law(r[i]/kpc_to_cm-R0, 1, rho_0/1e4, 5);
+			rho_prev[i]  = rho_total[i];
+			//}
+			//else{
+			//	rho_total[i] =rho_0;
+			//}
 			f_H1[i] = power_law(r[i], r[0], fH1_0, fH1_index);
 			if (f_H1[i] > 1.){
 				f_H1[i] = fH1_0;
@@ -184,7 +184,9 @@ void init_intensity(){
 
 		else if (strcmp(spectrum, "POWER") == 0){
 			for (int j{ 0 }; j < N_nu; j++) {
-				phii = (alpha - 1)/nu[0]*pow(nu[j]/nu[0],-alpha);
+				//phii = (alpha - 1)/nu[0]*pow(nu[j]/nu[0],-alpha);
+				//phii *= (pow(4,1-alpha)-1)/(pow(4,-alpha)-1); //correction to luminosity due to 4 Ryd source intensity limit
+				phii = alpha/nu[0]/(1-pow(4,-alpha))*pow(nu[j]/nu[0],-alpha); //spectral shape times the Luminosity alpha dependence
 				I_nu_prev[0][j] = Lum/16./pow(pi,2)/pow(R0*kpc_to_cm,2)*phii;
 				I_nu[0][j]      = Lum/16./pow(pi,2)/pow(R0*kpc_to_cm,2)*phii;
 			}

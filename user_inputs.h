@@ -57,9 +57,9 @@ namespace user_inputs
   inline constexpr double R_start         { 1000. }; //kpc //choosing a starting point of skewer chunk
   inline constexpr char source_spectrum[] { "input_files/spectrum_hydro_10myr.txt" };
 
-  inline constexpr double t_max { 100 }; //Runtime (in Myr)
+  inline constexpr double t_max { 97.8 }; //Runtime (in Myr)
   //output files
-  inline constexpr char gas_output[] {"output_files/gas_test_hydro_100myr.txt"};
+  inline constexpr char gas_output[] {"output_files/gas_test_hydro_97.8myr.txt"};
   inline constexpr char initial_gas_output[]   { "output_files/gas_test_hydro_000myr.txt"};
 
   //grid sizes //N_r->Number of spatial bins 10,000 //1360 //680... stepsize is 0.735 pkpc
@@ -80,10 +80,12 @@ namespace user_inputs
   // inline constexpr double nu_max   { 9e3/h_eV }; //Maximum frequency
   inline constexpr double temp_0   { 5.e2 }; //Initial gas temperature in K (if not input by user) 1e2 2.e4
   inline constexpr double T_source { 1.e5 }; //Source temperature (if blackbody)
-  inline constexpr double alpha { 2.505 }; //spectral power law index if spectrum is a power law
+  inline constexpr double alpha { 1.500 }; //spectral power law index if spectrum is a power law
   // inline constexpr double dotN     { 4.e56 }; //rate of ionizing photons if spectrum is a power law
   // inline constexpr double Lum      { 8.e56*h*nu_min*alpha/(alpha - 1) }; //bolometric luminosity. fails at alpha=1
-  inline constexpr double Lum      { 8.e56*h*nu_min*alpha/(alpha - 1) }; //bolometric luminosity. fails at alpha=1
+  inline constexpr double dotN {  9.06410e+56 }; 
+  inline constexpr double Lum {  dotN*h*nu_min }; 
+  //*alpha/(alpha - 1) }; //bolometric luminosity but the alpha dependence moved to phii in init_funcs.cc
   inline constexpr double Gam0     { 1.e-13 }; // uniform photoionization background
   inline constexpr double frontIF_fHI { 0.75 };
   inline constexpr double backIF_fHI { 0.05 };
@@ -97,7 +99,7 @@ namespace user_inputs
   inline constexpr double fHe3_0     { 0. }; //Initial HeIII fraction
 
   //leave these 0 for uniform initial abundances and density
-  inline constexpr double rho_index  { 2. };
+  inline constexpr double rho_index  { 0 };
   inline constexpr double fH1_index  { 0 };
   inline constexpr double fHe1_index { 0 };
   inline constexpr double fH2_index  { 0 };
@@ -105,7 +107,7 @@ namespace user_inputs
   inline constexpr double fHe3_index { 0 };
 
   //number of equally spaced time steps to output on-the-fly data.
-  inline constexpr int N_output      { 500 };
+  inline constexpr int N_output      { 250 };
 
   //folders
   inline constexpr char x_int_tables[] = "x_int_tables/";
