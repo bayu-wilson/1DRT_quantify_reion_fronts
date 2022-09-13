@@ -99,8 +99,9 @@ double* calc_ifront_flux_method()
 	double inc_photon_flux{};
 	double f_H1_pair[2];
 	double nH_boundary{};
+	double nH_sum{};
 	double vel_IF{};
-	double *flux_vel = (double*) malloc(sizeof(double) * 3);
+	double *flux_vel = (double*) malloc(sizeof(double) * 6);
 	double f_H1_IF_rear = 1e-1; //neutral hydrogen fraction at the rear of the IF
 	double rho2{0};
 	double rho{0};
@@ -109,7 +110,8 @@ double* calc_ifront_flux_method()
 	while (f_H1[i]<frontIF_fHI){
 		if (f_H1[i]>backIF_fHI){
 			rho+=rho_total[i];
-			rho2+=pow(rho_total[i],2);
+			rho2+=rho_total[i]*rho_total[i]; //pow(rho_total[i],2);
+			nH_sum+=nH[i];
 			numIF+=1;
 			if ((f_H1[i]<f_H1_IF_rear) && (f_H1[i+1]>f_H1_IF_rear))
 				for (int j=0;j<N_nu;j++)
@@ -122,16 +124,30 @@ double* calc_ifront_flux_method()
 		}
 		i+=1;
 	}
+	i=0; //reset index and use it to find the density variance
+	double mean_rho {rho/numIF};
+	double var_rho {0};
+	while (f_H1[i]<frontIF_fHI){
+        	if (f_H1[i]>backIF_fHI){
+		var_rho += (rho_total[i]-mean_rho)*(rho_total[i]-mean_rho);//pow(rho_total[i]-mean_rho,2);
+		}
+		i+=1;
+	}
+	var_rho /= numIF;
 	inc_photon_flux_pair[0] = trapz_int(I_div_nu_pair[0],nu,N_nu)*4*pi/h;
 	inc_photon_flux_pair[1] = trapz_int(I_div_nu_pair[1],nu,N_nu)*4*pi/h;
 	inc_photon_flux = interpolate(f_H1_pair,inc_photon_flux_pair,f_H1_IF_rear,2);
 	nH_boundary    = interpolate(f_H1, nH, 0.5, N_r); // number density neutral H at front boundary 50%
 	vel_IF = (c*inc_photon_flux) / (inc_photon_flux + c*nH_boundary*(1+chi_He));
+	double width_IF {interpolate(f_H1, r, frontIF_fHI, N_r)-interpolate(f_H1, r, backIF_fHI, N_r)};
 	*(flux_vel + 0) = inc_photon_flux;
 	*(flux_vel + 1) = vel_IF;
 	// *(flux_vel + 2) = nH[index_rear_IF];
-	*(flux_vel + 2) = rho2/pow(rho,2)*numIF; //clumping factor
- 	return flux_vel;
+	*(flux_vel + 2) = rho2/rho/rho*numIF; //pow(rho,2)*numIF; //clumping factor
+ 	*(flux_vel + 3) = var_rho;
+	*(flux_vel + 4) = width_IF;
+	*(flux_vel + 5) = nH_sum/numIF;
+	return flux_vel;
 }
 
 //CHRIS: 05/16/22

@@ -13,6 +13,7 @@ using g_constants::c;
 using g_constants::h;
 using g_constants::gam;
 using user_inputs::compton;
+using g_constants::kpc_to_cm;
 using user_inputs::z;
 using user_inputs::rec_case;
 using user_inputs::hydro;
@@ -28,8 +29,9 @@ using user_inputs::Gam0;
 //compute photoionization rates for HI, HeI, and HeII
 void update_gamma()
 {
+	double pos_IF = interpolate(f_H1, r, 0.5, N_r); //cm
 	#pragma omp parallel for if (parallel)
-	for (int i=0; i < N_r; i++)
+	for (int i=prev_index; i < N_r; i++)
 	{
 		gamma_H1_tot[i]  = 0;
 		gamma_He1_tot[i] = 0;
@@ -73,13 +75,22 @@ void update_gamma()
 			gamma_H1_tot[i] += Gam0;
 			gamma_He1_tot[i] += Gam0;
 		}
+		if ((pos_IF>10*kpc_to_cm)&(t/yr_to_s/1e6>10)&(user_inputs::correct_hardening)) {
+			double equil_cond = dne_dt[i]/n_tot[i]*(0.735*kpc_to_cm/c);
+			if ((equil_cond<1e-8)&(r[i]<pos_IF)) {
+				gamma_H1_tot[i]  = 1e-10;
+				gamma_He1_tot[i] = 1e-10;
+				gamma_He2_tot[i] = 1e-10;
+				prev_index+=1;
+			}
+		}
 	}
 }
 
 void update_heat_cool()
 {
 		#pragma omp parallel for if (parallel)
-		for (int i=0; i < N_r; i++)
+		for (int i=prev_index; i < N_r; i++)
 		{
 			heat_rate[i] = 0;
 			cool_rate[i] = 0;
@@ -289,7 +300,7 @@ void update_thermal()
 	double a;
 	a = 1/(1 + z);
 	#pragma omp parallel for if (parallel)
-	for (int i=0; i < N_r; i++)
+	for (int i=prev_index; i < N_r; i++)
 	{
 		if (hydro == FALSE)
 		{
@@ -500,23 +511,23 @@ void update_hydro()  {
 	}
 }
 
-void reduce_hardening() {
-	int prev_index{0};
-	int index_rear_IF = find_index(f_H1, 0.009, N_r);
-	for (int j=prev_index;j<index_rear_IF;j++)
-	{
-		nH1[j] = 0;
-		f_H1[j] = 0;
-		f_H2[j] = 1.;
-		nH1_prev[j] = 0;
-		nH2[j] = nH[j];
-		nHe1[j] = 0;
-		nHe1_prev[j] = 0;
-		f_He1[j]=0;
-		// for (int i=0;i<30;i++)
-		// {
-		//   gamma_nu_tot[j][i] = 0;
-		// }
-		prev_index = j;
-	}
-}
+//void reduce_hardening() {
+//	int prev_index{0};
+//	int index_rear_IF = find_index(f_H1, 0.009, N_r);
+//	for (int j=prev_index;j<index_rear_IF;j++)
+//	{
+//		nH1[j] = 0;
+//		f_H1[j] = 0;
+//		f_H2[j] = 1.;
+//		nH1_prev[j] = 0;
+//		nH2[j] = nH[j];
+//		nHe1[j] = 0;
+//		nHe1_prev[j] = 0;
+//		f_He1[j]=0;
+//		// for (int i=0;i<30;i++)
+//		// {
+//		//   gamma_nu_tot[j][i] = 0;
+//		// }
+//		prev_index = j;
+//	}
+//}
