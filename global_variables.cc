@@ -165,3 +165,4 @@ double I_nu        [N_r][N_nu]{}; //specific intensity
 
 //Lya emissivity from collisional excitations
 double j_lya [N_r]{};
+double q_eff_lya[N_r]{};

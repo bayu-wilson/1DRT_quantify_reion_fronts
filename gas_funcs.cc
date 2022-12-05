@@ -23,8 +23,8 @@ using user_inputs::recomb_cool;
 using user_inputs::coll_ion;
 using user_inputs::spectrum;
 using user_inputs::parallel;
-using user_inputs::add_background; //CHRIS 05/17/22
-using user_inputs::Gam0;
+//using user_inputs::add_background; //CHRIS 05/17/22
+//using user_inputs::Gam0;
 
 //compute photoionization rates for HI, HeI, and HeII
 void update_gamma()
@@ -71,10 +71,10 @@ void update_gamma()
 			gamma_He2_tot[i] += cic_He2(temp[i])*ne[i];
 		}
 		//CHRIS 05/17/22: add uniform background
-		if ( add_background == TRUE)  {
-			gamma_H1_tot[i] += Gam0;
-			gamma_He1_tot[i] += Gam0;
-		}
+		//if ( add_background == TRUE)  {
+		//	gamma_H1_tot[i] += Gam0;
+		//	gamma_He1_tot[i] += Gam0;
+		//}
 		if ((pos_IF>10*kpc_to_cm)&(t/yr_to_s/1e6>10)&(user_inputs::correct_hardening)) {
 			double equil_cond = dne_dt[i]/n_tot[i]*(0.735*kpc_to_cm/c);
 			if ((equil_cond<1e-8)&(r[i]<pos_IF)) {
@@ -253,7 +253,8 @@ void update_chem()  {
 			recomb_He2[i] += Dalpha_He2(temp[i]);
 		}
 	}
-	#pragma omp parallel for if (parallel)
+	//#pragma omp parallel for if (parallel)// should not be parallelized!
+	// this loop is actually part of an iterative solution for the chemistry equation
 	for (int j=0; j < 5; j++)  {
 		solve_ion(ne);
 	}

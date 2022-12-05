@@ -1,62 +1,110 @@
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
 import pandas as pd
+from cycler import cycler
+from constants import *
+from user_input import *
+from matplotlib.lines import Line2D
+# from functions import coll_ex_rate_H1_acc,alphaA_H2
 
-# gasprop_names = ["los pos[kpc]","rho","ne","ne_prev","n_tot","T[K]","xHI","xHeI","xHeII","xHeIII","emLya"]
-# alpha="1.5"
-# sigma="0" #kpc
-# los = "11"
+#initial figure parameters
+fontsize=15
+tick_dir='in'
+lw=1.5
+major_tick_size = 5
+minor_tick_size = 3
+colors = ['red', 'orange','gold','green','blue','purple','cyan','pink']
+plt.rcParams['font.family'] = "serif"
+plt.rcParams['axes.prop_cycle'] = cycler(color=colors)
+# plt.rcParams['axes.prop_cycle'] = cycler(ls=['-', '--'])
+plt.rcParams['lines.linewidth'] = lw
+plt.rcParams['font.size'] = fontsize
+plt.rcParams['xtick.direction'] = tick_dir
+plt.rcParams['ytick.direction'] = tick_dir
+plt.rcParams['xtick.major.size'] = major_tick_size
+plt.rcParams['xtick.minor.size'] = minor_tick_size
+plt.rcParams['ytick.major.size'] = major_tick_size
+plt.rcParams['ytick.minor.size'] = minor_tick_size
+custom_lines = [Line2D([0], [0], color=colors[0], lw=9, marker=None),
+                Line2D([0], [0], color=colors[1], lw=9, marker=None),
+                Line2D([0], [0], color=colors[2], lw=9, marker=None),
+                Line2D([0], [0], color=colors[3], lw=9, marker=None),
+                Line2D([0], [0], color=colors[4], lw=9, marker=None),
+                Line2D([0], [0], color=colors[5], lw=9, marker=None),
+                Line2D([0], [0], color=colors[6], lw=9, marker=None),
+                Line2D([0], [0], color=colors[7], lw=9, marker=None)]
+# Line2D([0], [0], color=colors[5], lw=9, marker=None)]
+labels = [r"$\alpha$={}".format(i) for i in bincenters_alpha]
+                # Line2D([0], [0], lw=0)]
 
-spectral_index = 0.5
-gasprop_path = "../output_files/gasprops/a={:.1f}/".format(spectral_index)
-otf_names = ["step","t","dt","I_lya","Finc","nH_value","locIF","vIF_fd","vIF_fm","T_IF"]
-N_output = 250
-R_sim = 300
-width_IF = 20 #an approximation
-kpc_to_cm = 3.086e21
-# los_pos_initial = 5317
-h = 6.626068e-27
-c = 2.998e10
-lambda_lya_cm = 1.21567e-5
-pi=np.pi
-fontsize = 15
+#input data -
+df = pd.read_csv("/expanse/lustre/projects/uot171/bwils033/master_1d_rt/results/221202/otf.csv")
+#    "/Volumes/Extreme SSD/anson/test_expanse/master_1d_rt/plo/final_data/otf2.csv")
+mask = (df["t"]>10)&(df["vIF_fm"]>1e1)&(df["vIF_fm"]<1e5)
+df = df[mask]
+F_inc = df["F_inc"].values
+F_lya = df["F_lya"].values
+T_center = df["T_center"].values
+v_IF = np.log10(df["vIF_fm"].values)
+R_IF = df["width_IF"].values
+nH_avg = df["nH_avg"].values
+nH_center = df["nH_center"].values
+C_em = df["C_em"].values
+flux_ratio = F_lya/F_inc
 
-output_matrix = np.zeros((10,N_output))
-n=0
-while n<245:
-    with open(gasprop_path+"n{}_gasprops.txt".format(n+1),'r') as f:
-        line = f.readline()
-    otf_data = np.asarray(line.split(' \t'),float)
-    for index in range(len(otf_data)):
-        output_matrix[index][n]=otf_data[index]
-    n+=1
-otf_df = pd.DataFrame(output_matrix.T,columns=otf_names)
-locIF = (otf_df["locIF"]/kpc_to_cm-1e4)
-vIF_fm = otf_df["vIF_fm"]/1e5
-mask = (otf_df["t"]>10) & (locIF<(R_sim-width_IF)) & (vIF_fm>=10**2.0) & (vIF_fm<=10**4.0)
-F_lya_otf = otf_df["I_lya"][mask]/(h*c/lambda_lya_cm)*4*pi
-F_inc = otf_df["Finc"][mask]
-flux_ratio = (F_lya_otf/F_inc)
-vIF_fm = vIF_fm[mask]
-#FITTING
-a, b = np.polyfit(np.log10(F_inc*vIF_fm), F_lya_otf, 1)
-y_fit = a*np.log10(F_inc*vIF_fm)+b
+#alpha_array = np.asarray(df["alpha"],str)
+#alpha_array = np.array(["{:.3f}".format(i) for i in alpha_array])
+alpha_array = df["alpha"]
 
-# print(a,b)
 
-fig,ax = plt.subplots(1,1)
-fig.set_size_inches(6,6)
-# ax.scatter(np.log10(vIF_fm),flux_ratio,s=10)
-ax.scatter(np.log10(F_inc*vIF_fm),F_lya_otf,s=10)
-ax.plot(np.log10(F_inc*vIF_fm),y_fit,color="gray",ls="dotted",lw=3,alpha=0.8,label="{:.1f}log10(vIF)+{:.1f}\nalpha={}".format(a,b,spectral_index))
-ax.set_xlabel(r"log$_{10}$v$_{\mathrm{IF}}$ [km s$^{-1}$]",fontsize=fontsize)
-ax.set_ylabel(r"$F^{\mathrm{emit}}_{\mathrm{Ly}\alpha}/F^{\mathrm{inc}}_{\mathrm{ion}}$",fontsize=fontsize)
-ax.legend()
-# ax.set_xlim(2.6,3.8)
-# ax.set_ylim(0.2,0.47)
-# plt.savefig("figures/flux_ratio_alpha{}.pdf".format(spectral_index),bbox_inches='tight')
 
-plt.show()
-# plt.xlim(2.6,4.2)
-# plt.ylim(0.15,0.5)
-# otf_df["t"]
+fig, ax = plt.subplots(nrows=1,ncols=1)
+fig.set_size_inches(w=6,h=6)
+
+#car = ['red', 'orange','gold','green','blue','purple']
+flip_flop = 1
+for a in range(nbins_alpha):
+    mask = (alpha_array == bincenters_alpha[a])
+    flux_ratio_means = np.zeros(nbins_logvIF)
+    flux_ratio_std = np.zeros(nbins_logvIF)
+    for i in range(nbins_logvIF):
+        mask_bin = (v_IF>binedges_logvIF[i])&(v_IF<binedges_logvIF[i+1])&(alpha_array == bincenters_alpha[a])
+        flux_ratio_means[i] = np.mean(flux_ratio[mask_bin])
+        flux_ratio_std[i] = np.std(flux_ratio[mask_bin])
+
+    if bincenters_alpha[a]=="1.500":
+        m, b = np.polyfit(np.log10(v_IF[mask]), flux_ratio[mask], 1)
+        y_fit = m*np.log10(bincenters_logvIF)+b
+        print(m,b)
+        ax.plot(bincenters_logvIF,y_fit,color='black',ls='dashed')
+
+    offset = (1+flip_flop*0.005)
+    ax.scatter(v_IF[mask],flux_ratio[mask],s=1,label="a={}".format(bincenters_alpha[a]),alpha=0.25)
+    ax.errorbar(x=bincenters_logvIF*offset,y=flux_ratio_means,yerr=flux_ratio_std,
+        ls='none', marker='o', capsize=5, capthick=1, ecolor='black',
+        markeredgecolor='black',markersize=8)
+    flip_flop*=-1
+
+    # ax[2].scatter(np.log10(nH_avg[mask]),R_IF[mask]/kpc_to_cm,s=1)
+    # ax[1][1].scatter(F_inc[mask],v_IF[mask],s=1)
+    # ax11 = ax[1][1].twiny()
+    # ax11.scatter(np.log10(nH_center[mask]),v_IF[mask],s=1,color=car[a])
+
+# ax.annotate(text=r'math',xycoords='figure fraction',xy=(0.4,0.8))
+
+ax.set_xlabel(r"IF speed, log$_{10}$ v$_{\mathrm{IF}}$ [km/s]")
+ax.set_ylabel(r"Flux ratio, $\zeta(\alpha, v_{\mathrm{IF}})$")
+#ax.set_ylim(0,0.27)
+
+custom_lines.append(Line2D([0], [0], color='k', lw=3,ls='dashed', marker=None))
+labels.append(r"Best fit")
+#
+# ax[1].set_xlabel(r"IF speed, log$_{10}$ v$_{\mathrm{IF}}$ [km/s]")
+# ax[1].set_ylabel(r"Emissivity Clumping Factor, C$_e$")
+
+ax.legend(custom_lines,labels,ncol=2,frameon=False)
+
+# plt.tight_layout()
+fig.savefig("figures/flux_ratio.pdf", bbox_inches="tight")
+plt.close()
+# plt.show()

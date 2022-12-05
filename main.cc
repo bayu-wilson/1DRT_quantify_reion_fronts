@@ -16,7 +16,7 @@
 using user_inputs::hydro;
 using user_inputs::temp_ev;
 using user_inputs::input_grid;
-using user_inputs::QSO_spec; //CHRIS 05/16/22
+//using user_inputs::QSO_spec; //CHRIS 05/16/22
 using user_inputs::save_initial_gas;
 using user_inputs::initial_gas_output;
 using user_inputs::gas_output;
@@ -35,9 +35,7 @@ int main() {
 
   set_dlognu(); // from global_variables.cc, frequency step-size in logspace
   init_grid();  //from init_funcs.cc, generate a linear spatial grid
-  //printf("%s\n", "hi");
   init_gas(); //from init_funcs.cc, initialize grid with gas distribution and gas properties like ionization fraction
-  //printf("%s\n", "hi");
   if (save_initial_gas){
     sprintf(outputstring, initial_gas_output);
     write_gas(outputstring); //from io_funcs.cc, saves the initial grid
@@ -112,21 +110,21 @@ int main() {
   sprintf(outputstring, gas_output);
   write_gas(outputstring); //from io_funcs.cc, writing the data to files
 
-  srand (time(NULL));
-  double island_length;
-  double island_pos;
-  int Nqso = 1; //100;
-  if (QSO_spec == TRUE)  { //CHRIS 07/18/22: output QSO spectrum to output_files
-    for (int i = 0; i < Nqso; i++)  {
-      island_length = 0.;
-      island_pos = 0.; //(double) (rand() % 10000 + 300 + 1000000);
-      calc_mock_QSO_spec(island_length, island_pos, i);
-    }
-  }
+  //srand (time(NULL));
+  //double island_length;
+  //double island_pos;
+  //int Nqso = 1; //100;
+  //if (QSO_spec == TRUE)  { //CHRIS 07/18/22: output QSO spectrum to output_files
+  //  for (int i = 0; i < Nqso; i++)  {
+  //    island_length = 0.;
+  //    island_pos = 0.; //(double) (rand() % 10000 + 300 + 1000000);
+  //    calc_mock_QSO_spec(island_length, island_pos, i);
+  //  }
+  //}
 
   end_all   = omp_get_wtime();
   printf("\nProgram complete, real-time: \t%.3e seconds\n",end_all-start_all);
-  printf("`cat Logfile.log` for more information\n");
+  //printf("`cat Logfile.log` for more information\n");
   return 0;
 }
 

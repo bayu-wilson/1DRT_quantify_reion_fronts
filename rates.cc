@@ -142,14 +142,14 @@ double Dalpha_He2(double T)
 double rcrA_H2(double T)
 {
 	double x    = lambda(T, Eth_H1);
-	return 1.778e-29*T*pow(x,1.965)/(pow(1. + pow(x/0.541,0.502),2.697));
+	return 8*1.778e-29*T*pow(x,1.965)/(pow(1. + pow(x/0.541,0.502),2.697));
 }
 
 //Case B recombination cooling rate for HII from Hui & Gnedin 1996
 double rcrB_H2(double T)
 {
 	double x = lambda(T, Eth_H1);
-	return 3.435e-30*T*pow(x,1.970)/(pow(1. + pow(x/2.250,0.376),3.720));
+	return 8*3.435e-30*T*pow(x,1.970)/(pow(1. + pow(x/2.250,0.376),3.720));
 }
 
 //Case A recombination cooling rate for HeII from Hui & Gnedin 1996

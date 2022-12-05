@@ -12,7 +12,7 @@ warnings.filterwarnings("ignore", message="divide by zero encountered in log10")
 warnings.filterwarnings("ignore", message="invalid value encountered in true_divide")
 warnings.filterwarnings("ignore", message="divide by zero encountered in true_divide")
 
-delta_n = 5
+delta_n = 50
 z = 5.7
 omega_b = 0.048
 rho_crit_z = 8.688e-30*(1+z)**3 #g/cm3
@@ -52,7 +52,7 @@ while os.path.exists(gasprop_path_otf):
     n+=1
     gasprop_path_otf = dir_path+"n{}_gasprops.txt".format(n)
 table_otf = np.array(otf_matrix)
-print(table_otf)
+#print(table_otf)
 #mask = table_otf.T[1]>10
 step_arr,t_arr, dt_arr,I_lya_otf,Finc_otf,clump_otf,locIF_otf,vIF_fd_otf,vIF_fm_otf,TIF_otf,rho_var_otf, width_otf, nH_avg_otf = table_otf.T#[mask]
 F_lya_otf = I_lya_otf/(h*c/lambda_lya_cm)*4*pi

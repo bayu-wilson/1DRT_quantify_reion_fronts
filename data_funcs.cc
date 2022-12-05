@@ -9,22 +9,22 @@
 #include "io_funcs.h"
 #include "cosmo_funcs.h"
 #include "rates.h"
-using namespace std; //CHRIS: 05/16/22
+//using namespace std; //CHRIS: 05/16/22
 
 using g_constants::yr_to_s;
 using user_inputs::N_output;
 using user_inputs::t_max;
-using user_inputs::z; //CHRIS: 05/16/22
-using user_inputs::gas_output; //CHRIS: 05/16/22
-using user_inputs::LyC_opacity;
-using user_inputs::Lyn_series; //CHRIS 06/14/22
-using user_inputs::use_tau_GP; //CHRIS 07/09/22
+//using user_inputs::z; //CHRIS: 05/16/22
+//using user_inputs::gas_output; //CHRIS: 05/16/22
+//using user_inputs::LyC_opacity;
+//using user_inputs::Lyn_series; //CHRIS 06/14/22
+//using user_inputs::use_tau_GP; //CHRIS 07/09/22
 using user_inputs::frontIF_fHI; //BAYU 08/12/22
 using user_inputs::backIF_fHI; //BAYU 08/12/22
-using user_inputs::NLyn;
-using user_inputs::N_wav;
-using user_inputs::wav_start;
-using user_inputs::wav_end;
+//using user_inputs::NLyn;
+//using user_inputs::N_wav;
+//using user_inputs::wav_start;
+//using user_inputs::wav_end;
 using g_constants::pi;
 using g_constants::c;
 using g_constants::chi_He;
@@ -68,88 +68,70 @@ double* calc_ifront(double x[], double xprev[], double radius[], int n)
 	return ifront;
 }
 
-// double calc_clumping_factor_ifront(){//double f[], double rho[], double m, int n){ //BAYU: 08/12/22
-// 	/*
-// 	C = <rho^2>/<rho>^2 = sum(rho^2)/sum(rho)^2 x NIF
-// 	for i in spatial cell
-// 		if inside the IF, sum rho^2, sum rho, sum N
-// 	rho_total
-// 	*/
-// 	// std::vector<double> r_IF{};
-// 	double rho2{0};
-// 	double rho{0};
-// 	int i{0};
-// 	int numIF{0};
-// 	while (f_H1[i]<frontIF_fHI){
-// 		if (f_H1[i]>backIF_fHI){
-// 			rho+=rho_total[i];
-// 			rho2+=pow(rho_total[i],2);
-// 			numIF+=1;
-// 		}
-// 		i+=1;
-// 	}
-// 	return rho2/pow(rho,2)*numIF;
-// }
-
 //Calculate ionization front incident photon flux, velocity, and neutral hydrogen number density
 double* calc_ifront_flux_method()
 {
-	double I_div_nu_pair[2][N_nu]{};
-	double inc_photon_flux_pair[2]{};
-	double inc_photon_flux{};
-	double f_H1_pair[2];
-	double nH_boundary{};
-	double nH_sum{};
-	double vel_IF{};
-	double *flux_vel = (double*) malloc(sizeof(double) * 6);
-	double f_H1_IF_rear = 1e-1; //neutral hydrogen fraction at the rear of the IF
-	double rho2{0};
-	double rho{0};
-	int i{0};
-	int numIF{0};
-	while (f_H1[i]<frontIF_fHI){
-		if (f_H1[i]>backIF_fHI){
-			rho+=rho_total[i];
-			rho2+=rho_total[i]*rho_total[i]; //pow(rho_total[i],2);
-			nH_sum+=nH[i];
-			numIF+=1;
-			if ((f_H1[i]<f_H1_IF_rear) && (f_H1[i+1]>f_H1_IF_rear))
-				for (int j=0;j<N_nu;j++)
-				{
-					I_div_nu_pair[0][j] = I_nu[i][j]/nu[j]; //we track I divided by nu in order to do the integration in the next section
-					I_div_nu_pair[1][j] = I_nu[i+1][j]/nu[j]; // int (I_nu / h / nu dnu ) = incident Flux ionizing photons
-					f_H1_pair[0] = f_H1[i];
-					f_H1_pair[1] = f_H1[i+1];
-				}
-		}
-		i+=1;
-	}
-	i=0; //reset index and use it to find the density variance
-	double mean_rho {rho/numIF};
-	double var_rho {0};
-	while (f_H1[i]<frontIF_fHI){
-        	if (f_H1[i]>backIF_fHI){
-		var_rho += (rho_total[i]-mean_rho)*(rho_total[i]-mean_rho);//pow(rho_total[i]-mean_rho,2);
-		}
-		i+=1;
-	}
-	var_rho /= numIF;
-	inc_photon_flux_pair[0] = trapz_int(I_div_nu_pair[0],nu,N_nu)*4*pi/h;
-	inc_photon_flux_pair[1] = trapz_int(I_div_nu_pair[1],nu,N_nu)*4*pi/h;
-	inc_photon_flux = interpolate(f_H1_pair,inc_photon_flux_pair,f_H1_IF_rear,2);
-	nH_boundary    = interpolate(f_H1, nH, 0.5, N_r); // number density neutral H at front boundary 50%
-	vel_IF = (c*inc_photon_flux) / (inc_photon_flux + c*nH_boundary*(1+chi_He));
-	double width_IF {interpolate(f_H1, r, frontIF_fHI, N_r)-interpolate(f_H1, r, backIF_fHI, N_r)};
-	*(flux_vel + 0) = inc_photon_flux;
-	*(flux_vel + 1) = vel_IF;
-	// *(flux_vel + 2) = nH[index_rear_IF];
-	*(flux_vel + 2) = rho2/rho/rho*numIF; //pow(rho,2)*numIF; //clumping factor
- 	*(flux_vel + 3) = var_rho;
-	*(flux_vel + 4) = width_IF;
-	*(flux_vel + 5) = nH_sum/numIF;
-	return flux_vel;
+        double I_div_nu_pair[2][N_nu]{}; //will interpolate between pairs
+        double F_inc_pair[2]{};
+        double F_inc{0};
+        double fHI_pair[2];
+        double vel_IF{0}; //vIF found via flux method
+        double *otf_outputs = (double*) malloc(sizeof(double) * 8); //array of outputs
+        double three_avg{0}; //average of ne[i]*nH1[i]*q_eff_lya[i]
+        double nH_avg{0}; //average over IF
+        double C_em{0}; //intensity/emissivity clumping factor
+        int i{0}; //iterating over all 1D RT cells
+        int numIF{0}; //number of cells within IF
+        while (f_H1[i]<frontIF_fHI){ // iterating over the IF, if xHI less than front then...
+                if (i>prev_index){ //prev_index tracks the location of photoionization equilibrium behind the IF
+                        three_avg+=ne[i]*nH1[i]*q_eff_lya[i];
+                        nH_avg+=nH[i];
+                        //q_avg+= q_eff_lya[i];
+                        //I_lya_test+=j_lya[i];
+                        numIF+=1;
+                        if ((f_H1[i]<backIF_fHI) && (f_H1[i+1]>backIF_fHI)) //find pair where xHI=0.1 (helps find Finc)
+                                for (int j=0;j<N_nu;j++)
+                                {
+                                        I_div_nu_pair[0][j] = I_nu[i][j]/nu[j]; //we track I divided by nu in order to do the integration in the next section
+                                        I_div_nu_pair[1][j] = I_nu[i+1][j]/nu[j]; // int (I_nu / h / nu dnu ) = incident Flux ionizing photons
+                                        fHI_pair[0] = f_H1[i];
+                                        fHI_pair[1] = f_H1[i+1];
+                                }
+                }
+                i+=1;
+        }
+        nH_avg/=numIF;
+        //q_avg/=numIF;
+        three_avg/=numIF;
+        double nH_center = interpolate(f_H1, nH, 0.5, N_r);
+        double ne_nH1_center = interpolate(f_H1, ne, 0.5, N_r) * interpolate(f_H1, nH1, 0.5, N_r);
+        double T_center =  interpolate(f_H1, temp, 0.5, N_r);
+        double q_T_center = coll_ex_rate_H1_acc(T_center);
+        double width_IF {interpolate(f_H1, r, frontIF_fHI, N_r)-r[prev_index]};//interpolate(f_H1, r, backIF_fHI, N_r)};
+        double F_lya = 4*pi*lambda_lya_cm/h/c * trapz_int(j_lya,r,N_r);
+        C_em = three_avg/nH_avg/ne_nH1_center*nH_center/q_T_center;
+        F_inc_pair[0] = trapz_int(I_div_nu_pair[0],nu,N_nu)*pi/h; //I'm not sure whether it's multiplied by pi or 4pi
+        F_inc_pair[1] = trapz_int(I_div_nu_pair[1],nu,N_nu)*pi/h; //
+        F_inc = interpolate(fHI_pair,F_inc_pair,backIF_fHI,2);
+        vel_IF = (c*F_inc) / (F_inc + c*nH_center*(1+chi_He));
+        *(otf_outputs + 0) = F_lya; // photons/s/cm2
+        *(otf_outputs + 1) = F_inc; // photons/s/cm2
+        *(otf_outputs + 2) = vel_IF; //cm s-1 //flux method
+        *(otf_outputs + 3) = T_center; //K
+        *(otf_outputs + 4) = width_IF; //cm
+        *(otf_outputs + 5) = nH_avg; //g cm-1
+        *(otf_outputs + 6) = nH_center; //g cm-1
+        *(otf_outputs + 7) = C_em;
+        //*(flux_vel + 3) = three_avg;
+        //*(flux_vel + 4) = width_IF;
+        //*(flux_vel + 5) = nH2_avg;
+        //*(flux_vel + 6) = temp_eff;
+        //*(flux_vel + 7) = I_lya_test;
+        //*(flux_vel + 8) = nH_avg;
+        return otf_outputs;
 }
 
+/*
 //CHRIS: 05/16/22
 //Subroutine to calculate a mock QSO spectrum starting at r = R0
 //Optional flag adds a neutral island along the sightline with a specified central position and width
@@ -587,10 +569,12 @@ void calc_mock_QSO_spec(double is_length, double is_pos, int name_ind)  {
 	}
 	file.close();
 }
+*/
 
 void get_j_lya() {
 	for (int i{ 0 }; i < N_r; i++) {
-		j_lya[i]=coll_ex_rate_H1_acc(temp[i])*nH1[i]*ne[i]*h*c/lambda_HI_ion_cm/4/pi;
+                q_eff_lya[i] = coll_ex_rate_H1_acc(temp[i]); // cm3/s
+                j_lya[i]=q_eff_lya[i]*nH1[i]*ne[i]*h*c/lambda_HI_ion_cm/4/pi; //erg/cm3/sr
 	}
 }
 

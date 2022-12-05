@@ -32,27 +32,27 @@ namespace user_inputs
 
   inline constexpr bool recomb_cool       { TRUE }; //Recombination cooling fLag
   inline constexpr bool coll_ion          { TRUE }; //Collisional ionization flag
-  inline constexpr bool coll_exc_cool	    { TRUE }; //Collisional excitation cooling flag
+  inline constexpr bool coll_exc_cool	  { TRUE }; //Collisional excitation cooling flag
   inline constexpr bool sec_ion           { FALSE }; //secondary ionizations flag
   inline constexpr bool compton           { TRUE }; //compton heating/cooling flag
   inline constexpr bool temp_ev           { TRUE }; //temperature evolution flag
-  inline constexpr bool hydro			        { FALSE }; //include hydrodynamics flag
+  inline constexpr bool hydro		  { FALSE }; //include hydrodynamics flag
   inline constexpr bool smooth_field      { TRUE }; //new BAYU July 13 2022
   inline constexpr bool correct_hardening { TRUE }; //new BAYU July 15 2022
 
-  inline constexpr bool QSO_spec       { FALSE }; //CHRIS 05/16/22: output QSO spectrum?
-  inline constexpr bool add_background { FALSE }; //CHRIS 05/17/22: add uniform background?
-  inline constexpr bool LyC_opacity    { FALSE }; //Chris 06/16/22: make it an option to calculate LyC
-  inline constexpr bool Lyn_series     { FALSE }; //Chris 06/14/22: include Lyn series in QSO spectrum?
-  inline constexpr bool use_tau_GP     { FALSE }; //CHRIS 07/09/22: use Gunn-Petersen approximation to calculate lyman series
-  inline constexpr int  NLyn	         {  39  }; //number of lyman series lines to use
-  inline constexpr int  N_wav          { 1000 }; //number of wavelength bins
-  inline constexpr double wav_start    { 1050.}; //start of the wavelength array
-  inline constexpr double wav_end      { 800. }; //end of the wavelength array
+  //inline constexpr bool QSO_spec       { FALSE }; //CHRIS 05/16/22: output QSO spectrum?
+  //inline constexpr bool add_background { FALSE }; //CHRIS 05/17/22: add uniform background?
+  //inline constexpr bool LyC_opacity    { FALSE }; //Chris 06/16/22: make it an option to calculate LyC
+  //inline constexpr bool Lyn_series     { FALSE }; //Chris 06/14/22: include Lyn series in QSO spectrum?
+  //inline constexpr bool use_tau_GP     { FALSE }; //CHRIS 07/09/22: use Gunn-Petersen approximation to calculate lyman series
+  //inline constexpr int  NLyn	       {  39  }; //number of lyman series lines to use
+  //inline constexpr int  N_wav          { 1000 }; //number of wavelength bins
+  //inline constexpr double wav_start    { 1050.}; //start of the wavelength array
+  //inline constexpr double wav_end      { 800. }; //end of the wavelength array
 
   //input files (if user-defined)
-  inline constexpr char skewer[] {"0004"} ;
-  inline constexpr char grid_input[] {"input_files/hydro_skewers/spec_xHeII1_007_ls_line0004.dat"};
+  inline constexpr char skewer[] {"0009"} ;
+  inline constexpr char grid_input[] {"input_files/hydro_skewers/spec_xHeII1_007_ls_line0009.dat"};
   // inline constexpr char grid_input[] {"input_files/spec_xHeII1_003_ls_line0000.dat"};
   inline constexpr double R_start         { 1000. }; //kpc //choosing a starting point of skewer chunk
   inline constexpr char source_spectrum[] { "input_files/spectrum_hydro_10myr.txt" };
@@ -80,16 +80,16 @@ namespace user_inputs
   // inline constexpr double nu_max   { 9e3/h_eV }; //Maximum frequency
   inline constexpr double temp_0   { 5.e2 }; //Initial gas temperature in K (if not input by user) 1e2 2.e4
   inline constexpr double T_source { 1.e5 }; //Source temperature (if blackbody)
-  inline constexpr double alpha { 1.500 }; //spectral power law index if spectrum is a power law
+  inline constexpr double alpha { 2.500 }; //spectral power law index if spectrum is a power law
   // inline constexpr double dotN     { 4.e56 }; //rate of ionizing photons if spectrum is a power law
   // inline constexpr double Lum      { 8.e56*h*nu_min*alpha/(alpha - 1) }; //bolometric luminosity. fails at alpha=1
-  inline constexpr double dotN {  9.06410e+56 }; 
+  inline constexpr double dotN {  4.06020e+56 }; 
   inline constexpr double Lum {  dotN*h*nu_min }; 
   //*alpha/(alpha - 1) }; //bolometric luminosity but the alpha dependence moved to phii in init_funcs.cc
-  inline constexpr double Gam0     { 1.e-13 }; // uniform photoionization background
-  inline constexpr double frontIF_fHI { 0.75 };
-  inline constexpr double backIF_fHI { 0.05 };
-  inline constexpr double sigma_gauss { 3. }; //pkpc, sigma if field had gaussian smoothing applied
+  //inline constexpr double Gam0     { 1.e-13 }; // uniform photoionization background
+  inline constexpr double frontIF_fHI { 0.99 };
+  inline constexpr double backIF_fHI { 0.10 };
+  inline constexpr double sigma_gauss { 10. }; //pkpc, sigma if field had gaussian smoothing applied
   inline constexpr double rho_crit_0 { 8.688e-30 }; // critical density at z=0 [g cm^-3] //3 Omega H0^2 / (8 pi // assume h=0.68
   inline constexpr double rho_0      { rho_crit_0*Omega_b*(1.+z)*(1.+z)*(1.+z) }; //initial baryonic density at redshift z
   inline constexpr double fH1_0      { 1. }; //Initial HI fraction

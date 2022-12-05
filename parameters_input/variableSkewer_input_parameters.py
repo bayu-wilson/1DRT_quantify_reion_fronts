@@ -3,7 +3,7 @@ import pandas as pd
 
 #user-input
 skewer_min = 0
-skewer_max = 4
+skewer_max = 9
 len_skewers = skewer_max-skewer_min+1
 desired_vIF = 10**4*1e5 #[km/s][cm/km]=cm/s
 R_start = 1000

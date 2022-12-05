@@ -220,27 +220,39 @@ void write_otf_fred(char output_string[]){
 	// double *ifront_He1 = calc_ifront(f_He1, f_He1_step, r, N_r);
 	// double *ifront_He3 = calc_ifront(f_He3, f_He3_step, r, N_r);
 	
-	double I_lya = trapz_int(j_lya,r,N_r);
-	double *iflux_vel  = calc_ifront_flux_method(); //uses flux method from Treion paper (D'Aloisio et al. 2019) to find the incI & velocity
-	double inc_photon_flux = *(iflux_vel + 0);
-	double vIF_H1 = *(iflux_vel + 1);
-	double clump_factor = *(iflux_vel + 2);
-	double density_variance = *(iflux_vel + 3);
-	double width_IF = *(iflux_vel + 4);
-	double nH_avg = *(iflux_vel + 5);
+	//double I_lya = trapz_int(j_lya,r,N_r);
+	double *otf_outputs  = calc_ifront_flux_method(); //uses flux method from Treion paper (D'Aloisio et al. 2019) to find the incI & velocity
+	
+	double F_lya = *(otf_outputs + 0); // photons/s/cm2
+        double F_inc = *(otf_outputs + 1); // photons/s/cm2
+        double vIF_H1 = *(otf_outputs + 2); //cm s-1 //flux method
+        double T_center = *(otf_outputs + 3); //K
+        double width_IF = *(otf_outputs + 4); //cm
+        double nH_avg = *(otf_outputs + 5); //g cm-1
+        double nH_center = *(otf_outputs + 6); //g cm-1
+        double C_em = *(otf_outputs + 7);
+	
 	fprintf(file, "%d \t", step);
 	fprintf(file, "%le \t", t/yr_to_s/1e6); //Myr
 	fprintf(file, "%le \t", dt/yr_to_s/1e6); //Myr
-	fprintf(file, "%le \t", I_lya); //lya intensity
-	fprintf(file, "%le \t", inc_photon_flux); //incident photon flux
-	fprintf(file, "%le \t", clump_factor); // clumping factor inside the IF
+	fprintf(file, "%le \t", F_lya); //lya intensity //erg/s/sr/cm2
+	fprintf(file, "%le \t", F_inc); //incident photon flux // #/s/cm2
 	fprintf(file, "%le \t", *(ifront_H1 + 0)); // IF loc
 	fprintf(file, "%le \t", *(ifront_H1 + 1)); //IF speed (finite differencing)
 	fprintf(file, "%le \t", vIF_H1); //IF speed (flux method)
-	fprintf(file, "%le \t", interpolate(f_H1, temp, 0.5, N_r));
-	fprintf(file, "%le \t", density_variance);
+	fprintf(file, "%le \t", T_center);
 	fprintf(file, "%le \t", width_IF);
-	fprintf(file, "%le \n", nH_avg);
+        fprintf(file, "%le \t", nH_avg);
+        fprintf(file, "%le \t", nH_center);	
+	fprintf(file, "%le \n", C_em); // clumping factor (ne nH1 and q) inside the IF
+
+	//fprintf(file, "%le \t", treion);//interpolate(f_H1, temp, 0.5, N_r));
+	//fprintf(file, "%le \t", temp_eff);
+	//fprintf(file, "%le \t", three_avg);
+	//fprintf(file, "%le \t", width_IF);
+	//fprintf(file, "%le \t", I_lya_test);
+	//fprintf(file, "%le \t", nH_avg);
+	//fprintf(file, "%le \n", nH2_avg);
 	for (int i{ 0 }; i < N_r; i++){
 		fprintf(file, "%le \t", r[i]/kpc_to_cm);
 		fprintf(file, "%le \t", rho_total[i]);
