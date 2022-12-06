@@ -15,6 +15,7 @@ output_files/gasprops/*
 output_files/incident_spectra/*
 input_files/hydro_skewers/*
 plotting_routines/*
+results/trash/*
 
 # un-ignore these files #
 #########################
