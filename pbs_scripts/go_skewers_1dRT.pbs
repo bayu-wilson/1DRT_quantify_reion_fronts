@@ -30,7 +30,8 @@ sed -i "s/^  inline constexpr double R .*/  inline constexpr double R        \{ 
 N_r='1360'
 sed -i "s/^  inline constexpr int N_r.*/  inline constexpr int N_r \{ ${N_r} \}\;/" user_inputs.h
 
-spectral_indices=(-1.000 -0.500 0.001 0.500 1.000 1.500 2.000 2.500)
+spectral_indices=(`cat ./parameters_input/input_params/spectral_indices.txt`)
+###(-1.25 -0.75 -0.25 0.25 0.75 1.500 2.000 2.500)
 input_params=(`cat ./parameters_input/input_params/flucRho.txt`)
 
 let "len_input_params=${#input_params[@]}-3"
@@ -53,7 +54,7 @@ do
   ###echo $j
   for (( i=0; i<len_indices; i++))
   do
-    echo dotN${dotN}_a=${spectral_indices[i]}/
+    echo output_files/gasprops/sk${skewer}_a=${spectral_indices[i]}/ 
     cd output_files/
     cd gasprops/
     rm -r sk${skewer}_a=${spectral_indices[i]}/
@@ -64,12 +65,12 @@ do
     make clean
     make
     ./1d_radtransfer.x
-    cd plotting_routines/
-    python make_movie.py ${skewer} ${spectral_indices[i]} 
-    cd ../
   done
 done
 
+##    cd plotting_routines/
+##    python make_movie.py ${skewer} ${spectral_indices[i]}
+##    cd ../
 #cd output_files/
 #python result_array_oneAlpha.py 
 #cd ../

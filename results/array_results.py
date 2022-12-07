@@ -12,14 +12,15 @@ c = 2.998e10
 lambda_lya_cm = 1.21567e-5
 pi=np.pi
 
-amin = -1.000
-amax = 2.500 #2.505
+#amin = -1.000
+#amax = 2.500 #2.505
 
 np.seterr(divide='ignore', invalid='ignore')
 
 #alpha_list = np.arange(amin,amax+0.125,0.125)
-alpha_list = np.arange(amin,amax+0.125,0.5)#0.125)
-print(alpha_list,flush=True)
+#alpha_list = np.arange(amin,amax+0.125,0.5)#0.125)
+#print(alpha_list,flush=True)
+alpha_list = np.loadtxt("../parameters_input/input_params/spectral_indices.txt")
 #Nv = len(alpha_list)
 #logvIF_bincenters =  np.linspace(vlogmin,vlogmax,Nv)
 #grid_V, grid_A = np.mgrid[vlogmin:vlogmax:complex(N_grid), amin:amax:complex(N_grid)]
@@ -44,12 +45,12 @@ for sk in skewers: #looping through the skewers
         #print(sk,i)
         spectral_index = alpha_list[i]
         n=1
-        dir_path = "../output_files/gasprops/{}_a={:.3f}/".format(sk,spectral_index)
+        dir_path = "../output_files/gasprops/{}_a={:.3f}/".format(sk,spectral_index) #I shouldn't need the .3f here
         print(dir_path,flush=True)
         gasprop_path_otf = dir_path + "n{}_gasprops.txt".format(n)
         otf_matrix = np.zeros((N_output,len(otf_names)))
         while (os.path.exists(gasprop_path_otf))&(n<=N_output):
-            with open(gasprop_path_otf,'r') as f:
+           with open(gasprop_path_otf,'r') as f:
                 line = f.readline()
             try:
                 line_array = np.asarray(line.split(' \t'),float)

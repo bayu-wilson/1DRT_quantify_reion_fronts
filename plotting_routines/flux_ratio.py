@@ -6,6 +6,12 @@ from constants import *
 from user_input import *
 from matplotlib.lines import Line2D
 # from functions import coll_ex_rate_H1_acc,alphaA_H2
+import warnings
+warnings.filterwarnings("ignore", category=RuntimeWarning)
+#warnings.filterwarnings("ignore", message="RuntimeWarning: invalid value encountered in true_divide")
+#warnings.filterwarnings("ignore", message="RuntimeWarning: Degrees of freedom <= 0 for slice")
+#warnings.filterwarnings("ignore", message="RuntimeWarning: Mean of empty slice.")
+
 
 #initial figure parameters
 fontsize=15
@@ -55,7 +61,8 @@ flux_ratio = F_lya/F_inc
 #alpha_array = np.asarray(df["alpha"],str)
 #alpha_array = np.array(["{:.3f}".format(i) for i in alpha_array])
 alpha_array = df["alpha"]
-
+print(set(alpha_array))
+print(bincenters_alpha)
 
 
 fig, ax = plt.subplots(nrows=1,ncols=1)
@@ -65,6 +72,7 @@ fig.set_size_inches(w=6,h=6)
 flip_flop = 1
 for a in range(nbins_alpha):
     mask = (alpha_array == bincenters_alpha[a])
+    print(bincenters_alpha[a],np.sum(mask))
     flux_ratio_means = np.zeros(nbins_logvIF)
     flux_ratio_std = np.zeros(nbins_logvIF)
     for i in range(nbins_logvIF):
@@ -72,7 +80,7 @@ for a in range(nbins_alpha):
         flux_ratio_means[i] = np.mean(flux_ratio[mask_bin])
         flux_ratio_std[i] = np.std(flux_ratio[mask_bin])
 
-    if bincenters_alpha[a]=="1.500":
+    if bincenters_alpha[a]==1.5: #"1.500":
         m, b = np.polyfit(np.log10(v_IF[mask]), flux_ratio[mask], 1)
         y_fit = m*np.log10(bincenters_logvIF)+b
         print(m,b)
