@@ -51,8 +51,8 @@ namespace user_inputs
   //inline constexpr double wav_end      { 800. }; //end of the wavelength array
 
   //input files (if user-defined)
-  inline constexpr char skewer[] {"0004"} ;
-  inline constexpr char grid_input[] {"input_files/hydro_skewers/spec_xHeII1_007_ls_line0004.dat"};
+  inline constexpr char skewer[] {"0009"} ;
+  inline constexpr char grid_input[] {"input_files/hydro_skewers/spec_xHeII1_007_ls_line0009.dat"};
   // inline constexpr char grid_input[] {"input_files/spec_xHeII1_003_ls_line0000.dat"};
   inline constexpr double R_start         { 1000. }; //kpc //choosing a starting point of skewer chunk
   inline constexpr char source_spectrum[] { "input_files/spectrum_hydro_10myr.txt" };
@@ -80,10 +80,10 @@ namespace user_inputs
   // inline constexpr double nu_max   { 9e3/h_eV }; //Maximum frequency
   inline constexpr double temp_0   { 5.e2 }; //Initial gas temperature in K (if not input by user) 1e2 2.e4
   inline constexpr double T_source { 1.e5 }; //Source temperature (if blackbody)
-  inline constexpr double alpha { 1.000 }; //spectral power law index if spectrum is a power law
+  inline constexpr double alpha { 2.500 }; //spectral power law index if spectrum is a power law
   // inline constexpr double dotN     { 4.e56 }; //rate of ionizing photons if spectrum is a power law
   // inline constexpr double Lum      { 8.e56*h*nu_min*alpha/(alpha - 1) }; //bolometric luminosity. fails at alpha=1
-  inline constexpr double dotN {  2.71923e+57 }; 
+  inline constexpr double dotN {  1.21806e+57 }; 
   inline constexpr double Lum {  dotN*h*nu_min }; 
   //*alpha/(alpha - 1) }; //bolometric luminosity but the alpha dependence moved to phii in init_funcs.cc
   //inline constexpr double Gam0     { 1.e-13 }; // uniform photoionization background
