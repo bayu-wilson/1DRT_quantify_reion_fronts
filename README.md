@@ -25,25 +25,33 @@ python variableSkewer_input_parameters.py
 ```
 A table of skewer number, ionizing photon rate, and simulation time are located ```input_params/flucRho.txt```.
 
+Additionally, the spectral indices data file is ```input_params/spectral_indicies.txt``` which can be adjusted manually.
+
 ### 5) Submit batch job to run the code and explore parameter space
-Edit ```go_skewers_1dRT.pbs``` to explore the desired parameter space as well as check user-input values. Note the spectral indicies array. This code will automatically produce output files located here: ```output_files/gasprops/sk[X]_a=[X]/``` where `[X]` is placeholder for skewer number and spectral index alpha, respectively.
+Edit ```go_skewers_1dRT.pbs``` to explore the desired parameter space as well as check user-input values. This code will automatically produce output files located here: ```output_files/gasprops/sk[X]_a=[X]/``` where `[X]` is placeholder for skewer number and spectral index alpha, respectively.
 ```
 cd pbs_scripts/
 sbatch go_skewers_1dRT.pbs
 ```
 
-### 6) On-the-fly outputs and interpolation tables
+### 6) On-the-fly outputs
+Here we read in the output files to produce a table of on-the-fly outputs (like IF speed and incident flux at the IF location). This is saved in ```results/[otf directory]/otf.csv``` where the otf directory is defined within ```results/array_results.py```. 
 ```
 cd pbs_scripts/
 sbatch go_resultArrays.pbs
 ```
 
-### 7) Plotting routines
+### 7) Plotting routines and interpolation table
+We plot the flux ratio parameter space as well as an interpolation table that can be used given alpha and vIF. The interpolation tables are located in ```results/interp_tables/```
 ```
 cd plotting_routines/
 module load anaconda3/2020.11
-python flux_ratio.py
 python Frat_parameter_space.py
+```
+
+### 8) Other plotting routines
+```
+python flux_ratio.py
 python plot_coll_exc_coef.py
 python profileIF.py
 python emissivity_dependencies.py
