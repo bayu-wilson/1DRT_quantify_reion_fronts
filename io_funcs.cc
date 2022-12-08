@@ -218,11 +218,10 @@ void write_otf_fred(char output_string[]){
 	file = fopen(output_string, "w");
 	double *ifront_H1  = calc_ifront(f_H1, f_H1_step, r, N_r);
 	// double *ifront_He1 = calc_ifront(f_He1, f_He1_step, r, N_r);
-	// double *ifront_He3 = calc_ifront(f_He3, f_He3_step, r, N_r);
-	
+	// double *ifront_He3 = calc_ifront(f_He3, f_He3_step, r, N_r);	
 	//double I_lya = trapz_int(j_lya,r,N_r);
-	double *otf_outputs  = calc_ifront_flux_method(); //uses flux method from Treion paper (D'Aloisio et al. 2019) to find the incI & velocity
 	
+	double *otf_outputs  = calc_ifront_flux_method(); //uses flux method from Treion paper (D'Aloisio et al. 2019) to find the incI & velocity
 	double F_lya = *(otf_outputs + 0); // photons/s/cm2
         double F_inc = *(otf_outputs + 1); // photons/s/cm2
         double vIF_H1 = *(otf_outputs + 2); //cm s-1 //flux method
@@ -231,7 +230,7 @@ void write_otf_fred(char output_string[]){
         double nH_avg = *(otf_outputs + 5); //g cm-1
         double nH_center = *(otf_outputs + 6); //g cm-1
         double C_em = *(otf_outputs + 7);
-	
+
 	fprintf(file, "%d \t", step);
 	fprintf(file, "%le \t", t/yr_to_s/1e6); //Myr
 	fprintf(file, "%le \t", dt/yr_to_s/1e6); //Myr
@@ -246,13 +245,6 @@ void write_otf_fred(char output_string[]){
         fprintf(file, "%le \t", nH_center);	
 	fprintf(file, "%le \n", C_em); // clumping factor (ne nH1 and q) inside the IF
 
-	//fprintf(file, "%le \t", treion);//interpolate(f_H1, temp, 0.5, N_r));
-	//fprintf(file, "%le \t", temp_eff);
-	//fprintf(file, "%le \t", three_avg);
-	//fprintf(file, "%le \t", width_IF);
-	//fprintf(file, "%le \t", I_lya_test);
-	//fprintf(file, "%le \t", nH_avg);
-	//fprintf(file, "%le \n", nH2_avg);
 	for (int i{ 0 }; i < N_r; i++){
 		fprintf(file, "%le \t", r[i]/kpc_to_cm);
 		fprintf(file, "%le \t", rho_total[i]);

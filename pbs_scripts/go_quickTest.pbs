@@ -39,19 +39,19 @@ sed -i "s/^  inline constexpr char skewer\[\].*/  inline constexpr char skewer\[
 sed -i "s/^  inline constexpr char grid_input\[\].*/  inline constexpr char grid_input\[\] \{\"input_files\/hydro_skewers\/spec_xHeII1_007_ls_line${skewer}\.dat\"\}\;/" user_inputs.h
 
 ### ionizing photon rate incident on the skewer
-dotN='8.0e+56'
+dotN='1.00904e+57'
 sed -i "s/^  inline constexpr double dotN.*/  inline constexpr double dotN \{  ${dotN} \}\; /" user_inputs.h
 
 ### simulation runtime
-t_max='100'
+t_max='50'
 sed -i "s/^  inline constexpr double t_max.*/  inline constexpr double t_max \{ ${t_max} \}\; \/\/Runtime (in Myr)/" user_inputs.h
 sed -i "s/^  inline constexpr char gas_output\[\].*/  inline constexpr char gas_output\[\] \{\"output_files\/gas_test_hydro_${t_max}myr\.txt\"\}\;/" user_inputs.h
 
 ### defining spectral index (spectral hardness)
-spectral_index='1.500'
+spectral_index='-0.500'
 
 ### creating output directories automatically based on input parameters. If they already exist then they will be deleted.
-echo dotN${dotN}_a=${spectral_index}/
+###echo dotN${dotN}_a=${spectral_index}/
 cd output_files/
 cd gasprops/
 rm -r sk${skewer}_a=${spectral_index}/
@@ -65,4 +65,11 @@ make
 echo "beginning ./1d_radtransfer.x" 
 ./1d_radtransfer.x
 
-cd pbs_scripts
+##cd pbs_scripts
+
+###cd plotting_routines/
+###python make_movie.py ${skewer} ${spectral_index}
+###cd ../
+
+cd pbs_scripts/
+

@@ -82,12 +82,11 @@ double* calc_ifront_flux_method()
         double C_em{0}; //intensity/emissivity clumping factor
         int i{0}; //iterating over all 1D RT cells
         int numIF{0}; //number of cells within IF
-        while (f_H1[i]<frontIF_fHI){ // iterating over the IF, if xHI less than front then...
+        
+	while ((f_H1[i]<frontIF_fHI)&(i+1<N_r)){ // iterating over the IF, if xHI less than front then...
                 if (i>prev_index){ //prev_index tracks the location of photoionization equilibrium behind the IF
                         three_avg+=ne[i]*nH1[i]*q_eff_lya[i];
                         nH_avg+=nH[i];
-                        //q_avg+= q_eff_lya[i];
-                        //I_lya_test+=j_lya[i];
                         numIF+=1;
                         if ((f_H1[i]<backIF_fHI) && (f_H1[i+1]>backIF_fHI)) //find pair where xHI=0.1 (helps find Finc)
                                 for (int j=0;j<N_nu;j++)
@@ -100,8 +99,7 @@ double* calc_ifront_flux_method()
                 }
                 i+=1;
         }
-        nH_avg/=numIF;
-        //q_avg/=numIF;
+	nH_avg/=numIF;
         three_avg/=numIF;
         double nH_center = interpolate(f_H1, nH, 0.5, N_r);
         double ne_nH1_center = interpolate(f_H1, ne, 0.5, N_r) * interpolate(f_H1, nH1, 0.5, N_r);
@@ -122,12 +120,6 @@ double* calc_ifront_flux_method()
         *(otf_outputs + 5) = nH_avg; //g cm-1
         *(otf_outputs + 6) = nH_center; //g cm-1
         *(otf_outputs + 7) = C_em;
-        //*(flux_vel + 3) = three_avg;
-        //*(flux_vel + 4) = width_IF;
-        //*(flux_vel + 5) = nH2_avg;
-        //*(flux_vel + 6) = temp_eff;
-        //*(flux_vel + 7) = I_lya_test;
-        //*(flux_vel + 8) = nH_avg;
         return otf_outputs;
 }
 

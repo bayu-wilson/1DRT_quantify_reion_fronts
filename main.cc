@@ -25,6 +25,8 @@ using user_inputs::alpha;
 using user_inputs::skewer;
 using user_inputs::dotN;
 
+using g_constants::kpc_to_cm; //debug december 2022
+
 int main() {
   double start_all, end_all; //to measure performance
   int nProcessors=omp_get_num_procs();
@@ -45,41 +47,40 @@ int main() {
   // make_output(); //from io_funcs.cc, makes new data files
   int otf_step = 1; //counting on the fly files starting at 1
   double t_tot = t_max*yr_to_s*1e6; //t_max (Myr) defined in user_inputs.h. t_tot is in seconds
+  
   while (t < t_tot) //starting at t=0 to t_tot
   {
-    solve_spherical_rt(); //from rt_funcs.cc, results in the the intensity at each location and frequencies (spectrum) per location
-		update_u_nu(); //radiation energy density at each location and frequency //from rt_funcs.cc
-		update_gamma(); //photoionization rate. calc at each location //from gas_funcs.cc
-		update_chem(); //chemistry equations. calc at each location //from gas_funcs.cc
+	solve_spherical_rt(); //from rt_funcs.cc, results in the the intensity at each location and frequencies (spectrum) per location
+	update_u_nu(); //radiation energy density at each location and frequency //from rt_funcs.cc
+	update_gamma(); //photoionization rate. calc at each location //from gas_funcs.cc
+	update_chem(); //chemistry equations. calc at each location //from gas_funcs.cc
 
     //update heating and cooling functions
-  		if ( (hydro) || (temp_ev) ) { //flags found in user_inputs.h
-  			update_heat_cool(); //from gas_funcs.cc
-  		}
+ 	if ( (hydro) || (temp_ev) ) { update_heat_cool(); 
+		}//from gas_funcs.cc
     //update hydrodynamics
-		if (hydro) {
-			update_hydro(); //from gas_funcs.cc
-		}
+	if (hydro) { update_hydro(); 
+		}	//from gas_funcs.cc
 
     //update heating/cooling rates and then temperature
-    if (temp_ev) {
-      update_thermal(); //from gas_funcs.cc
-    }
+	if (temp_ev) { update_thermal(); 
+		} //from gas_funcs.c
 
     //update attenuation coefficient
     update_gamma_nu(); //from rt_funcs.cc
-    //printf("%.1e %.1e %.1e\n",t/yr_to_s/1e6,t_tot/yr_to_s/1e6,t/t_tot);
-    //if ((correct_hardening)&&(t>t_tot*0.05)){ //(t/yr_to_s/1e6>10)) { //from residual neutral gas behind the IF
-    //  reduce_hardening();
-    //}
+    
     // on-the-fly outputs
     if ((absd(remainder_chris(t, t_tot/(N_output - 1))) < dt)&&(input_grid)) {
+//double *ifront_H1  = calc_ifront(f_H1, f_H1_step, r, N_r);//*(ifront_H1 + 0)
+	   
+//printf("otf step: %d    t_frac: %.3f IF_loc: %.3f\n",otf_step,t/t_tot,(*(ifront_H1 + 0))/kpc_to_cm-R0);
+//fflush(stdout);
       //Absolute value of the remainder between time and other chunk of time
       get_j_lya(); //from data_funcs.cc
+
       //printf("output_files/gasprops/sk%s_a=%.3f/n%d_gasprops.txt\n",skewer,alpha,otf_step);
       sprintf(outputstring, "output_files/gasprops/sk%s_a=%.3f/n%d_gasprops.txt", skewer, alpha, otf_step);
       write_otf_fred(outputstring); //otf
-      //printf("HI\n");      
       //sprintf(outputstring, "output_files/incident_spectra/sk%s_a=%.3f/n%d_spectrum.txt", skewer, alpha, otf_step);
       //write_otf_spectrum(outputstring);
       otf_step+=1;
@@ -97,11 +98,11 @@ int main() {
 
     //loading_bar(t, t_tot); //from io_funcs.cc
     t += dt;
-
     //update time steps using Chris' conservative method
     update_dt(); //from rt_funcs.cc
     step += 1; //enumerating the time-steps
   }
+
 
   //loading_bar(t_tot, t_tot); //done!
 
@@ -109,18 +110,6 @@ int main() {
   // bool_initial_gas = FALSE;
   sprintf(outputstring, gas_output);
   write_gas(outputstring); //from io_funcs.cc, writing the data to files
-
-  //srand (time(NULL));
-  //double island_length;
-  //double island_pos;
-  //int Nqso = 1; //100;
-  //if (QSO_spec == TRUE)  { //CHRIS 07/18/22: output QSO spectrum to output_files
-  //  for (int i = 0; i < Nqso; i++)  {
-  //    island_length = 0.;
-  //    island_pos = 0.; //(double) (rand() % 10000 + 300 + 1000000);
-  //    calc_mock_QSO_spec(island_length, island_pos, i);
-  //  }
-  //}
 
   end_all   = omp_get_wtime();
   printf("\nProgram complete, real-time: \t%.3e seconds\n",end_all-start_all);
