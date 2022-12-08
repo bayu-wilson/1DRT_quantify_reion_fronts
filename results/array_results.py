@@ -27,7 +27,7 @@ alpha_list = np.loadtxt("../parameters_input/input_params/spectral_indices.txt")
 #delta_logvIF = logvIF_bincenters[1]-logvIF_bincenters[0]
 #logvIF_binedges = np.linspace(vlogmin-delta_logvIF/2,
 #                            vlogmax+delta_logvIF/2,Nv+1)
-skewers = ["sk0000","sk0001","sk0002","sk0003","sk0004","sk0005","sk0006","sk0007","sk0008","sk0009","sk0010"]
+skewers = ["sk0000","sk0001","sk0002","sk0003","sk0004","sk0005","sk0006","sk0007","sk0008","sk0009"]
 #dotN = np.loadtxt("../input_files/dotN_Rsim.txt",dtype=str)[:,0]
 #dotN = np.loadtxt("../parameters_input/input_params/flucRho.txt",dtype=str)[:,1]
 
@@ -46,11 +46,11 @@ for sk in skewers: #looping through the skewers
         spectral_index = alpha_list[i]
         n=1
         dir_path = "../output_files/gasprops/{}_a={:.3f}/".format(sk,spectral_index) #I shouldn't need the .3f here
-        print(dir_path,flush=True)
+        #print(dir_path,flush=True)
         gasprop_path_otf = dir_path + "n{}_gasprops.txt".format(n)
         otf_matrix = np.zeros((N_output,len(otf_names)))
         while (os.path.exists(gasprop_path_otf))&(n<=N_output):
-           with open(gasprop_path_otf,'r') as f:
+            with open(gasprop_path_otf,'r') as f:
                 line = f.readline()
             try:
                 line_array = np.asarray(line.split(' \t'),float)
