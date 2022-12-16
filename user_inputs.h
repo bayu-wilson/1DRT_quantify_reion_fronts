@@ -40,26 +40,16 @@ namespace user_inputs
   inline constexpr bool smooth_field      { TRUE }; //new BAYU July 13 2022
   inline constexpr bool correct_hardening { TRUE }; //new BAYU July 15 2022
 
-  //inline constexpr bool QSO_spec       { FALSE }; //CHRIS 05/16/22: output QSO spectrum?
-  //inline constexpr bool add_background { FALSE }; //CHRIS 05/17/22: add uniform background?
-  //inline constexpr bool LyC_opacity    { FALSE }; //Chris 06/16/22: make it an option to calculate LyC
-  //inline constexpr bool Lyn_series     { FALSE }; //Chris 06/14/22: include Lyn series in QSO spectrum?
-  //inline constexpr bool use_tau_GP     { FALSE }; //CHRIS 07/09/22: use Gunn-Petersen approximation to calculate lyman series
-  //inline constexpr int  NLyn	       {  39  }; //number of lyman series lines to use
-  //inline constexpr int  N_wav          { 1000 }; //number of wavelength bins
-  //inline constexpr double wav_start    { 1050.}; //start of the wavelength array
-  //inline constexpr double wav_end      { 800. }; //end of the wavelength array
-
   //input files (if user-defined)
-  inline constexpr char skewer[] {"0000"} ;
-  inline constexpr char grid_input[] {"input_files/hydro_skewers/spec_xHeII1_007_ls_line0000.dat"};
+  inline constexpr char skewer[] {"0009"} ;
+  inline constexpr char grid_input[] {"input_files/hydro_skewers/spec_xHeII1_007_ls_line0009.dat"};
   // inline constexpr char grid_input[] {"input_files/spec_xHeII1_003_ls_line0000.dat"};
   inline constexpr double R_start         { 1000. }; //kpc //choosing a starting point of skewer chunk
   inline constexpr char source_spectrum[] { "input_files/spectrum_hydro_10myr.txt" };
 
-  inline constexpr double t_max { 48.9 }; //Runtime (in Myr)
+  inline constexpr double t_max { 97.8 }; //Runtime (in Myr)
   //output files
-  inline constexpr char gas_output[] {"output_files/gas_test_hydro_48.9myr.txt"};
+  inline constexpr char gas_output[] {"output_files/gas_test_hydro_97.8myr.txt"};
   inline constexpr char initial_gas_output[]   { "output_files/gas_test_hydro_000myr.txt"};
 
   //grid sizes //N_r->Number of spatial bins 10,000 //1360 //680... stepsize is 0.735 pkpc
@@ -80,10 +70,10 @@ namespace user_inputs
   // inline constexpr double nu_max   { 9e3/h_eV }; //Maximum frequency
   inline constexpr double temp_0   { 5.e2 }; //Initial gas temperature in K (if not input by user) 1e2 2.e4
   inline constexpr double T_source { 1.e5 }; //Source temperature (if blackbody)
-  inline constexpr double alpha { -1.000 }; //spectral power law index if spectrum is a power law
+  inline constexpr double alpha { 2.500 }; //spectral power law index if spectrum is a power law
   // inline constexpr double dotN     { 4.e56 }; //rate of ionizing photons if spectrum is a power law
   // inline constexpr double Lum      { 8.e56*h*nu_min*alpha/(alpha - 1) }; //bolometric luminosity. fails at alpha=1
-  inline constexpr double dotN {  1.00904e+57 }; 
+  inline constexpr double dotN {  4.06020e+56 }; 
   inline constexpr double Lum {  dotN*h*nu_min }; 
   //*alpha/(alpha - 1) }; //bolometric luminosity but the alpha dependence moved to phii in init_funcs.cc
   //inline constexpr double Gam0     { 1.e-13 }; // uniform photoionization background
@@ -116,18 +106,6 @@ namespace user_inputs
   inline constexpr int N_x { 14 };
   inline constexpr int N_e { 258 };
 }
-
-// inline constexpr char spec_output[] { "output_files/spectrum_hydro_100myr.txt"};
-// inline constexpr char otf_output[] { "output_files/otf_test_hydro_100myr.txt"};
-// inline constexpr char otf_output_bayu[] { "output_files/otf_bayu_100myr.txt"}; //added 21/12/10
-// inline constexpr char otf_output_fred[] { "output_files/otf_fred_"}; //added 22/06/26
-// inline constexpr double region_IF { 100 }; // region around the IF to check the smallest timescales. This is in units of kpc!!
-// inline constexpr double Lum      = 4.e56*g_constants::h*nu_min*alpha/(alpha - 1); //for power law index L_MW = 1e43 erg/s
-// inline constexpr double Lum      = 1e57*g_constants::h*nu_min*alpha/(alpha - 1); //for power law index
-// inline constexpr double Lum      { 5e48*4.155*k_B*T_source}; //Luminosity in erg/s for blackbody
-// inline constexpr double Lum      = 5e48*h*nu; //for monochromatic
-// inline constexpr double rho_0      { 1e-3*m_H/(1 - Y) }; //uniform density (in cgs) //for Iliev 2009 test 1
-// inline constexpr double rho_0      = Omega_b/Omega_m*rho_crit(1./(1. + z)); //For Fred Davies test
 
 #endif
 
