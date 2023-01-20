@@ -86,7 +86,7 @@ for a in range(2,nbins_alpha):
     if bincenters_alpha[a]==1.5: #"1.500":
         m, b = np.polyfit(np.log10(v_IF[mask]), flux_ratio[mask], 1)
         y_fit = m*np.log10(bincenters_logvIF)+b
-        print(m,b)
+        print("At alpha=1.5, slope={}, y-intercept={}".format(m,b))
         ax.plot(bincenters_logvIF,y_fit,color='black',ls='dashed')
 
     offset = (1+flip_flop*0.005)
