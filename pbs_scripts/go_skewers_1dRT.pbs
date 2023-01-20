@@ -7,7 +7,7 @@
 #SBATCH --ntasks-per-node=64
 #SBATCH --mem=128Gb   
 #SBATCH --export=ALL        
-#SBATCH -t 10:00:00   
+#SBATCH -t 20:00:00   
 #SBATCH --mail-user=bwils033@ucr.edu
 #SBATCH --mail-type=all
 

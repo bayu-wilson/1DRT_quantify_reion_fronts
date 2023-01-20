@@ -34,14 +34,17 @@ plt.rcParams['ytick.minor.size'] = minor_tick_size
 custom_lines = [Line2D([0], [0], color=colors[0], lw=9, marker=None),
                 Line2D([0], [0], color=colors[1], lw=9, marker=None),
                 Line2D([0], [0], color=colors[2], lw=9, marker=None),
+                Line2D([0], [0],lw=0,marker=None),
                 Line2D([0], [0], color=colors[3], lw=9, marker=None),
                 Line2D([0], [0], color=colors[4], lw=9, marker=None),
                 Line2D([0], [0], color=colors[5], lw=9, marker=None),
-                Line2D([0], [0], color=colors[6], lw=9, marker=None),
-                Line2D([0], [0], color=colors[7], lw=9, marker=None)]
+                Line2D([0], [0], color='k', lw=3, ls='--')]
+                #Line2D([0], [0], color=colors[6], lw=9, marker=None),
+                #Line2D([0], [0], color=colors[7], lw=9, marker=None)]
 # Line2D([0], [0], color=colors[5], lw=9, marker=None)]
-labels = [r"$\alpha$={}".format(i) for i in bincenters_alpha]
+labels = [r"$\alpha$={:.1f}".format(float(i)) for i in bincenters_alpha]
                 # Line2D([0], [0], lw=0)]
+labels.insert(-3, '')
 
 #input data -
 df = pd.read_csv("/expanse/lustre/projects/uot171/bwils033/master_1d_rt/results/221202/otf.csv")
@@ -70,7 +73,7 @@ fig.set_size_inches(w=6,h=6)
 
 #car = ['red', 'orange','gold','green','blue','purple']
 flip_flop = 1
-for a in range(nbins_alpha):
+for a in range(2,nbins_alpha):
     mask = (alpha_array == bincenters_alpha[a])
     print(bincenters_alpha[a],np.sum(mask))
     flux_ratio_means = np.zeros(nbins_logvIF)
@@ -102,7 +105,8 @@ for a in range(nbins_alpha):
 
 ax.set_xlabel(r"IF speed, log$_{10}$ v$_{\mathrm{IF}}$ [km/s]")
 ax.set_ylabel(r"Flux ratio, $\zeta(\alpha, v_{\mathrm{IF}})$")
-#ax.set_ylim(0,0.27)
+ax.set_ylim(-0.03,1.25)
+ax.set_xlim(2.5,4.65)
 
 custom_lines.append(Line2D([0], [0], color='k', lw=3,ls='dashed', marker=None))
 labels.append(r"Best fit")
@@ -110,7 +114,7 @@ labels.append(r"Best fit")
 # ax[1].set_xlabel(r"IF speed, log$_{10}$ v$_{\mathrm{IF}}$ [km/s]")
 # ax[1].set_ylabel(r"Emissivity Clumping Factor, C$_e$")
 
-ax.legend(custom_lines,labels,ncol=2,frameon=False)
+ax.legend(custom_lines,labels[2:],ncol=2,frameon=False)
 
 # plt.tight_layout()
 fig.savefig("figures/flux_ratio.pdf", bbox_inches="tight")
