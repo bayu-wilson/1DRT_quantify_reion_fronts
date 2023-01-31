@@ -102,9 +102,12 @@ void update_step()
 void solve_spherical_rt()
 {
 	// #pragma omp parallel for if (parallel)
-	for (int i=1; i < N_r; i++)
+	//BAYU: switched the j and i loops Jan 31, 2023 
+	#pragma omp parallel for if (parallel)
+	for (int j=0; j < N_nu; j++) //this is parallizable
 	{
-		for (int j=0; j < N_nu; j++)
+		//for (int j=0; j < N_nu; j++) // cannot parallelize because there's an i and i-1
+		for (int i=1; i < N_r; i++)
 		{
 			if (FINITE_C == FALSE)
 			{
