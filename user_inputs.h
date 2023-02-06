@@ -38,22 +38,23 @@ namespace user_inputs
   inline constexpr bool temp_ev           { TRUE }; //temperature evolution flag
   inline constexpr bool hydro		  { FALSE }; //include hydrodynamics flag
   inline constexpr bool smooth_field      { TRUE }; //new BAYU July 13 2022
-  inline constexpr bool correct_hardening { TRUE }; //new BAYU July 15 2022
+  inline constexpr bool correct_hardening { FALSE }; //new BAYU July 15 2022 
 
   //input files (if user-defined)
-  inline constexpr char skewer[] {"0009"} ;
-  inline constexpr char grid_input[] {"input_files/hydro_skewers/spec_xHeII1_007_ls_line0009.dat"};
+  inline constexpr char skewer[] {"0000"} ;
+  inline constexpr char grid_input[] {"input_files/hydro_skewers/spec_xHeII1_007_ls_line0000.dat"};
+  inline constexpr char otf_dir[] {"output_files/gasprops/sk0000_hardRun/"};
   // inline constexpr char grid_input[] {"input_files/spec_xHeII1_003_ls_line0000.dat"};
   inline constexpr double R_start         { 1000. }; //kpc //choosing a starting point of skewer chunk
   inline constexpr char source_spectrum[] { "input_files/spectrum_hydro_10myr.txt" };
 
-  inline constexpr double t_max { 97.8 }; //Runtime (in Myr)
+  inline constexpr double t_max { 300 }; //Runtime (in Myr)
   //output files
-  inline constexpr char gas_output[] {"output_files/gas_test_hydro_97.8myr.txt"};
+  inline constexpr char gas_output[] {"output_files/gas_hardRun_300myr.txt"};
   inline constexpr char initial_gas_output[]   { "output_files/gas_test_hydro_000myr.txt"};
 
   //grid sizes //N_r->Number of spatial bins 10,000 //1360 //680... stepsize is 0.735 pkpc
-  inline constexpr int N_r { 1360 };
+  inline constexpr int N_r { 3000 };
   inline constexpr int N_nu   { 30 }; //Number of frequency bins 50
 
   //time stepping
@@ -64,16 +65,16 @@ namespace user_inputs
 
   inline constexpr double z        { 5.7 }; //redshift
   inline constexpr double R0       { 1.e4 }; //minimum radius of the grids //keep large to minimize geometric attenuation //different than R_start
-  inline constexpr double R        { R0+1000 };  //Total radius for the spatial grid (in pkpc) 
+  inline constexpr double R        { R0+3000 };  //Total radius for the spatial grid (in pkpc) 
   inline constexpr double nu_min   { 13.6/h_eV }; //Minimum frequency (in Hz)
   inline constexpr double nu_max   { 13.6/h_eV*4 }; //Maximum frequency (in Hz)
   // inline constexpr double nu_max   { 9e3/h_eV }; //Maximum frequency
   inline constexpr double temp_0   { 5.e2 }; //Initial gas temperature in K (if not input by user) 1e2 2.e4
   inline constexpr double T_source { 1.e5 }; //Source temperature (if blackbody)
-  inline constexpr double alpha { 2.500 }; //spectral power law index if spectrum is a power law
+  inline constexpr double alpha { 1.500 }; //spectral power law index if spectrum is a power law
   // inline constexpr double dotN     { 4.e56 }; //rate of ionizing photons if spectrum is a power law
   // inline constexpr double Lum      { 8.e56*h*nu_min*alpha/(alpha - 1) }; //bolometric luminosity. fails at alpha=1
-  inline constexpr double dotN {  4.06020e+56 }; 
+  inline constexpr double dotN {  6.06020e+56 }; 
   inline constexpr double Lum {  dotN*h*nu_min }; 
   //*alpha/(alpha - 1) }; //bolometric luminosity but the alpha dependence moved to phii in init_funcs.cc
   //inline constexpr double Gam0     { 1.e-13 }; // uniform photoionization background

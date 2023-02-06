@@ -27,7 +27,8 @@ lambda_lya_cm = 1.21567e-5
 #spectral_index = "1.500"
 #dotN = "2.51189e+56"
 #dir_path = "../output_files/gasprops/dotN{}_a={}/".format(dotN,spectral_index)
-dir_path = "../output_files/gasprops/sk{}_a={}/".format(skewer_number,spectral_index)
+#dir_path = "../output_files/gasprops/sk{}_a={}/".format(skewer_number,spectral_index)
+dir_path = "../output_files/gasprops/sk{}_hardRun/".format(skewer_number)
 fontsize=10
 
 panel_matrix = [["IF width [kpc]",r"F$_{inc}$",r"$x_{HI}$(r)",r"$n_e \times n_p$ (r)"],
