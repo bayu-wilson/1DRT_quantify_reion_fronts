@@ -201,7 +201,7 @@ void write_otf_spectrum(char output_string[]){
 	FILE *file = NULL;
 	file = fopen(output_string, "w");
 	for (int j{ 0 }; j < N_nu; j++){
-		int index_rear_IF = find_index(f_H1,backIF_fHI,N_r);
+		int index_rear_IF = find_index(f_H1,0.01,N_r); // BAYU CHANGED FEB. 6 ///backIF_fHI,N_r);
 		if (index_rear_IF<=N_r){
 			fprintf(file, "%le \t", nu[j]);
 			fprintf(file, "%le \n", I_nu[index_rear_IF][j]);

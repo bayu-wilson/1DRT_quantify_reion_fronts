@@ -24,6 +24,9 @@ cd ../
 ### Using skewers from Matthew McQuinn's simulations
 sed -i "s/^  inline constexpr bool input_grid.*/  inline constexpr bool input_grid       \{ TRUE \}\; \/\/User-defined input grid\? /" user_inputs.h
 
+### Hardening correction because we want to minimized it's effect
+sed -i "s/^  inline constexpr bool correct_hardening.*/  inline constexpr bool correct_hardening \{ TRUE \}\; \/\/new BAYU July 15 2022 /" user_inputs.h
+
 ### Setting constant skewer length and cell size
 Rsim='1000'
 sed -i "s/^  inline constexpr double R .*/  inline constexpr double R        \{ R0+${Rsim} \}\;  \/\/Total radius for the spatial grid \(in pkpc\) /" user_inputs.h
@@ -55,6 +58,8 @@ do
   for (( i=0; i<len_indices; i++))
   do
     echo output_files/gasprops/sk${skewer}_a=${spectral_indices[i]}/ 
+    sed -i "s/^  inline constexpr char otf_dir\[\].*/  inline constexpr char otf_dir\[\] \{\"output_files\/gasprops\/sk${skewer}_a=${spectral_indices[i]}\/\"\}\;/" user_inputs.h
+
     cd output_files/
     cd gasprops/
     rm -r sk${skewer}_a=${spectral_indices[i]}/
