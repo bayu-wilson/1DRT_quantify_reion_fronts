@@ -28,13 +28,13 @@ sed -i "s/^  inline constexpr bool input_grid.*/  inline constexpr bool input_gr
 sed -i "s/^  inline constexpr bool correct_hardening.*/  inline constexpr bool correct_hardening \{ FALSE \}\; \/\/new BAYU July 15 2022 /" user_inputs.h  
 
 ### Setting constant skewer length and cell size
-Rsim='3000'
+Rsim='2500'
 sed -i "s/^  inline constexpr double R .*/  inline constexpr double R        \{ R0+${Rsim} \}\;  \/\/Total radius for the spatial grid \(in pkpc\) /" user_inputs.h
-N_r='3000'
+N_r='2500'
 sed -i "s/^  inline constexpr int N_r.*/  inline constexpr int N_r \{ ${N_r} \}\;/" user_inputs.h
 
-skewer='0000'
-dotN='6.06020e+56'
+skewer='0001'
+dotN='6.5e+56'
 t_max='300'
 alpha='1.500'
 sed -i "s/^  inline constexpr char skewer\[\].*/  inline constexpr char skewer\[\] \{\"${skewer}\"\} \;/" user_inputs.h

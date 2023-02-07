@@ -27,7 +27,7 @@ column_names = ["los pos[pkpc]","rho","ne","ne_prev","n_tot","T[K]",
 rows,cols=(2,2)
 
 
-skewer_number = "0000"
+skewer_number = "0001"
 dir_path = "../output_files/gasprops/sk{}_hardRun/".format(skewer_number)
 n=1
 fig_name_list = []
@@ -62,7 +62,9 @@ while os.path.exists(gasprop_path):
     ax[1,1].plot(length_list,alpha_list)
 
     ax[0,0].set_ylim(0,5e-23)
-    ax[1,1].set_xlim(0,1e3)
+    ax[0,1].set_xlim(0,2.5e3)
+    ax[1,1].set_xlim(0,2.5e3)
+    ax[1,1].set_ylim(0.5,2.5)
     
     fig_name="movies/movie_snapshots/n{}.png".format(n)
     fig_name_list.append(fig_name)
