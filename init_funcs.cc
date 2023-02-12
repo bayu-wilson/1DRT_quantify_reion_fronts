@@ -147,6 +147,21 @@ void init_gas(){
 	}
 }
 
+//void init_gammaBackground() {
+//	//total photoionization rate in IONIZED gas. This only gets added BEHIND the IF.
+//	double f_bkg {0.02};
+//      	double gamma_UVB {4e-13}; //s^-1
+//	double nH_SSh {4e-3}; //nH threshold at which self-shielding begins. cm^-3
+//	double n0_bkg {1.003*nH_SSh};
+//	double alpha1_bkg {-2.28};
+//	double alpha2_bkg {-0.84};
+//	double beta_bkg {1.64};
+//	for (int i{ 0 }; i < N_r; i++){
+//		gamma_background[i] = (1-f_bkg)*pow(1+pow(nH[i]/n0_bkg,beta_bkg),alpha1_bkg)+f_bkg*pow(1+(nH[i]/n0_bkg),alpha2_bkg);
+//		gamma_background[i] *= gamma_UVB;	
+//	}	
+//}
+
 void init_intensity(){
 	double norm, phii, log_nu;
 	double temp_nu_min = log10(1e11);
@@ -186,7 +201,8 @@ void init_intensity(){
 			for (int j{ 0 }; j < N_nu; j++) {
 				//phii = (alpha - 1)/nu[0]*pow(nu[j]/nu[0],-alpha);
 				//phii *= (pow(4,1-alpha)-1)/(pow(4,-alpha)-1); //correction to luminosity due to 4 Ryd source intensity limit
-				phii = alpha/nu[0]/(1-pow(4,-alpha))*pow(nu[j]/nu[0],-alpha); //spectral shape times the Luminosity alpha dependence
+				//phii = alpha/nu[0]/(1-pow(4,-alpha))*pow(nu[j]/nu[0],-alpha); //spectral shape times the Luminosity alpha dependence
+				phii = (1-alpha)/nu[0]/(pow(4,1-alpha)-1)*pow(nu[j]/nu[0],-alpha);
 				I_nu_prev[0][j] = Lum/16./pow(pi,2)/pow(R0*kpc_to_cm,2)*phii;
 				I_nu[0][j]      = Lum/16./pow(pi,2)/pow(R0*kpc_to_cm,2)*phii;
 			}

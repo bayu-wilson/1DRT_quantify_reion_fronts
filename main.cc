@@ -43,6 +43,7 @@ int main() {
   }
   init_intensity(); //from init_funcs.cc, initialize the source (probably BB) in the first grid-cell
   update_gamma_nu();  //from rt_funcs.cc, initializes opacity (absorption coefficient)
+  //init_gammaBackground(); //from init_funcs.cc, total photoionization rate in ionized gas from density. takes into accound SSh
   int otf_step = 1; //counting on the fly files starting at 1
   double t_tot = t_max*yr_to_s*1e6; //t_max (Myr) defined in user_inputs.h. t_tot is in seconds
   

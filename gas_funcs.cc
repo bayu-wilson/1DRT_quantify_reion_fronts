@@ -23,6 +23,7 @@ using user_inputs::recomb_cool;
 using user_inputs::coll_ion;
 using user_inputs::spectrum;
 using user_inputs::parallel;
+using user_inputs::correct_hardening;
 //using user_inputs::add_background; //CHRIS 05/17/22
 //using user_inputs::Gam0;
 
@@ -70,12 +71,10 @@ void update_gamma()
 			gamma_He1_tot[i] += cic_He1(temp[i])*ne[i];
 			gamma_He2_tot[i] += cic_He2(temp[i])*ne[i];
 		}
+
 		//CHRIS 05/17/22: add uniform background
-		//if ( add_background == TRUE)  {
-		//	gamma_H1_tot[i] += Gam0;
-		//	gamma_He1_tot[i] += Gam0;
-		//}
-		if ((pos_IF>10*kpc_to_cm)&(t/yr_to_s/1e6>10)&(user_inputs::correct_hardening)) {
+		//Hardening correction. This increases photoionization rate very high behind IF.
+		if ((pos_IF>10*kpc_to_cm)&(t/yr_to_s/1e6>10)&(correct_hardening == TRUE)) {
 			double equil_cond = dne_dt[i]/n_tot[i]*(0.735*kpc_to_cm/c);
 			if ((equil_cond<1e-8)&(r[i]<pos_IF)) {
 				gamma_H1_tot[i]  = 1e-10;

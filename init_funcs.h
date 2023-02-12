@@ -3,6 +3,7 @@
 
 void init_grid();
 void init_gas();
+void init_gammaBackground();
 void init_intensity();
 
 #endif
