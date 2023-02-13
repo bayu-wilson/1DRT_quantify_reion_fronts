@@ -49,11 +49,13 @@ def sigma_over_sigmaHI0_analytic(alpha):
 def find_root_sigma(alpha,*C):
     return sigma_over_sigmaHI0_analytic(alpha)-C
 
-column_names = ["los pos[pkpc]","rho","ne","ne_prev","n_tot","T[K]",
-                "xHI","xHeI","xHeII","xHeIII","q_lya"]
+
+column_names = ["los pos[pkpc]","rho","ne","dene_dt","n_tot","T[K]","xHI","xHeI","xHeII","gamma_HI","q_lya"]
+#column_names = ["los pos[pkpc]","rho","ne","ne_prev","n_tot","T[K]",
+#                "xHI","xHeI","xHeII","xHeIII","q_lya"]
 rows,cols=(2,2)
 
-skewer_number = "0001"
+skewer_number = "0003"
 dir_path = "../output_files/gasprops/sk{}_hardRun/".format(skewer_number)
 n=1
 fig_name_list = []
@@ -71,6 +73,7 @@ while os.path.exists(gasprop_path):
     locIF_calc =  np.interp(0.5,df_gasprops["xHI"],los_pos)
     backIF = np.interp(0.10,df_gasprops["xHI"],los_pos)
     frontIF = np.interp(0.75,df_gasprops["xHI"],los_pos)
+    gamma_HI_tot = df_gasprops["gamma_HI"]
 
     nu,I_nu = np.loadtxt(spectrum_path).T
     nu_eV = nu*h_eV
@@ -86,13 +89,17 @@ while os.path.exists(gasprop_path):
     spectrum_path = dir_path+"n{}_spectrum.txt".format(n)
     ax[0,0].plot(nu_eV/13.6,I_nu)
     ax[0,1].plot(los_pos,np.log10(nHI))
+    ax[1,0].plot(los_pos,np.log10(gamma_HI_tot))
     ax[1,1].plot(length_list,alpha_list)
-
+    
     ax[0,0].set_ylim(0,5e-23)
     ax[0,1].set_xlim(0,2.5e3)
+    ax[1,0].set_xlim(0,2.5e3)
+    ax[1,0].set_ylim(-13.5,-11.5)
     ax[1,1].set_xlim(0,2.5e3)
     ax[1,1].set_ylim(0,1.75)
     
+    ax[1,0].set_xlabel("los pos [pkpc]")
     fig_name="movies/movie_snapshots/n{}.png".format(n)
     fig_name_list.append(fig_name)
     fig.savefig(fig_name,dpi=100)
