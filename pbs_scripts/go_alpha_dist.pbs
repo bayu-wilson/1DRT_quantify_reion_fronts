@@ -1,0 +1,21 @@
+#!/bin/bash                    
+#SBATCH --job-name="alpha_dist"          
+#SBATCH --output="../dot_out/ad.%N.out"
+#SBATCH --account=TG-PHY210041
+#SBATCH --partition=shared
+#SBATCH --nodes=1
+#SBATCH --ntasks-per-node=64
+#SBATCH --mem=128Gb   
+#SBATCH --export=ALL        
+#SBATCH -t 01:00:00   
+#SBATCH --mail-user=bwils033@ucr.edu
+#SBATCH --mail-type=all
+
+####module load gcc
+module load anaconda3/2020.11
+
+echo "submitted batch file: go_alpha_dist.pbs"
+cd ../plotting_routines/
+echo "running alpha_distribution.py"
+python alpha_distribution.py 
+cd ../pbs_scripts/
