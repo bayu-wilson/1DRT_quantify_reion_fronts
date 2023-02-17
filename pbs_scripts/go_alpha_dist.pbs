@@ -1,6 +1,6 @@
 #!/bin/bash                    
-#SBATCH --job-name="alpha_dist"          
-#SBATCH --output="../dot_out/ad.%N.out"
+#SBATCH --job-name="calcAlphaMatrix"          
+#SBATCH --output="../dot_out/calcAM.%N.out"
 #SBATCH --account=TG-PHY210041
 #SBATCH --partition=shared
 #SBATCH --nodes=1
@@ -14,8 +14,9 @@
 ####module load gcc
 module load anaconda3/2020.11
 
-echo "submitted batch file: go_alpha_dist.pbs"
-cd ../plotting_routines/
-echo "running alpha_distribution.py"
-python alpha_distribution.py 
+echo "submitted batch file: go_calcAlphaMatrix.pbs"
+cd ../results/
+echo "running calculate_alpha_matrix.py"
+python calculate_alpha_matrix.py 
 cd ../pbs_scripts/
+echo "done"
