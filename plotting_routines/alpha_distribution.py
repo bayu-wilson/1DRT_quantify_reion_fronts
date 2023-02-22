@@ -27,8 +27,8 @@ delta_r = np.median(los_pos_bin_edges[1:]-los_pos_bin_edges[:-1])
 los_pos_bin_centers = los_pos_bin_edges[:-1]+delta_r/2
 
 #Define what skewers to cycle through
-skewer_array = np.arange(0,30,1)
-skewer_array = np.delete(skewer_array,[0,2,3,4,16,18,20,21,22,23,27,28]) #these have high density spikes that produce outliers
+skewer_array = np.arange(0,41,1)
+skewer_array = np.delete(skewer_array,[0,2,3,4,16,18,20,21,22,23,27,28,30,36]) #these have high density spikes that produce outliers
 
 #Plotting each skewer's alpha distribution
 fig,ax = plt.subplots(1,figsize=(6,5))
