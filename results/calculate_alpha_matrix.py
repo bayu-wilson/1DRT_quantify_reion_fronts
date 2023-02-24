@@ -27,8 +27,8 @@ def find_root_sigma(alpha,*C):
 
 column_names = ["los pos[pkpc]","rho","ne","dene_dt","n_tot","T[K]","xHI","xHeI","xHeII","gamma_HI","q_lya"]
 los_pos_bins = np.linspace(0,2500,11)
-alpha_matrix = np.zeros((30+1,10))
-for i in range(0,30+1):
+alpha_matrix = np.zeros((40+1,10))
+for i in range(0,40+1):
     skewer_number = "{:04d}".format(i)
     dir_path = "../output_files/gasprops/sk{}_hardRun/".format(skewer_number)
 
