@@ -1,53 +1,92 @@
 import numpy as np
 
-#constants
+h=6.626068e-27 #erg s
+h_eV=4.135667e-15 #eV s
+nu0=13.6/h_eV
+alpha=1.5
+pi=np.pi
+
+Omega_b = 0.048
 z = 5.7
-omega_b = 0.048
 rho_crit_z = 8.688e-30*(1+z)**3 #g/cm3
-rhoBaryons_0 = rho_crit_z*omega_b #g/cm3
-m_h = 1.672622e-24 #g
-pi = np.pi
-Y = 0.24 #helium fraction
+rho_crit_z_b = rho_crit_z*Omega_b
+m_H =  1.672622e-24 #g
+Y = 0.24
+n_H = (1-Y)*rho_crit_z_b/m_H
+print(n_H)
+n_H *=8 #BAYU MAY 16, 2023. Increasing mean density by 10. This should decrease IF width by 10!
+print(n_H)
 chi = 0.08
-nH_const = (1-Y)*rhoBaryons_0/m_h #hydrogen number density
-c_cms = 3e+10 #km/s
-km_to_cm =1e+5 #cm/km
-kpc_to_km = 3.086e+16 #km/kpc
-kpc_to_cm = 3.086e+21 #cm/kpc
-myr_to_s = 1.e+6*3.154e+7 #s/myr
-mpc_to_km = 3.086e19 #km/mpc
-R_naught = 1e+4*kpc_to_cm #cm #to minimize geometric attenuation
-t_sim_initial = 100 * myr_to_s #100myr in seconds. I will add a 100kpc cushion so the actual t_sim will be larger
-R_cushion = 100 #kpc
-min_log_Ndot = 56 #Ndot = 10^56 photons/s
-max_log_Ndot = 57
-bins_log_Ndot = 6
-mpc_to_kpc = 1e+3 #kpc/mpc
-cell_size = 0.735 #kpc #N_r*cell_size = sim_size
-
-#functions
-def get_vIF(n_dot):
-    #IF speed given dot N, through density nH, at R0 distance away from source. including correction for relativistic speeds 
-    v_kms_s = c_cms*n_dot/(n_dot + 4*pi*R_naught**2*c_cms*nH_const*(1+chi)) / km_to_cm #[cm/s][km/cm]=[km/s]
-    return v_kms_s
-def get_Rsim(n_dot):
-    #size of simulation for the IF to pass through it and sample it well
-    Rsim_func = get_vIF(n_dot)/mpc_to_km*t_sim_initial*mpc_to_kpc #[km/s][mpc/km][s][kpc/mpc]=[kpc]
-    return Rsim_func + R_cushion
-def get_tsim(n_dot):
-    t_sim_cushion = (R_cushion/get_vIF(n_dot))*kpc_to_km/myr_to_s #[kpc][s/km][km/kpc][myr/s]=[Myr]
-    return t_sim_cushion+t_sim_initial/myr_to_s #time to pass through cushion as well as the rest of the skewer
-
-#parameter calculations
-dotN_arr = np.logspace(min_log_Ndot,max_log_Ndot,bins_log_Ndot) #ionizing photon rate
-R_sim_arr = get_Rsim(dotN_arr) #size of sim plus 100 pkc cushion
-N_r_arr = np.asarray(R_sim_arr/cell_size-1,int) #number of cells to maintain 0.735 pkpc cell size
-t_sim_arr = get_tsim(dotN_arr) # simulation time required for IF to pass through calculated skewer PLUS 100pkc beginning part
-
-stack = np.column_stack((dotN_arr,R_sim_arr,N_r_arr,t_sim_arr))
-np.savetxt(fname="input_params/constRho.txt",X=stack,fmt=('%.5e','%.5e','%d','%.1f'))
-#np.loadtxt("test.txt",dtype=str)
 
 
+cm_per_kpc = 3.086e+21
+cm_per_km  = 1e+5
+logvIF_min,logvIF_max,nbins = 3.0,4.5,4
 
+logvIF_bincenters = np.linspace(logvIF_min,logvIF_max,nbins)
+delta_logvIF = (logvIF_max-logvIF_min)/(nbins-1)
+logvIF_binedges = np.linspace(logvIF_min-delta_logvIF/2,logvIF_max+delta_logvIF/2,nbins+1)
+vIF_binedges_cms = 10**logvIF_binedges * cm_per_km #km/s *cm/km = cm/s
+vIF_bincenters_cms = 10**logvIF_bincenters * cm_per_km
+
+R0 = 1e3*cm_per_kpc #pkpc to cm
+R_buffer = 100*cm_per_kpc
+sec_per_yr = 3.154e7
+yr_per_Myr = 1e6
+
+def get_ionizing_flux(L,r,R0): #photons/s/cm2
+    return 1/h/nu0 * (alpha-1)/alpha * (4**-alpha-1)/(4**(1-alpha)-1) * L/4/pi/(R0+r)**2
+
+def get_IF_speed(flux,n_H): #cms
+    return flux/n_H/(1-chi)
+
+def get_luminosity(speedIF,r,R0,n_H):
+    return speedIF * h*nu0 * alpha/(alpha-1) * (4**(1-alpha)-1)/(4**-alpha-1) * 4*pi*(R0+r)**2 * n_H*(1+chi)
+
+def get_skewer_length(speedIF,L,R0,n_H):
+    radicand=1/h/nu0 * (alpha-1)/alpha * (4**-alpha-1)/(4**(1-alpha)-1) * L/4/pi/speedIF * 1/n_H/(1-chi)
+    return np.sqrt(radicand)-R0
+
+def get_time(L,R,R0,n_H):
+    coeff = h*nu0 * alpha/(alpha-1) * (4**(1-alpha)-1)/(4**-alpha-1) * 4*pi/L * n_H*(1+chi)
+    return coeff*1/3*((2*R0+R)**3-(2*R0)**3)/1.75 #1.75 is added via calibration!!!
+
+def get_parameter_input(min_speed,max_speed,R0,n_H):
+    lum_to_get_max_speed = get_luminosity(speedIF=max_speed,r=R_buffer,R0=R0,n_H=n_H) #erg/s
+    len_to_get_min_speed = get_skewer_length(speedIF=min_speed,L=lum_to_get_max_speed,R0=R0,n_H=n_H)#/cm_per_kpc
+    time_to_cross_len = get_time(L=lum_to_get_max_speed, R=len_to_get_min_speed, R0=R0,n_H=n_H)
+    return lum_to_get_max_speed,len_to_get_min_speed,time_to_cross_len
+
+def print_readable_units(min_speed,max_speed,lum_to_get_max_speed,len_to_get_min_speed,time_to_cross_len):
+    print("Say we want to explore IF speeds from {:.2e} to {:.2e} km/s".format(min_speed/1e5,max_speed/1e5))
+    print("In order for the maximum vIF to be reached at the beginning of the skewer,L={:.2e} erg/s".format(
+        lum_to_get_max_speed))
+    print("In order for flux to geometrically attentuate enough to reach the minimum speed, R_sim={:.2f} pkpc".format(
+        len_to_get_min_speed/cm_per_kpc))
+    print("The time it will take for the IF to travel accross the whole skewer length is t_sim={:.2f} Myr".format(
+        time_to_cross_len/sec_per_yr/yr_per_Myr))
+
+
+stack = []
+for i in range(len(vIF_binedges_cms)-1):
+    max_speed = vIF_binedges_cms[i+1]
+    min_speed = vIF_binedges_cms[i]
+    args = (min_speed,max_speed
+           )+get_parameter_input(min_speed,max_speed,R0,n_H)
+    L,R,t = get_parameter_input(min_speed,max_speed,R0,n_H)
+    R+=R_buffer
+    R/=cm_per_kpc
+    t/=(sec_per_yr*yr_per_Myr)
+    stack.append([L,R,R0/cm_per_kpc,t])
+    print_readable_units(*args)
+    print("")
+
+print("Four columns: L, R, R0, t")
+np.savetxt(fname="input_params/varyLum.txt",X=stack,fmt=('%.2e','%d','%.1e','%.1f'))
+print(np.loadtxt(fname="input_params/varyLum.txt",dtype=str))
+
+#stack = np.column_stack((skewer_temp,dotN_approx_arr,t_sim_arr))
+#print(stack)
+#np.savetxt(fname="input_params/flucRho.txt",X=stack,fmt=('%04d','%.5e','%.1f'))
+#print(np.loadtxt(fname="input_params/flucRho.txt",dtype=str))
 
