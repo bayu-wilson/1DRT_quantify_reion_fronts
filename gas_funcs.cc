@@ -30,9 +30,9 @@ using user_inputs::correct_hardening;
 //compute photoionization rates for HI, HeI, and HeII
 void update_gamma()
 {
-	double pos_IF = interpolate(f_H1, r, 0.5, N_r); //cm
+	double pos_IF = interpolate(f_H1, r, 0.5, N_r); //cm //used in equilibrium condition function
 	#pragma omp parallel for if (parallel)
-	for (int i=prev_index; i < N_r; i++)
+	for (int i=prev_index; i < N_r-1; i++) //minus one because delta_r has N-1 indices
 	{
 		gamma_H1_tot[i]  = 0;
 		gamma_He1_tot[i] = 0;
@@ -74,12 +74,13 @@ void update_gamma()
 
 		//CHRIS 05/17/22: add uniform background
 		//Hardening correction. This increases photoionization rate very high behind IF.
-		if ((pos_IF>10*kpc_to_cm)&(t/yr_to_s/1e6>10)&(correct_hardening == TRUE)) {
-			double equil_cond = dne_dt[i]/n_tot[i]*(0.735*kpc_to_cm/c);
+		//if ((pos_IF>10*kpc_to_cm)&(t/yr_to_s/1e6>10)&(correct_hardening == TRUE)) {
+		if (correct_hardening == TRUE){
+			double equil_cond = dne_dt[i]/n_tot[i]*delta_r[i]/c // (1*kpc_to_cm/c); //BAYU APRIL 28, 2023 and May 19, 2023
 			if ((equil_cond<1e-8)&(r[i]<pos_IF)) {
-				gamma_H1_tot[i]  = 1e-10;
-				gamma_He1_tot[i] = 1e-10;
-				gamma_He2_tot[i] = 1e-10;
+				gamma_H1_tot[i]  = 1;//1e-10;
+				gamma_He1_tot[i] = 1;//1e-10;
+				gamma_He2_tot[i] = 1;//1e-10;
 				prev_index+=1;
 			}
 		}
@@ -281,6 +282,8 @@ void update_chem()  {
 			f_He1[i] = nHe1[i]/nHe[i];
 			f_He2[i] = nHe2[i]/nHe[i];
 			f_He3[i] = nHe3[i]/nHe[i]; //ionization states
+			
+			f_H1_prev[i] = nH1_prev[i]/nH_prev[i]; //BAYU: 04/13/23 
 
 			nH_prev[i]    = nH[i];
 			nHe_prev[i]   = nHe[i];
