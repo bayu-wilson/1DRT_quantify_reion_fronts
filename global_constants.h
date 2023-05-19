@@ -30,7 +30,7 @@ namespace g_constants
   inline constexpr double chi_He { 0.08 }; // 1+chi factor accounts for single-ionized helium
 
   //Cosmological parameters
-  inline constexpr double Y { 0.24 }; // Mass ratio of helium
+  inline constexpr double Y  { 0.24 }; // Mass ratio of helium
   inline constexpr double Omega_m { 0.3 }; // Density of matter in the universe
   inline constexpr double Omega_l { 0.7 }; // Dark energy density
   inline constexpr double Omega_b { 0.048 }; // Baryon density

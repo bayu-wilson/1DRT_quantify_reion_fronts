@@ -107,6 +107,7 @@ extern double dT_dt	   [N_r];
 
 //abundances
 extern double f_H1        [N_r]; //HI fraction
+extern double f_H1_prev   [N_r]; //TO CALCULATE IF SPEED BAYU: 04/13/23
 extern double f_H1_step   [N_r];
 extern double f_He1       [N_r]; //HeI fraction
 extern double f_He1_step  [N_r];

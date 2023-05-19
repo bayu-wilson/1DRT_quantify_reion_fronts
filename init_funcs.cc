@@ -37,6 +37,11 @@ void init_gas(){
 	else {
 		for (int i{ 0 }; i < N_r; i++){
 			rho_total[i] = power_law(r[i], r[0], rho_0, rho_index); //rho_0 is in user_inputs.h, it is uniform density (in cgs)
+			rho_total[i] = scale_density_factor*rho_total[i]; //BAYU, MAY 19, 2023. THIS DECREASES IF WIDTH. ADDRESSES FLUX_RATIO OFFSET BUG
+			//if (i>0.3*N_r) { //BAYU, MARCH 30 2023. TESTING CLUMP PENETRATION
+			//	rho_total[i]*=50;
+			//}
+
 			//if ((i>0.45*N_r)&&(i<0.55*N_r)){
 			//	rho_total[i] = power_law(r[i]/kpc_to_cm-R0, 1, rho_0/1e4, 5);
 			rho_prev[i]  = rho_total[i];
@@ -202,8 +207,13 @@ void init_intensity(){
 				//phii = (alpha - 1)/nu[0]*pow(nu[j]/nu[0],-alpha);
 				//phii *= (pow(4,1-alpha)-1)/(pow(4,-alpha)-1); //correction to luminosity due to 4 Ryd source intensity limit
 				//phii = alpha/nu[0]/(1-pow(4,-alpha))*pow(nu[j]/nu[0],-alpha); //spectral shape times the Luminosity alpha dependence
-				phii = (1-alpha)/nu[0]/(pow(4,1-alpha)-1)*pow(nu[j]/nu[0],-alpha);
-				I_nu_prev[0][j] = Lum/16./pow(pi,2)/pow(R0*kpc_to_cm,2)*phii;
+				if (alpha-1==0) {
+					phii = 1/log(4) / nu[j];			
+				}
+				else { 
+					phii = (1-alpha)/nu[0]/(pow(4,1-alpha)-1)*pow(nu[j]/nu[0],-alpha);
+				}
+				I_nu_prev[0][j] = Lum/16./pow(pi,2)/pow(R0*kpc_to_cm,2)*phii; //in Bayu's definition, this is specific radiant intensity
 				I_nu[0][j]      = Lum/16./pow(pi,2)/pow(R0*kpc_to_cm,2)*phii;
 			}
 		}

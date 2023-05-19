@@ -7,7 +7,7 @@
 int prev_index{0};
 
 //default differentials
-double dr     			  = (R-R0)/(N_r - 1); //in kpc
+double dr     			  = (R-R0)/N_r; //in kpc // got rid of N_r-1 because I don't think it's necessary
 double dlog_nu 				= 0;
 double dt				      = 1e-4*t_max*yr_to_s*1e6/(N_output - 1);
 
@@ -96,6 +96,7 @@ double dT_dt	   [N_r]{};
 
 //abundances
 double f_H1        [N_r]{}; //HI fraction
+double f_H1_prev   [N_r]{}; //TO CALCULATE IF SPEED BAYU: 04/13/23
 double f_H1_step   [N_r]{};
 double f_He1       [N_r]{}; //HeI fraction
 double f_He1_step  [N_r]{};
