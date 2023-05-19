@@ -9,6 +9,8 @@ double calc_vol_avg(double f[], int n);
 double calc_mass_avg(double f[], double rho[], double m, int n);
 //Calculate ionization front position and velocity
 double* calc_ifront(double x[], double xprev[], double radius[], int n);
+//double* calc_ifront_avg(double x[], double xprev[], double radius[], int n);
+double* calc_ifront_FlexRT();
 double* calc_ifront_flux_method();
 //Chris 7/18/22
 //double sigma_HI_LyC(double lam); //Chris 7/18/22
