@@ -39,7 +39,7 @@ void update_dt()
 	// }
 
 	dt = t_max*yr_to_s*1e6/(N_output - 1);
-
+	
 
 	#pragma omp parallel for reduction(min:dt) if (parallel)
 	for (int i=prev_index; i < N_r; i++) {
@@ -101,6 +101,10 @@ void update_step()
 
 void solve_spherical_rt()
 {
+	//if (t>1)
+	//{
+	//	artificial_attentuation;
+	//}
 	// #pragma omp parallel for if (parallel)
 	//BAYU: switched the j and i loops Jan 31, 2023 
 	#pragma omp parallel for if (parallel)
@@ -109,7 +113,7 @@ void solve_spherical_rt()
 		//for (int j=0; j < N_nu; j++) // cannot parallelize because there's an i and i-1
 		for (int i=1; i < N_r; i++)
 		{
-			if (FINITE_C == FALSE)
+			if (FINITE_C == FALSE) //you're probably using this one
 			{
 				double a = 1./delta_r[i-1] + gamma_nu_tot[i][j];
 				double b = pow(r[i-1]/r[i],2.)/delta_r[i-1]*I_nu[i-1][j];
@@ -166,3 +170,13 @@ void update_u_nu()
 		}
 	}
 }
+
+//artificial attentuation in order to explore more IF speeds. time has units of seconds. eta is the power law of the attenuation function
+//void artificial_attentuation(double t0, double eta_power)
+//{
+//	#pragma omp parallel for if (parallel)
+//	for (int j=0; j<N_nu; j++)
+//	{
+//		I_nu[0][j] *= pow((t/t0),eta_power)*I_nu[0][j]; //
+//	}
+//}
