@@ -22,16 +22,17 @@ using user_inputs::gas_output;
 using user_inputs::correct_hardening;
 using user_inputs::alpha;
 using user_inputs::skewer;
-using user_inputs::dotN;
+using user_inputs::Lum;
 using g_constants::kpc_to_cm; //debug december 2022
 using user_inputs::otf_dir;
 
 int main() {
   double start_all, end_all; //to measure performance
-  int nProcessors=omp_get_num_procs();
+  //int nProcessors=omp_get_num_procs();
   char outputstring[300];
-  omp_set_num_threads(nProcessors);
-  printf("omp_get_num_procs(): %d\n", nProcessors); //depends on the machine this runs on
+  //omp_set_num_threads(nProcessors);
+  //printf("omp_get_num_procs(): %d\n", nProcessors); //depends on the machine this runs on
+  printf("Begin 1dRT. On-the-fly outputs can be found here: /expanse/lustre/projects/uot171/bwils033/master_1d_rt/%s\n", otf_dir);
   start_all = omp_get_wtime();
 
   set_dlognu(); // from global_variables.cc, frequency step-size in logspace
@@ -69,7 +70,7 @@ int main() {
    	update_gamma_nu(); //from rt_funcs.cc
     
     	// on-the-fly outputs
-    	if ((absd(remainder_chris(t, t_tot/(N_output - 1))) < dt)&&(input_grid)) {
+    	if ((absd(remainder_chris(t, t_tot/(N_output - 1))) < dt)) { //&&(input_grid)) {
 	   
 		//Absolute value of the remainder between time and other chunk of time
      		get_j_lya(); //from data_funcs.cc
@@ -81,31 +82,21 @@ int main() {
       		otf_step+=1;
       		update_step(); //from rt_funcs.cc
     	}
-   	else if ((absd(remainder_chris(t, t_tot/(N_output - 1))) < dt)&&(!input_grid)){
-     		get_j_lya(); //from data_funcs.cc
-      		sprintf(outputstring, "output_files/gasprops/dotN%.5e_a=%.3f/n%d_gasprops.txt", dotN, alpha, otf_step);
-      		write_otf_fred(outputstring); //otf
-      		//sprintf(outputstring, "output_files/incident_spectra/rampup_a=%.3f/n%d_spectrum.txt", alpha, otf_step);
-      		//write_otf_spectrum(outputstring);
-      		otf_step+=1;
-      		update_step(); //from rt_funcs.cc
-    	}
 
    	t += dt;
-   	//update time steps using Chris' conservative method
+
+	//update time steps using Chris' conservative method
    	update_dt(); //from rt_funcs.cc
 	step += 1; //enumerating the time-steps
   }
 
 
-  // write_spectrum(); //from io_funcs.cc, writing the data to files
-  // bool_initial_gas = FALSE;
   sprintf(outputstring, gas_output);
   write_gas(outputstring); //from io_funcs.cc, writing the data to files
 
   end_all   = omp_get_wtime();
-  printf("\nProgram complete, real-time: \t%.3e seconds\n",end_all-start_all);
-  //printf("`cat Logfile.log` for more information\n");
+  printf("Program complete, real-time: \t%.3e seconds\n",end_all-start_all);
+  
   return 0;
 }
 
