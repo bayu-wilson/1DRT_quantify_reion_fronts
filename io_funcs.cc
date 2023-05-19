@@ -18,18 +18,9 @@ using g_constants::lambda_HI_ion_cm; //added 06/07/2022
 using g_constants::c; // cm per sec //added 01/12/2022
 using g_constants::pi;
 
-
+//Write gas properties at each location in the skewer. Used only once to save initial properties
 void write_gas(char output_path[]){
 	FILE *file = NULL;
-	// if (bool_initial_gas){
-	// 	file = fopen(initial_gas_output, "w");
-	// 	fprintf(file, "Gas data\n");
-	// 	fprintf(file, "Time: %le\n", t/yr_to_s/1e6);
-	// }
-	// else{
-	// 	file = fopen(gas_output, "a");
-	// 	fprintf(file, "Time: %le\n", t/yr_to_s/1e6);
-	// }
 	file = fopen(output_path, "w");
 	fprintf(file, "Time: %le\n", t/yr_to_s/1e6);
 	fprintf(file, "radius \t");
@@ -69,6 +60,7 @@ void write_gas(char output_path[]){
 	fclose(file);
 }
 
+//Read inhomogeneous density fields from Matt Mcquinn's simulations.
 void read_grid_mmc(){
 	FILE *file = NULL;
 	char hd[999]; //for un-needed header information
@@ -92,9 +84,9 @@ void read_grid_mmc(){
   fgets(hd,1000,file);
 	int i{0};
   while (fscanf(file,"%le %le %le %le %le %le %le %le %le %le\n",&trash,&trash,&trash,&trash,&trash,&trash,&Delta_cmv,&T_cmv,&R_cmv,&trash)!=EOF){
-		double R_temp = R_cmv/(1+z_mmc)/h_const; //pkpc
-		double buffer {5};
-		if ((R_temp>R_start-buffer)&&(R_temp<R_start+(R-R0+buffer))){
+		double R_temp = R_cmv/(1+z_mmc)/h_const; //pkpc //converting from R_comoving/h to R_proper (no little h) 
+		double buffer {5}; //Skip length 'R_start' pkpc from the front of the skewer (sometimes near halos). Add small 5 pkpc buffer to each side
+		if ((R_temp>R_start-buffer)&&(R_temp<R_start+(R-R0+buffer))){ //extract the desired chunk of the skewer. length is R-R0
 			R_mmc.push_back(R_temp-R_start);
 			rho_temp.push_back(Delta_cmv*rho_0);
 			T_temp.push_back(T_cmv);
@@ -102,8 +94,8 @@ void read_grid_mmc(){
     i++;
   }
 
-	int size_mmc {static_cast<int>(R_mmc.size())};
-	if (smooth_field){
+	int size_mmc {static_cast<int>(R_mmc.size())}; //size of extracted skewer
+	if (smooth_field){ //this is probably turned off
 		for (int i=0;i<size_mmc;i++){
 			rho_mmc.push_back(smooth_gaussian(&R_mmc[0],&rho_temp[0],R_mmc[i],sigma_gauss,size_mmc));
 			T_mmc.push_back(smooth_gaussian(&R_mmc[0],&T_temp[0],R_mmc[i],sigma_gauss,size_mmc));
@@ -114,6 +106,7 @@ void read_grid_mmc(){
 		T_mmc=T_temp;
 	}
 
+	//interpolate Matt's skewers onto our grid and then initialize all gas properties
 	for (int i=0;i<N_r;i++){
 		rho_total[i] = interpolate(&R_mmc[0],&rho_mmc[0],(r[i]/kpc_to_cm-R0),size_mmc);
 		rho_prev[i]  = rho_total[i];
@@ -146,36 +139,6 @@ void read_grid_mmc(){
 	fclose(file);
 }
 
-void make_output(){ //not being used as of 7/15/22
-	FILE *file = NULL;
-	// file = fopen(spec_output, "w"); //filenames defined in user_inputs.h
-	// fprintf(file, "Source spectrum\n");
-	// fclose(file);
-	// file = fopen(gas_output, "w");
-	// fprintf(file, "Gas data\n");
-	// fclose(file);
-	// file = fopen(otf_output, "w");
-	// fprintf(file, "On-the-fly output\n");
-	// fprintf(file, "\n");
-	// fclose(file);
-	// file = fopen(otf_output_bayu, "w");
-	// fprintf(file, "step_number\t");
-	// fprintf(file, "time\t");
-	// fprintf(file, "timestep\t");
-	// fprintf(file, "I_lya\t");
-	// fprintf(file, "inc_photon_flux\t");
-	// fprintf(file, "nH_boundary\t");
-	// fprintf(file, "H1_IF_x\t");
-	// fprintf(file, "H1_IF_v\t");
-	// fprintf(file, "HI_IF_v_flxMthd\t");
-	// fprintf(file, "He1_IF_x\t");
-	// fprintf(file, "He1_IF_v\t");
-	// fprintf(file, "He3_IF_x\t");
-	// fprintf(file, "He3_IF_v\t");
-	// fprintf(file, "width_IF\n");
-	fclose(file);
-}
-
 void read_source(){
 	FILE *file = NULL;
 	char hd[999];
@@ -201,7 +164,7 @@ void write_otf_spectrum(char output_string[]){
 	FILE *file = NULL;
 	file = fopen(output_string, "w");
 	for (int j{ 0 }; j < N_nu; j++){
-		int index_rear_IF = find_index(f_H1,0.01,N_r); // BAYU CHANGED FEB. 6 ///backIF_fHI,N_r);
+		int index_rear_IF = find_index(f_H1,backIF_fHI,N_r); // BAYU CHANGED FEB. 6 ///backIF_fHI,N_r);
 		if (index_rear_IF<=N_r){
 			fprintf(file, "%le \t", nu[j]);
 			fprintf(file, "%le \n", I_nu[index_rear_IF][j]);
@@ -220,28 +183,36 @@ void write_otf_fred(char output_string[]){
 	// double *ifront_He1 = calc_ifront(f_He1, f_He1_step, r, N_r);
 	// double *ifront_He3 = calc_ifront(f_He3, f_He3_step, r, N_r);	
 	//double I_lya = trapz_int(j_lya,r,N_r);
-	
+	double *FlexRT_avgs = calc_ifront_FlexRT();
+	//double *vIF_avgs = calc_ifront_avg(f_H1, f_H1_prev, r, N_r); 
+	//double vIF_avg_xion = *(vIF_avgs+0);
+	//double vIF_avg_em = *(vIF_avgs+1);
+	double vIF_FlexRT = *(FlexRT_avgs+0);
+	double temp_avg_IF = *(FlexRT_avgs+1);
 	double *otf_outputs  = calc_ifront_flux_method(); //uses flux method from Treion paper (D'Aloisio et al. 2019) to find the incI & velocity
 	double F_lya = *(otf_outputs + 0); // photons/s/cm2
         double F_inc = *(otf_outputs + 1); // photons/s/cm2
-        double vIF_H1 = *(otf_outputs + 2); //cm s-1 //flux method
+        //double vIF_H1 = *(otf_outputs + 2); //cm s-1 //flux method
         double T_center = *(otf_outputs + 3); //K
         double width_IF = *(otf_outputs + 4); //cm
-        double nH_avg = *(otf_outputs + 5); //g cm-1
+        //double nH_avg = *(otf_outputs + 5); //g cm-1
         double nH_center = *(otf_outputs + 6); //g cm-1
         double C_em = *(otf_outputs + 7);
 
 	fprintf(file, "%d \t", step);
 	fprintf(file, "%le \t", t/yr_to_s/1e6); //Myr
 	fprintf(file, "%le \t", dt/yr_to_s/1e6); //Myr
-	fprintf(file, "%le \t", F_lya); //lya intensity //erg/s/sr/cm2
+	fprintf(file, "%le \t", F_lya); //photons/s/cm2
 	fprintf(file, "%le \t", F_inc); //incident photon flux // #/s/cm2
 	fprintf(file, "%le \t", *(ifront_H1 + 0)); // IF loc
 	fprintf(file, "%le \t", *(ifront_H1 + 1)); //IF speed (finite differencing)
-	fprintf(file, "%le \t", vIF_H1); //IF speed (flux method)
+	fprintf(file, "%le \t", vIF_FlexRT); //IF speed (flexRT method)
+	fprintf(file, "%le \t", temp_avg_IF); //average temperature in IF
+	//fprintf(file, "%le \t", vIF_avg_xion); //IF speed over xion
+	//fprintf(file, "%le \t", vIF_avg_em); //IF speed weighted by emissivity
 	fprintf(file, "%le \t", T_center);
 	fprintf(file, "%le \t", width_IF);
-        fprintf(file, "%le \t", nH_avg);
+        //fprintf(file, "%le \t", nH_avg);
         fprintf(file, "%le \t", nH_center);	
 	fprintf(file, "%le \n", C_em); // clumping factor (ne nH1 and q) inside the IF
 
@@ -249,7 +220,8 @@ void write_otf_fred(char output_string[]){
 		fprintf(file, "%le \t", r[i]/kpc_to_cm);
 		fprintf(file, "%le \t", rho_total[i]);
 		fprintf(file, "%le \t", ne[i]);
-		fprintf(file, "%le \t", dne_dt[i]);
+		fprintf(file, "%le \t", f_H1_prev[i]);
+		//fprintf(file, "%le \t", dne_dt[i]);
 		//fprintf(file, "%le \t", ne_prev[i]);
 		fprintf(file, "%le \t", n_tot[i]);
 		fprintf(file, "%le \t", temp[i]);
