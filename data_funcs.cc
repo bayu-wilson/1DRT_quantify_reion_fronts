@@ -147,50 +147,62 @@ double* calc_ifront_flux_method()
         double I_div_nu_pair[2][N_nu]{}; //will interpolate between pairs
         double F_inc_pair[2]{};
         double F_inc{0};
-        double fHI_pair[2];
+        //double fHI_pair[2];
         double vel_IF{0}; //vIF found via flux method
         double *otf_outputs = (double*) malloc(sizeof(double) * 8); //array of outputs
-        double three_avg{0}; //average of ne[i]*nH1[i]*q_eff_lya[i]
+        //double three_avg{0}; //average of ne[i]*nH1[i]*q_eff_lya[i]
         double nH_avg{0}; //average over IF
-        double C_em{0}; //intensity/emissivity clumping factor
+        //double C_em{0}; //intensity/emissivity clumping factor
         int i{0}; //iterating over all 1D RT cells
         int numIF{0}; //number of cells within IF
         
 	while ((f_H1[i]<frontIF_fHI)&(i+1<N_r)){ // iterating over the IF, if xHI less than front then...
                 if (i>prev_index){ //prev_index tracks the location of photoionization equilibrium behind the IF
-                        three_avg+=ne[i]*nH1[i]*q_eff_lya[i];
+                        //three_avg+=ne[i]*nH1[i]*q_eff_lya[i];
                         nH_avg+=nH[i];
                         numIF+=1;
-                        if ((f_H1[i]<backIF_fHI) && (f_H1[i+1]>backIF_fHI)) //find pair where xHI=0.1 (helps find Finc)
-                                for (int j=0;j<N_nu;j++)
-                                {
-                                        I_div_nu_pair[0][j] = I_nu[i][j]/nu[j]; //we track I divided by nu in order to do the integration in the next section
-                                        I_div_nu_pair[1][j] = I_nu[i+1][j]/nu[j]; // int (I_nu / h / nu dnu ) = incident Flux ionizing photons
-                                        fHI_pair[0] = f_H1[i];
-                                        fHI_pair[1] = f_H1[i+1];
-                                }
+                        //if ((f_H1[i]<backIF_fHI) && (f_H1[i+1]>backIF_fHI)) //find pair where xHI=0.1 (helps find Finc)
+                        //        for (int j=0;j<N_nu;j++)
+                        //        {
+                        //                I_div_nu_pair[0][j] = I_nu[i][j]/nu[j]; //we track I divided by nu in order to do the integration in the next section
+                        //                I_div_nu_pair[1][j] = I_nu[i+1][j]/nu[j]; // int (I_nu / h / nu dnu ) = incident Flux ionizing photons
+                        //                fHI_pair[0] = f_H1[i];
+                        //                fHI_pair[1] = f_H1[i+1];
+                        //        }
                 }
                 i+=1;
         }
+
+	for (int j=0;j<N_nu;j++) {
+		I_div_nu_pair[0][j] = I_nu[prev_index+1][j]/nu[j];
+		I_div_nu_pair[1][j] = I_nu[prev_index+2][j]/nu[j];
+                //fHI_pair[0] = f_H1[prev_index+1];
+                //fHI_pair[1] = f_H1[prev_index+2];
+	}
+
 	nH_avg/=numIF;
-        three_avg/=numIF;
+        //three_avg/=numIF;
         double nH_center = interpolate(f_H1, nH, 0.5, N_r);
-        double ne_nH1_center = interpolate(f_H1, ne, 0.5, N_r) * interpolate(f_H1, nH1, 0.5, N_r);
+        //double ne_nH1_center = interpolate(f_H1, ne, 0.5, N_r) * interpolate(f_H1, nH1, 0.5, N_r);
         double T_center =  interpolate(f_H1, temp, 0.5, N_r);
-        double q_T_center = coll_ex_rate_H1_acc(T_center);
+        //double q_T_center = coll_ex_rate_H1_acc(T_center);
         double width_IF {interpolate(f_H1, r, 0.75, N_r)-interpolate(f_H1, r, 0.25, N_r)};
 	//double width_IF {interpolate(f_H1, r, frontIF_fHI, N_r)-r[prev_index]};//interpolate(f_H1, r, backIF_fHI, N_r)};
         double F_lya = 4*pi*lambda_lya_cm/h/c * trapz_int(j_lya,r,N_r);
-        C_em = three_avg/nH_avg/ne_nH1_center*nH_center/q_T_center;
-        F_inc_pair[0] = trapz_int(I_div_nu_pair[0],nu,N_nu)*4*pi/h; //I'm not sure whether it's multiplied by pi or 4pi
+        //C_em = three_avg/nH_avg/ne_nH1_center*nH_center/q_T_center;
+        F_inc_pair[0] = trapz_int(I_div_nu_pair[0],nu,N_nu)*4*pi/h; //
         F_inc_pair[1] = trapz_int(I_div_nu_pair[1],nu,N_nu)*4*pi/h; //
-	F_inc = interpolate(fHI_pair,F_inc_pair,backIF_fHI,2);
+	//F_inc = interpolate(fHI_pair,F_inc_pair,backIF_fHI,2);
+	F_inc = (F_inc_pair[0]+F_inc_pair[1])/2;
+
 	//BAYU MAY 10, 2023. checking new incident flux method
 	//double temp_test[N_nu] {0};
 	//for (int j=0;j<N_nu;j++){
 	//	temp_test[j] =  I_nu[prev_index+1][j]/nu[j];
 	//}
 	//F_inc = trapz_int(temp_test,nu,N_nu)*4*pi/h;
+	//BAYU JUNE 12, 2023, FINITE SPEED OF LIGHT TESTING
+	double gamma_loc =  interpolate(gamma_H1_tot, r, 1.047e-12, N_r);
         vel_IF = (c*F_inc) / (F_inc + c*nH_center*(1+chi_He));
         *(otf_outputs + 0) = F_lya; // photons/s/cm2
         *(otf_outputs + 1) = F_inc; // photons/s/cm2
@@ -199,7 +211,8 @@ double* calc_ifront_flux_method()
         *(otf_outputs + 4) = width_IF; //cm
         *(otf_outputs + 5) = nH_avg; //g cm-1
         *(otf_outputs + 6) = nH_center; //g cm-1
-        *(otf_outputs + 7) = C_em;
+        *(otf_outputs + 7) = gamma_loc;
+	//*(otf_outputs + 7) = C_em;
         return otf_outputs;
 }
 

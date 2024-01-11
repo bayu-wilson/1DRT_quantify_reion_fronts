@@ -163,6 +163,7 @@ double gamma_nu_He2[N_r][N_nu]{}; //spectral absorption coefficient of HeII
 double gamma_nu_tot[N_r][N_nu]{}; //total spectral absorption coefficient
 double I_nu_prev   [N_r][N_nu]{}; //previous timestep
 double I_nu        [N_r][N_nu]{}; //specific intensity
+double I_nu_initial[N_nu]{};      //initial intensity of source cell
 
 //Lya emissivity from collisional excitations
 double j_lya [N_r]{};
