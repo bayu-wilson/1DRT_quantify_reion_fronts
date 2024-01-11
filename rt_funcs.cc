@@ -17,11 +17,14 @@ using user_inputs::temp_ev;
 using user_inputs::min_frac;
 using user_inputs::min_dt_late;
 using user_inputs::min_dt_early;
-// using user_inputs::region_IF;
+using user_inputs::spherical; //Bayu Sept. 10 2023
+using user_inputs::time_decay_index; //Bayu Sept. 11 2023
+using user_inputs::time_naught_decay; //Bayu Sept. 11 2023
 using g_constants::c;
 using g_constants::pi;
 using g_constants::kpc_to_cm;
 using namespace rates;
+
 
 void update_dt()
 {
@@ -39,8 +42,10 @@ void update_dt()
 	// }
 
 	dt = t_max*yr_to_s*1e6/(N_output - 1);
+	//dt = user_inputs::R/user_inputs::N_r*kpc_to_cm / c * 10; //s
+	//printf("dt: %.3e \n",dt);
+	//dt = 0.013045867681251322*yr_to_s*1e6; //Myr
 	
-
 	#pragma omp parallel for reduction(min:dt) if (parallel)
 	for (int i=prev_index; i < N_r; i++) {
 		// if ((r[i]>(pos_IF-region_IF*kpc_to_cm)) && (r[i]<(pos_IF+region_IF*kpc_to_cm)))
@@ -99,13 +104,77 @@ void update_step()
 	}
 }
 
+void solve_planeparallel_rt()
+{
+	double time_naught_seconds = time_naught_decay*yr_to_s*1e6; //convert from Myr to seconds
+	double time_dependence = ( pow(t+time_naught_seconds-dt,-time_decay_index)-pow(t+time_naught_seconds,-time_decay_index) \
+                                 ) / pow(time_naught_seconds,-time_decay_index);
+	//#pragma omp parallel for if (parallel)
+        //for (int i=0; i < N_r; i++)
+        //{
+	#pragma omp parallel for if (parallel)
+        for (int j=0; j < N_nu; j++)
+        {
+             	I_nu_prev[0][j] = I_nu[0][j]; //first remember previous
+		I_nu[0][j] = I_nu_prev[0][j] - time_dependence*I_nu_initial[j]; //then change current
+		//I_nu[i][j] = I_nu_prev[i][j]/1.1; // then change current
+        }
+	//}
+
+
+	//printf("%.1e \t ", time_dependence);
+	//printf("%.1e \n ", I_nu[1][0]);
+
+	//double time_decay_factor{0};
+	//double t_Myr = t/yr_to_s/1e6;
+	//time_decay_factor = pow(1+t_Myr/time_naught_decay,-time_decay_index); 
+	//printf("gamma: %.1e \t",time_decay_factor);
+	//double time_naught_seconds = time_naught_decay*yr_to_s*1e6; //convert from Myr to seconds
+	//double time_dependence =  time_decay_index * dt/time_naught_seconds * pow(1+t/time_naught_seconds,-time_decay_index-1);
+	//double time_dependence = ( pow(t+time_naught_seconds-dt,-time_decay_index)-pow(t+time_naught_seconds,-time_decay_index) 
+	//			 ) / pow(time_naught_seconds,-time_decay_index);
+	//double time_dependence = pow(1+t/time_naught_seconds,-time_decay_index)
+	//double time_dependence = 
+	double optical_depth[N_nu]{};
+	#pragma omp parallel for if (parallel)
+        for (int j=0; j < N_nu; j++)
+	{
+		optical_depth[j]=0; 
+		for (int i=1; i < N_r; i++)
+		{
+			//solve if we want artificial time-dependence
+			//I_nu[i][j] = I_nu_prev[i][j]/1.1;//I_nu[0][j] * 9/1/yr_to_s/1e6 * dt;
+			//I_nu[i][j] = I_nu_prev[i][j] - time_dependence*I_nu[0][j];
+			//solve plane-parallel rt with trapezoidal integral of the exponent to get the optical depth. 
+			optical_depth[j]+= 0.5 * (gamma_nu_tot[i][j]+gamma_nu_tot[i-1][j])*(r[i]-r[i-1]); //each step increases the optical depth 
+			//optical_depth+=gamma_nu_tot[i][j]*(r[i]-r[i-1]); 
+			I_nu[i][j] = I_nu[0][j] * exp(-optical_depth[j]); //* time_decay_factor;  		
+			//I_nu_prev[i][j] = I_nu[i][j];
+			//printf("%.1e \t",(gamma_nu_tot[i][j]+gamma_nu_tot[i-1][j]));
+			//printf("%.1e \t",(r[i]-r[i-1]));
+			//printf("%.1e \n",(gamma_nu_tot[i][j]+gamma_nu_tot[i-1][j])*(r[i]-r[i-1]));
+			//printf("%.1e \n", 1/2 * (gamma_nu_tot[i][j]+gamma_nu_tot[i-1][j])*(r[i]-r[i-1]));
+			//printf("i=%d, j=%d tau=%.1e\n",i,j,optical_depth);
+			//fflush(stdout);
+		}
+		//printf("optical_depth: %.1e \n",optical_depth);
+        	//fflush(stdout);
+	}	
+	//printf("%.1f \t ", time_decay_index);
+        //printf("%.1e \t ", t/yr_to_s/1e6);
+	//printf("%.1e \t ", dt/yr_to_s/1e6);
+        //printf("%.1e \t ", time_naught_seconds);
+	//printf("%.1e \t ", time_dependence);
+	//printf("%.1e \t ",I_nu[0][0] * 9./1000./yr_to_s/1.e6*dt);
+	//printf("%.1e \t ", I_nu_prev[1][0]/1.1);
+	//printf("%.1e \n ", I_nu[1][0]);
+        //printf("%.1e \n ", I_nu_prev[0][0]);
+	//printf("I_nu: %.1e \n",I_nu[1][0]);
+	//fflush(stdout);
+}
+
 void solve_spherical_rt()
 {
-	//if (t>1)
-	//{
-	//	artificial_attentuation;
-	//}
-	// #pragma omp parallel for if (parallel)
 	//BAYU: switched the j and i loops Jan 31, 2023 
 	#pragma omp parallel for if (parallel)
 	for (int j=0; j < N_nu; j++) //this is parallelizable
@@ -142,6 +211,17 @@ void solve_spherical_rt()
 	}
 }
 
+void solve_rt()
+{
+        if (spherical){
+                solve_spherical_rt();
+        }
+        else if (!spherical){ //using plane-parallel
+                solve_planeparallel_rt();
+        }
+}
+
+
 void update_gamma_nu()
 {
 	#pragma omp parallel for if (parallel)
@@ -167,7 +247,11 @@ void update_u_nu()
 		for (int j=0; j < N_nu; j++)
 		{
 			u_nu[i][j] = 4*pi/c*I_nu[i][j];
+			//if (r[i] - (R0 + dr)*kpc_to_cm > c*t)  { //causal correction
+			//	u_nu[i][j] = 0.;
+			//}
 		}
+
 	}
 }
 
