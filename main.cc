@@ -47,10 +47,13 @@ int main() {
   //init_gammaBackground(); //from init_funcs.cc, total photoionization rate in ionized gas from density. takes into accound SSh
   int otf_step = 1; //counting on the fly files starting at 1
   double t_tot = t_max*yr_to_s*1e6; //t_max (Myr) defined in user_inputs.h. t_tot is in seconds
-  
-  while (t < t_tot) //starting at t=0 to t_tot
+  //dt = user_inputs::R/user_inputs::N_r*kpc_to_cm / g_constants::c; //Myr
+
+  while (t < t_tot) //starting at t=0 to t_tot //seconds!
   {
-	solve_spherical_rt(); //from rt_funcs.cc, results in the the intensity at each location and frequencies (spectrum) per location
+	//printf("otf_step: %d Step: %d t [Myr]:%.3e dt [Myr]:%.3e\n",otf_step, step,t/yr_to_s/1e6,dt/yr_to_s/1e6);
+	solve_rt();
+	//solve_spherical_rt(); //from rt_funcs.cc, results in the the intensity at each location and frequency
 	update_u_nu(); //radiation energy density at each location and frequency //from rt_funcs.cc
 	update_gamma(); //photoionization rate. calc at each location //from gas_funcs.cc
 	update_chem(); //chemistry equations. calc at each location //from gas_funcs.cc
@@ -82,9 +85,9 @@ int main() {
       		otf_step+=1;
       		update_step(); //from rt_funcs.cc
     	}
-
+	//printf("t_b4: %.3e",t/yr_to_s/1e6);
    	t += dt;
-
+	//printf("t_after: %.3e",t/yr_to_s/1e6);
 	//update time steps using Chris' conservative method
    	update_dt(); //from rt_funcs.cc
 	step += 1; //enumerating the time-steps
@@ -95,7 +98,7 @@ int main() {
   write_gas(outputstring); //from io_funcs.cc, writing the data to files
 
   end_all   = omp_get_wtime();
-  printf("Program complete, real-time: \t%.3e seconds\n",end_all-start_all);
+  printf("Program complete, real-time: \t%.3e seconds\n\n",end_all-start_all);
   
   return 0;
 }
