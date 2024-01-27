@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 from cycler import cycler
-from functions import coll_ex_rate_H1_acc,alphaA_H2
+from functions import coll_ex_rate_H1_acc,alphaB_H2, epsilonB_lya
 import warnings
 
 fontsize=15
@@ -21,9 +21,13 @@ plt.rcParams['xtick.minor.size'] = minor_tick_size
 plt.rcParams['ytick.major.size'] = major_tick_size
 plt.rcParams['ytick.minor.size'] = minor_tick_size
 
-temperatures = np.logspace(3,5.1,100) #K
+temperatures = np.logspace(2,6,100) #K
 q_eff_lya = np.array([coll_ex_rate_H1_acc(i) for i in temperatures])
-a_eff_lya = np.array([alphaA_H2(i) for i in temperatures])
+
+a_B_total = np.array([alphaB_H2(i) for i in temperatures])
+e_B_lya = np.array([epsilonB_lya(i) for i in temperatures])
+a_eff_lya = a_B_total*e_B_lya
+
 
 fig, ax = plt.subplots(nrows=1,ncols=1)
 fig.set_size_inches(w=6,h=5.5)
@@ -31,8 +35,8 @@ ax.set_xscale("log")
 ax.set_yscale("log")
 # ax.axvline(1.5e4)
 # ax.axvline(1.5e4)
-ax.set_xlim(1e3,1e5)
-ax.set_ylim(1e-14,3e-8)
+ax.set_xlim(1.5e2,8e5)
+ax.set_ylim(1.5e-15,5e-8)
 ax.xaxis.set_ticks_position('both')
 ax.yaxis.set_ticks_position('both')
 ax.plot(temperatures,q_eff_lya)
