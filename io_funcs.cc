@@ -165,6 +165,7 @@ void write_otf_spectrum(char output_string[]){
 	file = fopen(output_string, "w");
 	for (int j{ 0 }; j < N_nu; j++){
 		int index_rear_IF = find_index(f_H1,backIF_fHI,N_r); // BAYU CHANGED FEB. 6 ///backIF_fHI,N_r);
+		//int index_rear_IF = find_index(f_H1,0.5,N_r); // boost test July 24, 2023
 		if (index_rear_IF<=N_r){
 			fprintf(file, "%le \t", nu[j]);
 			fprintf(file, "%le \n", I_nu[index_rear_IF][j]);
@@ -197,7 +198,7 @@ void write_otf_fred(char output_string[]){
         double width_IF = *(otf_outputs + 4); //cm
         //double nH_avg = *(otf_outputs + 5); //g cm-1
         double nH_center = *(otf_outputs + 6); //g cm-1
-        double C_em = *(otf_outputs + 7);
+        double gamma_loc = *(otf_outputs + 7);
 
 	fprintf(file, "%d \t", step);
 	fprintf(file, "%le \t", t/yr_to_s/1e6); //Myr
@@ -214,7 +215,7 @@ void write_otf_fred(char output_string[]){
 	fprintf(file, "%le \t", width_IF);
         //fprintf(file, "%le \t", nH_avg);
         fprintf(file, "%le \t", nH_center);	
-	fprintf(file, "%le \n", C_em); // clumping factor (ne nH1 and q) inside the IF
+	fprintf(file, "%le \n", gamma_loc); //IF location using gammaHI = 1e-14
 
 	for (int i{ 0 }; i < N_r; i++){
 		fprintf(file, "%le \t", r[i]/kpc_to_cm);

@@ -72,6 +72,10 @@ void update_gamma()
 		}
 
 		//CHRIS 05/17/22: add uniform background
+                //BAYU 06/12/23: for finite c tests
+		//gamma_H1_tot[i]  += 1e-12;
+                //gamma_He1_tot[i] += 1e-12;
+                //gamma_He2_tot[i] += 1e-12;
 		//Hardening correction. This increases photoionization rate very high behind IF.
 		//if ((pos_IF>10*kpc_to_cm)&(t/yr_to_s/1e6>10)&(correct_hardening == TRUE)) {
 		if (correct_hardening == TRUE){

@@ -7,7 +7,7 @@
 int prev_index{0};
 
 //default differentials
-double dr     			  = (R-R0)/N_r; //in kpc // got rid of N_r-1 because I don't think it's necessary
+double dr     			  = (R-R0)/N_r; //in kpc // got rid of N_r-1 because I don't think it's necessary.
 double dlog_nu 				= 0;
 double dt				      = 1e-4*t_max*yr_to_s*1e6/(N_output - 1);
 
