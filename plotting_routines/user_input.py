@@ -1,8 +1,8 @@
 import numpy as np
 
 #IF speed
-min_logvIF = 2.75
-max_logvIF = 4.25
+min_logvIF = 2.477
+max_logvIF = 4.477
 nbins_logvIF = 6
 delta_bin_logvIF = (max_logvIF-min_logvIF)/(nbins_logvIF-1)
 bincenters_logvIF = np.linspace(min_logvIF,max_logvIF,nbins_logvIF)

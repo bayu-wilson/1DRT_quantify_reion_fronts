@@ -52,9 +52,10 @@ np.seterr(divide='ignore', invalid='ignore')
 #Lum_list = ["8.27e+43","3.84e+44","1.78e+45","8.27e+45"]
 #Lum_list = ["4.54e+43","2.11e+44","9.77e+44","4.54e+45"]
 #Lum_list = ["9.07e+43","4.21e+44","1.95e+45","9.07e+45"]
-Lum_list = ["2.96e+44","9.36e+44","2.96e+45","9.36e+45"]
+#Lum_list = ["2.96e+44","9.36e+44","2.96e+45","9.36e+45"]
+Lum_list = ["1.81e+44","8.42e+44","3.91e+45","1.81e+46"]
 
-alpha_list = ["0.500", "1.000", "1.500", "2.000", "2.500"]
+alpha_list = ["0.000","0.500", "1.000", "1.500", "2.000", "2.500", "3.000"]
 
 #otf_names = ["step","t","dt","I_lya","Finc","C_factor","locIF","vIF_fd","vIF_fm","T_IF","density_var","IF_width","nH_avg"]
 otf_names = ["alpha","step", "t", "dt", "F_lya", "F_inc", "locIF","vIF_fd","vIF_Flex","T_avg","T_center","width_IF","nH_center","C_em"]
@@ -113,6 +114,7 @@ for L in Lum_list: #looping through the skewers
         
         otf_total_df = pd.concat([otf_total_df,otf_df],ignore_index=True)
         
-save_dir = "230428/"
-otf_total_df.to_csv(save_dir+"otf40.csv",index=False)
+#save_dir = "230428/"
+save_dir = "final_results/"
+otf_total_df.to_csv(save_dir+"ud_otf.csv",index=False)
 

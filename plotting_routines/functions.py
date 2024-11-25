@@ -1,6 +1,21 @@
 import numpy as np
 from constants import *
 
+def get_inc_LyC_flux(Lum,spectral_index,R0_cm,t_Myr,t0_Myr,eta):
+    if eta == 0: #no time dependence
+        time_dependence = 1
+    else:
+        time_dependence = np.power((t_Myr+t0_Myr)/t0_Myr,-eta)
+    if spectral_index == 0:
+        alpha_dependence = 2*np.log(2)/3
+    elif spectral_index == 1:
+        alpha_dependence = 3/8/np.log(2)
+    else:
+        # pass
+        alpha_dependence = (spectral_index-1)/spectral_index*(4**-spectral_index-1)/(4**(1-spectral_index)-1)
+    return 1/h/nu0*alpha_dependence*Lum/4/np.pi/R0_cm**2 * time_dependence
+
+
 def llambda(T, Eth):
     K2eV = k_B/eV_cgs
     eV2K = 1.0/K2eV
@@ -16,6 +31,17 @@ def rcrA_H2(T):
 def alphaA_H2(T):
     x = llambda(T, Eth_H1)
     return 1.269e-13*pow(x,1.503)/pow((1.0+pow((x/0.522),0.470)),1.923)
+
+
+#Case B recombination coefficient of HII from Hui & Gnedin 1996
+def alphaB_H2(T):
+     x = llambda(T, Eth_H1)
+     return 2.753e-14*pow(x,1.500)/pow((1.0+pow((x/2.740),0.407)),2.2420)
+
+def epsilonB_lya(T):
+    T4 = T/1e+4
+    return 0.686 - 0.106*np.log10(T4) - 0.009*T4**(-0.44)
+
 
 #collisional excitation cooling rates from Cen 1992
 def coll_ex_rate_H1(T):

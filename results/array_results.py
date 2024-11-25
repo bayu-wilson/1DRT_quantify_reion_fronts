@@ -27,12 +27,13 @@ alpha_list = np.loadtxt("../parameters_input/input_params/spectral_indices.txt")
 #delta_logvIF = logvIF_bincenters[1]-logvIF_bincenters[0]
 #logvIF_binedges = np.linspace(vlogmin-delta_logvIF/2,
 #                            vlogmax+delta_logvIF/2,Nv+1)
-skewers = ["sk0000","sk0001","sk0002","sk0003","sk0004","sk0005","sk0006","sk0007","sk0008","sk0009"]
+#skewers = ["sk0000","sk0001","sk0002","sk0003","sk0004","sk0005","sk0006","sk0007","sk0008","sk0009"]
+skewers = ["sk0000","sk0001","sk0002","sk0003"]
 #dotN = np.loadtxt("../input_files/dotN_Rsim.txt",dtype=str)[:,0]
 #dotN = np.loadtxt("../parameters_input/input_params/flucRho.txt",dtype=str)[:,1]
 
 #otf_names = ["step","t","dt","I_lya","Finc","C_factor","locIF","vIF_fd","vIF_fm","T_IF","density_var","IF_width","nH_avg"]
-otf_names = ["step", "t", "dt", "F_lya", "F_inc", "locIF","vIF_fd","vIF_fm","T_center","width_IF","nH_avg","nH_center","C_em"]
+otf_names = ["step", "t", "dt", "F_lya", "F_inc", "locIF","vIF_fd","vIF_Flex","T_center","width_IF","nH_avg","nH_center","C_em"]
 total_names = ["skewer","alpha"]+otf_names
 
 #column_names = ["los pos[pkpc]","rho","ne","ne_prev","n_tot","T[K]","xHI","xHeI","xHeII","xHeIII","q_lya"]
@@ -67,14 +68,14 @@ for sk in skewers: #looping through the skewers
         otf_df["alpha"] = spectral_index
         otf_df["locIF"]=otf_df["locIF"]/kpc_to_cm-1e4
         otf_df["vIF_fd"]/=1e5
-        otf_df["vIF_fm"]/=1e5
+        otf_df["vIF_Flex"]/=1e5
         mask_otf = np.asarray(np.ones(len(otf_df)),bool)
             #mask_otf = np.ones_like(otf_df["I_lya"]) #((otf_df["t"]>10)&(locIF[n]<(R_sim-width_IF)))#&
             #            (log_vIF_fm>=2.0)&(log_vIF_fm<=5.0))
         
         otf_total_df = pd.concat([otf_total_df,otf_df],ignore_index=True)
         
-save_dir = "221202/"
+save_dir = "230413/"
 otf_total_df.to_csv(save_dir+"otf.csv",index=False)
 
 """

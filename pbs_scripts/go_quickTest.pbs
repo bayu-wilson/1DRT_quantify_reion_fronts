@@ -1,13 +1,15 @@
 #!/bin/bash                    
 #SBATCH --job-name="diagnostic_run"          
-#SBATCH --output="../dot_out/dr.%N.out"
-#SBATCH --account=TG-PHY210041
-#SBATCH --partition=shared
+###SBATCH --output="../dot_out/dr.%N.out"
+#SBATCH --output="outfiles/test3.out"
+###SBATCH --account=TG-PHY210041
+#SBATCH --account=TG-PHY230158
+#SBATCH --partition=debug
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=64
 #SBATCH --mem=128Gb   
 #SBATCH --export=ALL        
-#SBATCH -t 00:30:00   
+#SBATCH -t 0:30:00   
 #SBATCH --mail-user=bwils033@ucr.edu
 #SBATCH --mail-type=all
 
@@ -21,50 +23,81 @@ module load gcc
 module load anaconda3/2020.11
 
 echo "running diagnostic test"
+home_dir=/expanse/lustre/projects/uot171/bwils033/master_1d_rt/
+
 ### Navigating to main code directory
 cd ../
 
 ### Using inhomogeneous density fields from Matthew McQuinn's simulations
 sed -i "s/^  inline constexpr bool input_grid.*/  inline constexpr bool input_grid       \{ TRUE \}\; \/\/User-defined input grid\? /" user_inputs.h
 
-### Setting constant skewer length and cell size to get cell size of 0.735 pkpc
-Rsim='1000'
+### Hardening correction because we want to minimized it's effect
+sed -i "s/^  inline constexpr bool correct_hardening.*/  inline constexpr bool correct_hardening \{ TRUE \}\; \/\/new BAYU July 15 2022 /" user_inputs.h
+
+### Setting constant skewer length and cell size to get cell size of 0.2 pkpc
+Rsim='1500'
 sed -i "s/^  inline constexpr double R .*/  inline constexpr double R        \{ R0+${Rsim} \}\;  \/\/Total radius for the spatial grid \(in pkpc\) /" user_inputs.h
-N_r='1360'
+R0='10000'
+N_r='6000'
 sed -i "s/^  inline constexpr int N_r.*/  inline constexpr int N_r \{ ${N_r} \}\;/" user_inputs.h
 
 ### Which skewer to use
-skewer='0000'
+skewer='0051'
 sed -i "s/^  inline constexpr char skewer\[\].*/  inline constexpr char skewer\[\] \{\"${skewer}\"\} \;/" user_inputs.h
 sed -i "s/^  inline constexpr char grid_input\[\].*/  inline constexpr char grid_input\[\] \{\"input_files\/hydro_skewers\/spec_xHeII1_007_ls_line${skewer}\.dat\"\}\;/" user_inputs.h
 
 ### ionizing photon rate incident on the skewer
-dotN='1.00904e+57'
-sed -i "s/^  inline constexpr double dotN.*/  inline constexpr double dotN \{  ${dotN} \}\; /" user_inputs.h
+###dotN='1.00904e+57'
+###sed -i "s/^  inline constexpr double dotN.*/  inline constexpr double dotN \{  ${dotN} \}\; /" user_inputs.h
+###L='1.60e+46'
+###L='4.87e+46'
+###L='6.02e+46'
+###L='2.75e+44'1.5 0051 2.29e+46 1500.0 6000 10000.0 286.3
+###1.5 0082 4.74e+45 1500.0 6000 10000.0 1662.2
+L='2.29e+47'
+sed -i "s/^  inline constexpr double Lum.*/  inline constexpr double Lum \{  ${L} \}\; /" user_inputs.h
 
 ### simulation runtime
-t_max='50'
+t_max='30'
 sed -i "s/^  inline constexpr double t_max.*/  inline constexpr double t_max \{ ${t_max} \}\; \/\/Runtime (in Myr)/" user_inputs.h
 sed -i "s/^  inline constexpr char gas_output\[\].*/  inline constexpr char gas_output\[\] \{\"output_files\/gas_test_hydro_${t_max}myr\.txt\"\}\;/" user_inputs.h
 
 ### defining spectral index (spectral hardness)
-spectral_index='-0.500'
+####spectral_index='0.500'
+###spectral_indices=(0.500 1.001 1.500 2.000)
+spectral_indices=(1.500)
+len_indices="${#spectral_indices[@]}"
+let "len_indices = len_indices-1"
 
-### creating output directories automatically based on input parameters. If they already exist then they will be deleted.
-###echo dotN${dotN}_a=${spectral_index}/
-cd output_files/
-cd gasprops/
-rm -r sk${skewer}_a=${spectral_index}/
-mkdir sk${skewer}_a=${spectral_index} ###create a new folder to store the data files
-chmod 775 sk${skewer}_a=${spectral_index} ###755 assigns read, write, and execute permission to a specific user, group, or others.
-cd ../../
-sed -i "s/^  inline constexpr double alpha.*/  inline constexpr double alpha \{ ${spectral_index} \}\; \/\/spectral power law index if spectrum is a power law/" user_inputs.h
+echo "Begin for loop"
+for j in $(seq 0 $len_indices)
+do
+	spectral_index=${spectral_indices[j]}
+	### creating output directories automatically based on input parameters. If they already exist then they will be deleted.
+	###echo dotN${dotN}_a=${spectral_index}/
+	cd output_files/
+	cd gasprops/
 
-make clean
-make
-echo "beginning ./1d_radtransfer.x" 
-./1d_radtransfer.x
+        echo $spectral_index $skewer $L $Rsim $N_r $R0 $t_max
+        cd $home_dir/output_files/gasprops/
+        saving_dir=fd_pp_a=${spectral_index}_sk${skewer}_L=${L}_test
+        echo 'saving here: ' ${home_dir}output_files/gasprops/$saving_dir
+        rm -r $saving_dir
+        mkdir $saving_dir
+        chmod 775 $saving_dir
+        cd $home_dir
+	###cd ../../
+	sed -i "s/^  inline constexpr double alpha.*/  inline constexpr double alpha \{ ${spectral_index} \}\; \/\/spectral power law index if spectrum is a power law/" user_inputs.h
+	
+	sed -i "s/^  inline constexpr char otf_dir\[\].*/  inline constexpr char otf_dir\[\] \{ \"output_files\/gasprops\/${saving_dir}\" \}\;/" user_inputs.h
+	###sed -i "s/^  inline constexpr char otf_dir\[\].*/  inline constexpr char otf_dir\[\] \{\"output_files\/gasprops\/sk${skewer}_a=${spectral_index}_test_smooth\/\"\}\;/" user_inputs.h
 
+	make clean
+	make
+	##3echo $spectral_index
+	echo "beginning ./1d_radtransfer.x" 
+	./1d_radtransfer.x
+done
 ##cd pbs_scripts
 
 ###cd plotting_routines/

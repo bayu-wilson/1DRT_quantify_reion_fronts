@@ -12,6 +12,8 @@ pi=np.pi
 lambda_lya_cm = 1.21567e-5
 kpc_to_cm = 3.086e21
 chi = 0.08
+h_eV=4.135667e-15 #eV s
+nu0=13.6/h_eV
 
 #cross-section parameters from Verner et. al. 1996, Table 1
 sigma0_H1 = 5.475e-14

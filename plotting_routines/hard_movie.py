@@ -55,9 +55,9 @@ column_names = ["los pos[pkpc]","rho","ne","dene_dt","n_tot","T[K]","xHI","xHeI"
 #                "xHI","xHeI","xHeII","xHeIII","q_lya"]
 rows,cols=(2,2)
 
-skewer_number = "0003"
-dir_path = "../output_files/gasprops/sk{}_hardRun/".format(skewer_number)
-n=1
+skewer_number = "0002"
+dir_path = "../output_files/gasprops/sk{}_hardRun_L2.e+46/".format(skewer_number)
+n=10
 fig_name_list = []
 gasprop_path = dir_path+"n{}_gasprops.txt".format(n)
 spectrum_path = dir_path+"n{}_spectrum.txt".format(n)

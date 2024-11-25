@@ -47,19 +47,24 @@ labels = [r"$\alpha$={:.1f}".format(float(i)) for i in bincenters_alpha]
 labels.insert(-3, '')
 
 #input data -
-df = pd.read_csv("/expanse/lustre/projects/uot171/bwils033/master_1d_rt/results/221202/otf.csv")
+#df = pd.read_csv("/expanse/lustre/projects/uot171/bwils033/master_1d_rt/results/221202/otf_test.csv")
+df=pd.read_csv("/expanse/lustre/projects/uot171/bwils033/master_1d_rt/results/230413/otf.csv")
 #    "/Volumes/Extreme SSD/anson/test_expanse/master_1d_rt/plo/final_data/otf2.csv")
-mask = (df["t"]>10)&(df["vIF_fm"]>1e1)&(df["vIF_fm"]<1e5)
+mask = (df["t"]>10)&(df["vIF_Flex"]>1e1)&(df["vIF_Flex"]<1e5)
 df = df[mask]
 F_inc = df["F_inc"].values
 F_lya = df["F_lya"].values
 T_center = df["T_center"].values
-v_IF = np.log10(df["vIF_fm"].values)
+vIF_Flex = np.log10(df["vIF_Flex"].values)
 R_IF = df["width_IF"].values
 nH_avg = df["nH_avg"].values
 nH_center = df["nH_center"].values
 C_em = df["C_em"].values
 flux_ratio = F_lya/F_inc
+
+c_cms = 2.998e10
+chi_He = 0.08
+vIF_fm = np.log10((c_cms*F_inc) / (F_inc + c_cms*nH_center*(1+chi_He)))-5
 
 #alpha_array = np.asarray(df["alpha"],str)
 #alpha_array = np.array(["{:.3f}".format(i) for i in alpha_array])
@@ -68,32 +73,39 @@ print(set(alpha_array))
 print(bincenters_alpha)
 
 
-fig, ax = plt.subplots(nrows=1,ncols=1)
-fig.set_size_inches(w=6,h=6)
+fig, ax = plt.subplots(nrows=1,ncols=2)
+fig.set_size_inches(w=12,h=6)
 
 #car = ['red', 'orange','gold','green','blue','purple']
 flip_flop = 1
-for a in range(2,nbins_alpha):
+for a in range(nbins_alpha):
     mask = (alpha_array == bincenters_alpha[a])
     print(bincenters_alpha[a],np.sum(mask))
     flux_ratio_means = np.zeros(nbins_logvIF)
     flux_ratio_std = np.zeros(nbins_logvIF)
     for i in range(nbins_logvIF):
-        mask_bin = (v_IF>binedges_logvIF[i])&(v_IF<binedges_logvIF[i+1])&(alpha_array == bincenters_alpha[a])
-        flux_ratio_means[i] = np.mean(flux_ratio[mask_bin])
-        flux_ratio_std[i] = np.std(flux_ratio[mask_bin])
+        mask_bin = (vIF_Flex>binedges_logvIF[i])&(vIF_Flex<binedges_logvIF[i+1])&(alpha_array == bincenters_alpha[a])&(
+                np.isfinite(flux_ratio))
+        flux_ratio_means[i] = np.nanmean(flux_ratio[mask_bin])
+        flux_ratio_std[i] = np.nanstd(flux_ratio[mask_bin])
 
     if bincenters_alpha[a]==1.5: #"1.500":
-        m, b = np.polyfit(np.log10(v_IF[mask]), flux_ratio[mask], 1)
+        mask_finite = np.isfinite(flux_ratio)&(vIF_Flex>2.5)
+        m, b = np.polyfit(np.log10(vIF_Flex[mask&mask_finite]), flux_ratio[mask&mask_finite], 1)
         y_fit = m*np.log10(bincenters_logvIF)+b
         print("At alpha=1.5, slope={}, y-intercept={}".format(m,b))
-        ax.plot(bincenters_logvIF,y_fit,color='black',ls='dashed')
+        ax[1].plot(bincenters_logvIF,y_fit,color='black',ls='dashed')
 
     offset = (1+flip_flop*0.005)
-    ax.scatter(v_IF[mask],flux_ratio[mask],s=1,label="a={}".format(bincenters_alpha[a]),alpha=0.25)
-    ax.errorbar(x=bincenters_logvIF*offset,y=flux_ratio_means,yerr=flux_ratio_std,
+    ax[0].scatter(vIF_fm[mask],flux_ratio[mask],s=1,label="a={}".format(bincenters_alpha[a]),alpha=0.25)
+    #ax[0].errorbar(x=bincenters_logvIF*offset,y=flux_ratio_means,yerr=flux_ratio_std,
+    #    ls='none', marker='o', capsize=5, capthick=1, ecolor='black',
+    #    markeredgecolor='black',markersize=8)
+    ax[1].scatter(vIF_Flex[mask],flux_ratio[mask],s=1,label="a={}".format(bincenters_alpha[a]),alpha=0.25)
+    ax[1].errorbar(x=bincenters_logvIF*offset,y=flux_ratio_means,yerr=flux_ratio_std,
         ls='none', marker='o', capsize=5, capthick=1, ecolor='black',
         markeredgecolor='black',markersize=8)
+    #print(flux_ratio_means)
     flip_flop*=-1
 
     # ax[2].scatter(np.log10(nH_avg[mask]),R_IF[mask]/kpc_to_cm,s=1)
@@ -103,10 +115,13 @@ for a in range(2,nbins_alpha):
 
 # ax.annotate(text=r'math',xycoords='figure fraction',xy=(0.4,0.8))
 
-ax.set_xlabel(r"IF speed, log$_{10}$ v$_{\mathrm{IF}}$ [km/s]")
-ax.set_ylabel(r"Flux ratio, $\zeta(\alpha, v_{\mathrm{IF}})$")
-ax.set_ylim(-0.03,1.25)
-ax.set_xlim(2.5,4.65)
+ax[0].set_xlabel(r"IF speed, fm, log$_{10}$ v$_{\mathrm{IF}}$ [km/s]")
+ax[1].set_xlabel(r"IF speed, Flex, log$_{10}$ v$_{\mathrm{IF}}$ [km/s]")
+for i in range(2):
+    #ax[i].set_xlabel(r"IF speed, log$_{10}$ v$_{\mathrm{IF}}$ [km/s]")
+    ax[i].set_ylabel(r"Flux ratio, $\zeta(\alpha, v_{\mathrm{IF}})$")
+    #ax[i].set_ylim(-0.03,1.25)
+    ax[i].set_xlim(2.35,4.5)
 
 custom_lines.append(Line2D([0], [0], color='k', lw=3,ls='dashed', marker=None))
 labels.append(r"Best fit")
@@ -114,7 +129,7 @@ labels.append(r"Best fit")
 # ax[1].set_xlabel(r"IF speed, log$_{10}$ v$_{\mathrm{IF}}$ [km/s]")
 # ax[1].set_ylabel(r"Emissivity Clumping Factor, C$_e$")
 
-ax.legend(custom_lines,labels[2:],ncol=2,frameon=False)
+ax[0].legend(custom_lines,labels,ncol=2,frameon=False)
 
 # plt.tight_layout()
 fig.savefig("figures/flux_ratio.pdf", bbox_inches="tight")

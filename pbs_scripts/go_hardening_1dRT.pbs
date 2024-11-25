@@ -1,13 +1,14 @@
 #!/bin/bash                    
 #SBATCH --job-name="rho-fluc"          
-#SBATCH --output="../dot_out/rho_fluc.%N.out"
-#SBATCH --account=TG-PHY210041
+#SBATCH --output="outfiles/hard.%N.out"
+###SBATCH --account=TG-PHY210041
+#SBATCH --account=TG-PHY230158
 #SBATCH --partition=shared
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=64
 #SBATCH --mem=128Gb   
 #SBATCH --export=ALL        
-#SBATCH -t 12:00:00   
+#SBATCH -t 00:20:00   
 #SBATCH --mail-user=bwils033@ucr.edu
 #SBATCH --mail-type=all
 
@@ -20,47 +21,57 @@ export KMP_STACKSIZE=256M
 module load gcc
 module load anaconda3/2020.11
 
-cd ../
+home_dir=/expanse/lustre/projects/uot171/bwils033/master_1d_rt/
+
+cd $home_dir
 ### Using skewers from Matthew McQuinn's simulations
 sed -i "s/^  inline constexpr bool input_grid.*/  inline constexpr bool input_grid       \{ TRUE \}\; \/\/User-defined input grid\? /" user_inputs.h
 
 ### No hardening correction because we are purposefully tracking it now!
 sed -i "s/^  inline constexpr bool correct_hardening.*/  inline constexpr bool correct_hardening \{ FALSE \}\; \/\/new BAYU July 15 2022 /" user_inputs.h  
 ### Setting constant skewer length, cell size, ionizing photon rate, time in Myr, spectral hardness
-Rsim='2500'
-N_r='2500'
-dotN='2e+57'
-t_max='300'
+###Rsim='2200'
+###N_r='8800'
+Rsim='5500'
+N_r='22000'
+###N_r='23600'
+Lum='6.e+46'
+t_max='3000'
 alpha='1.500'
+skewer_list=(`cat /expanse/lustre/projects/uot171/bwils033/master_1d_rt/input_files/skewer_list_no_SS.txt`)
+###skewer_list=(`cat /expanse/lustre/projects/uot171/bwils033/master_1d_rt/pbs_scripts/temp_list.txt`)
+len_skewers="${#skewer_list[@]}"
+
 sed -i "s/^  inline constexpr double R .*/  inline constexpr double R        \{ R0+${Rsim} \}\;  \/\/Total radius for the spatial grid \(in pkpc\) /" user_inputs.h
 sed -i "s/^  inline constexpr int N_r.*/  inline constexpr int N_r \{ ${N_r} \}\;/" user_inputs.h
-sed -i "s/^  inline constexpr double dotN.*/  inline constexpr double dotN \{  ${dotN} \}\; /" user_inputs.h
+sed -i "s/^  inline constexpr double Lum.*/  inline constexpr double Lum\{  ${Lum} \}\; /" user_inputs.h
 sed -i "s/^  inline constexpr double t_max.*/  inline constexpr double t_max \{ ${t_max} \}\; \/\/Runtime (in Myr)/" user_inputs.h
-sed -i "s/^  inline constexpr char gas_output\[\].*/  inline constexpr char gas_output\[\] \{\"output_files\/gas_hardRun_${t_max}myr\.txt\"\}\;/" user_inputs.h
 sed -i "s/^  inline constexpr double alpha.*/  inline constexpr double alpha \{ ${alpha} \}\; \/\/spectral power law index if spectrum is a power law/" user_inputs.h
+sed -i "s/^  inline constexpr char gas_output\[\].*/  inline constexpr char gas_output\[\] \{\"output_files\/gas_test_hydro_${t_max}myr\.txt\"\}\;/" user_inputs.h
 
-####skewer_list=('0004' '0005' '0006' '0007' '0008' '0009' '0010' '0011' '0012' '0013' '0014' '0015')
-skewer_list=( '0030' '0029' '0028' '0028' '0027' '0026' '0025' '0024' '0023' '0022' '0021' '0020' '0019' '0018' '0017' '0016' '0015')
-len_skewers="${#skewer_list[@]}"
 let 'iter_skewer=len_skewers-1'
-for j in $(seq 0 1 $iter_skewer)
+for j in $(seq 0 2 $iter_skewer)
 do
 	skewer=${skewer_list[j]}
+        echo $skewer
+	cd $home_dir/output_files/gasprops/
+        ###saving_dir=fd_pp_a=${alpha}_sk${skewer}_L=${L}
+        saving_dir=sk${skewer}_hardRun_L${Lum}_april24 
+	echo 'saving here: ' ${home_dir}output_files/gasprops/$saving_dir
+        rm -r $saving_dir
+        mkdir $saving_dir
+        chmod 775 $saving_dir
+        cd $home_dir
+
 	sed -i "s/^  inline constexpr char skewer\[\].*/  inline constexpr char skewer\[\] \{\"${skewer}\"\} \;/" user_inputs.h
-	sed -i "s/^  inline constexpr char grid_input\[\].*/  inline constexpr char grid_input\[\] \{\"input_files\/hydro_skewers\/spec_xHeII1_007_ls_line${skewer}\.dat\"\}\;/" user_inputs.h
-	sed -i "s/^  inline constexpr char otf_dir\[\].*/  inline constexpr char otf_dir\[\] \{\"output_files\/gasprops\/sk${skewer}_hardRun\/\"\}\;/" user_inputs.h  
-
-	echo output_files/gasprops/sk${skewer}_hardRun/ 
-	cd output_files/
-	cd gasprops/
-	rm -r sk${skewer}_hardRun/
-	mkdir sk${skewer}_hardRun ###create a new folder to store the data files
-	chmod 775 sk${skewer}_hardRun ###755 assigns read, write, and execute permission to a specific user, group, or others.
-	cd ../../
-
+	###sed -i "s/^  inline constexpr char grid_input\[\].*/  inline constexpr char grid_input\[\] \{\"input_files\/hydro_skewers\/spec_xHeII1_007_ls_line${skewer}\.dat\"\}\;/" user_inputs.h
+	sed -i "s/^  inline constexpr char grid_input\[\].*/  inline constexpr char grid_input\[\] \{\"input_files\/long_skewers\/spec_xHeII1_007_ls_line${skewer}_appended\.dat\"\}\;/" user_inputs.h
+	sed -i "s/^  inline constexpr char otf_dir\[\].*/  inline constexpr char otf_dir\[\] \{\"output_files\/gasprops\/${saving_dir}\"\}\;/" user_inputs.h  
+	###sed -i "s/^  inline constexpr char gas_output\[\].*/  inline constexpr char gas_output\[\] \{\"output_files\/gasprops\/${saving_dir}\/gas_hardRun_${t_max}myr\.txt\"\}\;/" user_inputs.h
 	make clean
 	make
 	./1d_radtransfer.x
 done
-cd pbs_scripts/
+cd $home_dir/pbs_scripts/
 
+date

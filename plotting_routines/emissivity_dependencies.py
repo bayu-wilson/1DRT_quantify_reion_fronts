@@ -37,13 +37,14 @@ labels = [r"$\alpha$={:.1f}".format(float(i)) for i in bincenters_alpha]
 #input data -
 #df = pd.read_csv(
 #    "/Volumes/Extreme SSD/anson/test_expanse/master_1d_rt/plotting_routines/paper/final_data/otf2.csv")
-df=pd.read_csv("/expanse/lustre/projects/uot171/bwils033/master_1d_rt/results/221202/otf.csv")
-mask = (df["t"]>10)&(df["vIF_fm"]>1e1)&(df["vIF_fm"]<1e5)
+#df=pd.read_csv("/expanse/lustre/projects/uot171/bwils033/master_1d_rt/results/221202/otf_test.csv")
+df=pd.read_csv("/expanse/lustre/projects/uot171/bwils033/master_1d_rt/results/230413/otf.csv")
+mask = (df["t"]>10)&(df["vIF_Flex"]>1e1)&(df["vIF_Flex"]<1e5)
 df = df[mask]
 F_inc = df["F_inc"].values
 F_lya = df["F_lya"].values
 T_center = df["T_center"].values
-v_IF = np.log10(df["vIF_fm"].values)
+v_IF = np.log10(df["vIF_Flex"].values)
 R_IF = df["width_IF"].values
 nH_avg = df["nH_avg"].values
 nH_center = df["nH_center"].values
@@ -62,7 +63,7 @@ fig.set_size_inches(w=10,h=4.5)
 
 car = ['red', 'orange','gold','green','blue','purple']
 flip_flop = 1
-for a in range(2,nbins_alpha):
+for a in range(nbins_alpha):
     mask = (alpha_array == bincenters_alpha[a])
     # print(alpha_array)
     C_em_means = np.zeros(nbins_logvIF)
@@ -92,7 +93,7 @@ ax[0].set_ylabel(r"IF temperature at center, T$_{\mathrm{c}}$[K]")
 ax[1].set_xlabel(r"IF speed, log$_{10}$ v$_{\mathrm{IF}}$ [km/s]")
 ax[1].set_ylabel(r"Emissivity Clumping Factor, C$_e$")
 
-ax[0].legend(custom_lines,labels[2:],ncol=1,frameon=False)
+ax[0].legend(custom_lines,labels,ncol=1,frameon=False)
 
 plt.tight_layout()
 fig.savefig("figures/emissivity_dependencies.pdf", bbox_inches="tight")

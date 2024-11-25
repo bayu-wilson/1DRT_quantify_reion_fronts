@@ -26,13 +26,19 @@ def find_root_sigma(alpha,*C):
 
 
 column_names = ["los pos[pkpc]","rho","ne","dene_dt","n_tot","T[K]","xHI","xHeI","xHeII","gamma_HI","q_lya"]
-los_pos_bins = np.linspace(0,2500,11)
-alpha_matrix = np.zeros((40+1,10))
-for i in range(0,40+1):
-    skewer_number = "{:04d}".format(i)
-    dir_path = "../output_files/gasprops/sk{}_hardRun/".format(skewer_number)
+Nbins = 20
+los_pos_bins = np.linspace(0,2200,Nbins+1)
+skewer_list_no_SS = np.loadtxt("../input_files/skewer_list_no_SS.txt",str)
+len_skewer_list = len(skewer_list_no_SS)
+alpha_matrix = np.zeros((len_skewer_list+1,Nbins))
 
-    print(dir_path)
+print(len_skewer_list)
+for i in range(0,len_skewer_list):
+    #skewer_number = "{:04d}".format(i)
+    skewer_number = skewer_list_no_SS[i]
+    dir_path = "../output_files/gasprops/sk{}_hardRun_L4.e+46_march24/".format(skewer_number)
+
+    print(i,dir_path)
 
     n=1
     gasprop_path = dir_path+"n{}_gasprops.txt".format(n)
@@ -62,5 +68,5 @@ for i in range(0,40+1):
     #print(alpha_mean_i)
 #print(alpha_matrix)
 
-np.savetxt(fname="matrices_alpha/alpha_matrix.txt",X = alpha_matrix)
+np.savetxt(fname="matrices_alpha/alpha_matrix_march24.txt",X = alpha_matrix)
 
