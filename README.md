@@ -2,6 +2,19 @@
 
 The 1D-RT code was written originally by Christopher Cain and then modified, improved, and maintained by Bayu Wilson. All other analysis is done by Bayu. 
 
+<p align="center">
+    <img src="https://github.com/user-attachments/assets/b25d7c00-ccf7-43b9-8b7a-f3b658115582" alt="Description" width="600"/>
+</p>
+<p align="center">Figure 1. TLDR: I ran a suite of simulations (like the one above) to test and build a model that can decrease the computational cost of modeling astronomical emission from the phenomenon of interest by a factor of 10,000. More details: This is a movie showing a how an ionization-front (I-front) travels through an initially neutral, inhomogeneous density skewer from a cosmological hydrodynamic simulation at a redshift z=5.7 (around 1 billion years after big bang). A source is turned on on the left side. Then the source radiation ionizes the gas going from left-to-right and photo-heats the gas to tens of thousands of Kelvin. Together, an I-front is the perfect environment for the production of Lyman-alpha photons (high Lyman-alpha emissivity). The density fluctuations cause the I-front to move at different speeds which effectively allows us to explore the parameter space of the Lyman-alpha photon production efficiency at different I-front speeds. We used a suite of these experiments to build a model to map. For more details, read the paper!
+</p>
+
+
+<p align="center">
+    <img src="https://github.com/user-attachments/assets/3c2b12c8-2d32-44c9-9863-5df03755eb56" alt="Description" width="400"/>
+</p>
+<p align="center">Figures 2. TLDR: The main result of this work is this parameter space which functions as a model to reliably and efficient map how brightly the astronomical phenomenon of interest glows. Stakeholders (astronomers) can use this model to inform their observations related to understanding cosmic history. More details. This is a visualization of our publicly available model to map Lyman-alpha emission onto larger-volume reionization simulations. Given just two parameters, spectral index and I-front speed, one can reliably and efficiently estimate the Lyman-alpha photon production efficiency. For more details, read the paper!
+</p>
+
 
 ## Using the 1D-RT code
 
