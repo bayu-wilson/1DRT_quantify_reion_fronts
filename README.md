@@ -35,12 +35,9 @@ cd pbs_scripts/
 sbatch [job script name].pbs
 ```
 
-### 7) Reading and organizing output data
-Here we read in the output files to produce a table of on-the-fly outputs (like IF speed and incident flux at the IF location). This is saved in ```results/[otf directory]/otf.csv``` where the otf directory is defined within ```results/array_results.py```. 
-```
-cd pbs_scripts/
-sbatch go_resultArrays.pbs
-```
+### 7) Processing output data
+Here we read in the output files to produce a table of on-the-fly outputs (like IF speed and incident flux at the IF location). These are python scripts but they take a lot of memory and time so it is good practice to submit it with a job script. For processing the parameter space exporation simulation suite, use ```pbs_scripts/go_resultArrays.pbs```. This will save results in ```final_results/[processed table name].csv ``` 
+
 
 ### 8) Plotting routines and interpolation table
 We plot the flux ratio parameter space as well as an interpolation table that can be used given alpha and vIF. The interpolation tables are located in ```results/interp_tables/```
