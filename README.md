@@ -20,16 +20,14 @@ cd parameters_input/
 module load anaconda3/2020.11
 python [filename]
 ```
-
-The outputs are tables of simulation input parameters that are used to explore the parameter space of the Lyman-alpha efficiency in terms of I-front speed and spectral index.
-
-A table of skewer number, ionizing photon rate, and simulation time are located ```input_params/flucRho.txt```.
-
-Additionally, the spectral indices data file is ```input_params/spectral_indicies.txt``` which can be adjusted manually.
+The outputs are tables of simulation input parameters that are used to explore the parameter space of the Lyman-alpha efficiency in terms of I-front speed and spectral index. See ```parameters_input/readme.txt``` for more details.
 
 ### 4) Set up user-input parameters
-Other user-input parameters can be edited in ```user_inputs.h```. These parameters can be updated manually or automatically using one of the ```pbs_scripts/*.pbs``` files. See step 5 for more details.
+Other user-input parameters can be edited in ```user_inputs.h```. These parameters can be updated manually or automatically using one of the ```pbs_scripts/*.pbs``` files. The parameter space studies use the parameters defined in the previous step. See ```pbs_scripts/readme.txt``` for more details.
 
+
+### 5) 1d-RT outputs
+1d-RT will automatically produce output files located here: ```output_files/gasprops/sk[X]_a=[X]/``` where `[X]` is placeholder for skewer number and spectral index alpha, respectively.
 
 ### 5) Submit batch job to run the code and explore parameter space
 Edit ```go_skewers_1dRT.pbs``` to explore the desired parameter space as well as check user-input values. This code will automatically produce output files located here: ```output_files/gasprops/sk[X]_a=[X]/``` where `[X]` is placeholder for skewer number and spectral index alpha, respectively.
