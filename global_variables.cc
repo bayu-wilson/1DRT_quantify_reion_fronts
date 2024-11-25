@@ -4,7 +4,10 @@
 #include "global_variables.h"
 
 //for the hardening correction
-int prev_index{0};
+int equil_index{0};
+int equil_index_prev{0};
+int ifront_index{0};
+int ifront_index_prev{0};
 
 //default differentials
 double dr     			  = (R-R0)/N_r; //in kpc // got rid of N_r-1 because I don't think it's necessary.
@@ -168,3 +171,7 @@ double I_nu_initial[N_nu]{};      //initial intensity of source cell
 //Lya emissivity from collisional excitations
 double j_lya [N_r]{};
 double q_eff_lya[N_r]{};
+
+//Measuring alpha for hardening
+//double I_nu_avg_sk [N_r][N_nu]{};
+//double alpha_meas [N_r]{};

@@ -29,27 +29,19 @@ using namespace rates;
 void update_dt()
 {
 	double min_dt;
+	min_dt = min_dt_early;
 	// min_dt = min_dt_late; // Since we got rid of geometric attenuation, following commented section is no longer necessary
-	min_dt = min_dt_early;//Bayu
-	// //testing
-	// if (t/yr_to_s/1e6 < 1.0)
-  // {
+	// if (t/yr_to_s/1e6 < 1.0) {
 	// 	min_dt = min_dt_early;
 	// }
-	// else
-  // {
+	// else {
 	// 	min_dt = min_dt_late;
 	// }
 
 	dt = t_max*yr_to_s*1e6/(N_output - 1);
-	//dt = user_inputs::R/user_inputs::N_r*kpc_to_cm / c * 10; //s
-	//printf("dt: %.3e \n",dt);
-	//dt = 0.013045867681251322*yr_to_s*1e6; //Myr
 	
 	#pragma omp parallel for reduction(min:dt) if (parallel)
-	for (int i=prev_index; i < N_r; i++) {
-		// if ((r[i]>(pos_IF-region_IF*kpc_to_cm)) && (r[i]<(pos_IF+region_IF*kpc_to_cm)))
-		// if ((r[i]>back_IF) && (r[i]<front_IF))
+	for (int i=equil_index; i < N_r; i++) {
 		{
 			//chemical timescales
 			if ( (nH1[i] > min_frac*nH[i]) && (abs(tfrac*nH1[i]/dnH1_dt[i]) >  min_dt*yr_to_s*1e6) ) {
@@ -109,32 +101,13 @@ void solve_planeparallel_rt()
 	double time_naught_seconds = time_naught_decay*yr_to_s*1e6; //convert from Myr to seconds
 	double time_dependence = ( pow(t+time_naught_seconds-dt,-time_decay_index)-pow(t+time_naught_seconds,-time_decay_index) \
                                  ) / pow(time_naught_seconds,-time_decay_index);
-	//#pragma omp parallel for if (parallel)
-        //for (int i=0; i < N_r; i++)
-        //{
 	#pragma omp parallel for if (parallel)
         for (int j=0; j < N_nu; j++)
         {
              	I_nu_prev[0][j] = I_nu[0][j]; //first remember previous
 		I_nu[0][j] = I_nu_prev[0][j] - time_dependence*I_nu_initial[j]; //then change current
-		//I_nu[i][j] = I_nu_prev[i][j]/1.1; // then change current
         }
-	//}
 
-
-	//printf("%.1e \t ", time_dependence);
-	//printf("%.1e \n ", I_nu[1][0]);
-
-	//double time_decay_factor{0};
-	//double t_Myr = t/yr_to_s/1e6;
-	//time_decay_factor = pow(1+t_Myr/time_naught_decay,-time_decay_index); 
-	//printf("gamma: %.1e \t",time_decay_factor);
-	//double time_naught_seconds = time_naught_decay*yr_to_s*1e6; //convert from Myr to seconds
-	//double time_dependence =  time_decay_index * dt/time_naught_seconds * pow(1+t/time_naught_seconds,-time_decay_index-1);
-	//double time_dependence = ( pow(t+time_naught_seconds-dt,-time_decay_index)-pow(t+time_naught_seconds,-time_decay_index) 
-	//			 ) / pow(time_naught_seconds,-time_decay_index);
-	//double time_dependence = pow(1+t/time_naught_seconds,-time_decay_index)
-	//double time_dependence = 
 	double optical_depth[N_nu]{};
 	#pragma omp parallel for if (parallel)
         for (int j=0; j < N_nu; j++)
@@ -142,35 +115,12 @@ void solve_planeparallel_rt()
 		optical_depth[j]=0; 
 		for (int i=1; i < N_r; i++)
 		{
-			//solve if we want artificial time-dependence
-			//I_nu[i][j] = I_nu_prev[i][j]/1.1;//I_nu[0][j] * 9/1/yr_to_s/1e6 * dt;
-			//I_nu[i][j] = I_nu_prev[i][j] - time_dependence*I_nu[0][j];
 			//solve plane-parallel rt with trapezoidal integral of the exponent to get the optical depth. 
 			optical_depth[j]+= 0.5 * (gamma_nu_tot[i][j]+gamma_nu_tot[i-1][j])*(r[i]-r[i-1]); //each step increases the optical depth 
 			//optical_depth+=gamma_nu_tot[i][j]*(r[i]-r[i-1]); 
 			I_nu[i][j] = I_nu[0][j] * exp(-optical_depth[j]); //* time_decay_factor;  		
-			//I_nu_prev[i][j] = I_nu[i][j];
-			//printf("%.1e \t",(gamma_nu_tot[i][j]+gamma_nu_tot[i-1][j]));
-			//printf("%.1e \t",(r[i]-r[i-1]));
-			//printf("%.1e \n",(gamma_nu_tot[i][j]+gamma_nu_tot[i-1][j])*(r[i]-r[i-1]));
-			//printf("%.1e \n", 1/2 * (gamma_nu_tot[i][j]+gamma_nu_tot[i-1][j])*(r[i]-r[i-1]));
-			//printf("i=%d, j=%d tau=%.1e\n",i,j,optical_depth);
-			//fflush(stdout);
 		}
-		//printf("optical_depth: %.1e \n",optical_depth);
-        	//fflush(stdout);
 	}	
-	//printf("%.1f \t ", time_decay_index);
-        //printf("%.1e \t ", t/yr_to_s/1e6);
-	//printf("%.1e \t ", dt/yr_to_s/1e6);
-        //printf("%.1e \t ", time_naught_seconds);
-	//printf("%.1e \t ", time_dependence);
-	//printf("%.1e \t ",I_nu[0][0] * 9./1000./yr_to_s/1.e6*dt);
-	//printf("%.1e \t ", I_nu_prev[1][0]/1.1);
-	//printf("%.1e \n ", I_nu[1][0]);
-        //printf("%.1e \n ", I_nu_prev[0][0]);
-	//printf("I_nu: %.1e \n",I_nu[1][0]);
-	//fflush(stdout);
 }
 
 void solve_spherical_rt()
@@ -247,20 +197,8 @@ void update_u_nu()
 		for (int j=0; j < N_nu; j++)
 		{
 			u_nu[i][j] = 4*pi/c*I_nu[i][j];
-			//if (r[i] - (R0 + dr)*kpc_to_cm > c*t)  { //causal correction
-			//	u_nu[i][j] = 0.;
-			//}
 		}
 
 	}
 }
 
-//artificial attentuation in order to explore more IF speeds. time has units of seconds. eta is the power law of the attenuation function
-//void artificial_attentuation(double t0, double eta_power)
-//{
-//	#pragma omp parallel for if (parallel)
-//	for (int j=0; j<N_nu; j++)
-//	{
-//		I_nu[0][j] *= pow((t/t0),eta_power)*I_nu[0][j]; //
-//	}
-//}

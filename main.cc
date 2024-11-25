@@ -23,15 +23,11 @@ using user_inputs::correct_hardening;
 using user_inputs::alpha;
 using user_inputs::skewer;
 using user_inputs::Lum;
-using g_constants::kpc_to_cm; //debug december 2022
 using user_inputs::otf_dir;
 
 int main() {
   double start_all, end_all; //to measure performance
-  //int nProcessors=omp_get_num_procs();
   char outputstring[300];
-  //omp_set_num_threads(nProcessors);
-  //printf("omp_get_num_procs(): %d\n", nProcessors); //depends on the machine this runs on
   printf("Begin 1dRT. On-the-fly outputs can be found here: /expanse/lustre/projects/uot171/bwils033/master_1d_rt/%s\n", otf_dir);
   start_all = omp_get_wtime();
 
@@ -42,18 +38,13 @@ int main() {
     sprintf(outputstring, initial_gas_output);
     write_gas(outputstring); //from io_funcs.cc, saves the initial grid
   }
-  init_intensity(); //from init_funcs.cc, initialize the source (probably BB) in the first grid-cell
+  init_intensity(); //from init_funcs.cc, initialize the source in the first grid-cell
   update_gamma_nu();  //from rt_funcs.cc, initializes opacity (absorption coefficient)
-  //init_gammaBackground(); //from init_funcs.cc, total photoionization rate in ionized gas from density. takes into accound SSh
   int otf_step = 1; //counting on the fly files starting at 1
   double t_tot = t_max*yr_to_s*1e6; //t_max (Myr) defined in user_inputs.h. t_tot is in seconds
-  //dt = user_inputs::R/user_inputs::N_r*kpc_to_cm / g_constants::c; //Myr
 
-  while (t < t_tot) //starting at t=0 to t_tot //seconds!
-  {
-	//printf("otf_step: %d Step: %d t [Myr]:%.3e dt [Myr]:%.3e\n",otf_step, step,t/yr_to_s/1e6,dt/yr_to_s/1e6);
-	solve_rt();
-	//solve_spherical_rt(); //from rt_funcs.cc, results in the the intensity at each location and frequency
+  while (t < t_tot) { //starting at t=0 to t_tot //seconds!
+	solve_rt(); //from rt_funcs.cc, results in the the intensity at each location and frequency
 	update_u_nu(); //radiation energy density at each location and frequency //from rt_funcs.cc
 	update_gamma(); //photoionization rate. calc at each location //from gas_funcs.cc
 	update_chem(); //chemistry equations. calc at each location //from gas_funcs.cc
@@ -73,31 +64,35 @@ int main() {
    	update_gamma_nu(); //from rt_funcs.cc
     
     	// on-the-fly outputs
-    	if ((absd(remainder_chris(t, t_tot/(N_output - 1))) < dt)) { //&&(input_grid)) {
-	   
+    	if ((absd(remainder_chris(t, t_tot/(N_output - 1))) < dt)) { 	   
 		//Absolute value of the remainder between time and other chunk of time
      		get_j_lya(); //from data_funcs.cc
 
-      		sprintf(outputstring, "%s/n%d_gasprops.txt", otf_dir, otf_step);
-      		write_otf_fred(outputstring); //otf
-      		sprintf(outputstring, "%s/n%d_spectrum.txt", otf_dir, otf_step);
-      		write_otf_spectrum(outputstring);
+      		sprintf(outputstring, "%s/n%d_gasprops.txt", otf_dir, otf_step); //saving otf outputs in the otf directory
+      		write_otf_fred(outputstring);
       		otf_step+=1;
       		update_step(); //from rt_funcs.cc
     	}
-	//printf("t_b4: %.3e",t/yr_to_s/1e6);
+	
+        ifront_index_prev = ifront_index; //index of I-front location. it is used at the end of program to check how far the I-front progressed	
+	ifront_index = max(find_index(f_H1,0.5,N_r),ifront_index_prev);
    	t += dt;
-	//printf("t_after: %.3e",t/yr_to_s/1e6);
 	//update time steps using Chris' conservative method
    	update_dt(); //from rt_funcs.cc
 	step += 1; //enumerating the time-steps
   }
 
-
-  sprintf(outputstring, gas_output);
+  //save final I_nu matrix. The incident spectrum is saved in every grid cell as the I-front passes through
+  sprintf(outputstring, "%s/Inu_output.txt", otf_dir);
+  write_Inu(outputstring);
+ 
+  sprintf(outputstring, gas_output); // saving the final gas file. this is good for debugging
   write_gas(outputstring); //from io_funcs.cc, writing the data to files
 
   end_all   = omp_get_wtime();
+  
+  printf("skewer completion: %.2f \n",static_cast<float>(ifront_index)/N_r);
+  printf("equilibrium check: %.2f \n",static_cast<float>(equil_index)/N_r);
   printf("Program complete, real-time: \t%.3e seconds\n\n",end_all-start_all);
   
   return 0;

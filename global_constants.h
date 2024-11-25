@@ -28,6 +28,7 @@ namespace g_constants
   inline constexpr double lambda_lya_cm { 1.21567e-5 }; //in cm //added 01/12/2022
   inline constexpr double lambda_HI_ion_cm { 0.912e-5 }; //in cm //added 06/07/2022
   inline constexpr double chi_He { 0.08 }; // 1+chi factor accounts for single-ionized helium
+  inline constexpr double nu_HI {3288088717007438.0}; //ionization frequency for hydrogen [Hz]
 
   //Cosmological parameters
   inline constexpr double Y  { 0.24 }; // Mass ratio of helium
@@ -38,6 +39,7 @@ namespace g_constants
 
   //Spectral parameters
   inline constexpr double sigma0 { 6.304e-18 }; //cm^2
+  inline constexpr double beta_sigmaHI {2.75}; //power-law index for HI photoionization rate
 
   //Units
   inline constexpr double ryd_to_ev { 13.6 };

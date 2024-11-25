@@ -24,14 +24,18 @@ using user_inputs::coll_ion;
 using user_inputs::spectrum;
 using user_inputs::parallel;
 using user_inputs::correct_hardening;
-//using user_inputs::add_background; //CHRIS 05/17/22
-//using user_inputs::Gam0;
 
 //compute photoionization rates for HI, HeI, and HeII
 void update_gamma()
 {
+	for (int i=0;i<equil_index_prev; i++) {
+		gamma_H1_tot[i]  = 1.;
+                gamma_He1_tot[i] = 1.;
+                gamma_He2_tot[i] = 1.;
+	}
+	equil_index_prev = equil_index;
 	#pragma omp parallel for if (parallel)
-	for (int i=prev_index; i < N_r-1; i++) //minus one because delta_r has N-1 indices
+	for (int i=equil_index_prev; i < N_r-1; i++) //minus one because delta_r has N-1 indices
 	{
 		gamma_H1_tot[i]  = 0;
 		gamma_He1_tot[i] = 0;
@@ -71,21 +75,17 @@ void update_gamma()
 			gamma_He2_tot[i] += cic_He2(temp[i])*ne[i];
 		}
 
-		//CHRIS 05/17/22: add uniform background
-                //BAYU 06/12/23: for finite c tests
-		//gamma_H1_tot[i]  += 1e-12;
-                //gamma_He1_tot[i] += 1e-12;
-                //gamma_He2_tot[i] += 1e-12;
 		//Hardening correction. This increases photoionization rate very high behind IF.
-		//if ((pos_IF>10*kpc_to_cm)&(t/yr_to_s/1e6>10)&(correct_hardening == TRUE)) {
-		if (correct_hardening == TRUE){
-			double pos_IF = interpolate(f_H1, r, 0.5, N_r); //cm //used in equilibrium condition function
-			double equil_cond = dne_dt[i]/n_tot[i]*delta_r[i]/c; // (1*kpc_to_cm/c); //BAYU APRIL 28, 2023 and May 19, 2023
-			if ((equil_cond<1e-8)&(r[i]<pos_IF)) {
-				gamma_H1_tot[i]  = 1;//1e-10;
-				gamma_He1_tot[i] = 1;//1e-10;
-				gamma_He2_tot[i] = 1;//1e-10;
-				prev_index+=1;
+		if ((correct_hardening == TRUE) & (ifront_index>20) & (r[i]<r[ifront_index])) { 
+			// 20*0.25=5pkpc
+                        double equil_cond = dne_dt[i]/n_tot[i]*delta_r[i]/c; //BAYU MAY 2, 2024
+                        if ((equil_cond<1e-8)&(equil_cond>0)) {
+				#pragma omp critical
+				{	
+                                equil_index+=1;
+                                //printf("(equil_index,IF_index,t): %d %d %.3f\n",equil_index,ifront_index,t/yr_to_s/1e6);
+                                //fflush(stdout);
+				}
 			}
 		}
 	}
@@ -94,7 +94,7 @@ void update_gamma()
 void update_heat_cool()
 {
 		#pragma omp parallel for if (parallel)
-		for (int i=prev_index; i < N_r; i++)
+		for (int i=equil_index; i < N_r; i++)
 		{
 			heat_rate[i] = 0;
 			cool_rate[i] = 0;
@@ -189,12 +189,6 @@ void solve_ion(double ne[])
 					/(1. + gamma_H1_tot[i]*dt + recomb_H2[i]*ne[i]*dt);
 			nH2[i]  = nH[i] - nH1[i];
 		}
-		// if (nH1[i]/nH[i] < 0.01)  {
-		// if (nH1_prev[i]/nH[i] < 0.01) {
-		// 	nH1[i] = recomb_H2[i]*ne[i]*nH[i]/gamma_H1_tot[i];
-		// 	nH2[i]  = nH[i] - nH1[i];
-		// }
-
 
 		//solve the ionizing balance equations for He.  Solve the backwards difference equation for the
 		//species that have the smaller abundances, and solve closing equation for the remaining species.
@@ -226,10 +220,6 @@ void solve_ion(double ne[])
 					/(1. + gamma_He2_tot[i]*dt + recomb_He3[i]*ne[i]*dt);
 			nHe1[i] = nHe[i] - nHe2[i] - nHe3[i];
 		}
-		// if (nHe1_prev[i]/nHe[i] < 0.01) {
-		// 	nHe1[i] = recomb_He2[i]*ne[i]*nHe[i]/gamma_He1_tot[i];
-		// 	nHe2[i] = nHe[i] - nHe1[i] - nHe3[i];
-		// }
 		ne[i]    = nH2[i] + nHe2[i] + 2.*nHe3[i];
 	}
 }
@@ -307,7 +297,7 @@ void update_thermal()
 	double a;
 	a = 1/(1 + z);
 	#pragma omp parallel for if (parallel)
-	for (int i=prev_index; i < N_r; i++)
+	for (int i=equil_index; i < N_r; i++)
 	{
 		if (hydro == FALSE)
 		{
@@ -518,23 +508,3 @@ void update_hydro()  {
 	}
 }
 
-//void reduce_hardening() {
-//	int prev_index{0};
-//	int index_rear_IF = find_index(f_H1, 0.009, N_r);
-//	for (int j=prev_index;j<index_rear_IF;j++)
-//	{
-//		nH1[j] = 0;
-//		f_H1[j] = 0;
-//		f_H2[j] = 1.;
-//		nH1_prev[j] = 0;
-//		nH2[j] = nH[j];
-//		nHe1[j] = 0;
-//		nHe1_prev[j] = 0;
-//		f_He1[j]=0;
-//		// for (int i=0;i<30;i++)
-//		// {
-//		//   gamma_nu_tot[j][i] = 0;
-//		// }
-//		prev_index = j;
-//	}
-//}

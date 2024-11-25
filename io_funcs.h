@@ -13,5 +13,6 @@ void write_otf_spectrum(char output_string[]);
 void write_spectrum();
 void write_gas(char output_path[]);
 void loading_bar(double number, double max_number);
+void write_Inu(char output_string[]); 
 
 #endif

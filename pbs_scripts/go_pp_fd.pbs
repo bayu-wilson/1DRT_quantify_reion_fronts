@@ -1,0 +1,101 @@
+#!/bin/bash                    
+#SBATCH --job-name="planeParallel FD"          
+#SBATCH --output="outfiles/planeParallel_FD.%N.out"
+###SBATCH --account=TG-PHY210041
+#SBATCH --account=TG-PHY230158
+#SBATCH --partition=shared
+#SBATCH --nodes=1
+#SBATCH --ntasks-per-node=64
+#SBATCH --mem=128Gb   
+#SBATCH --export=ALL        
+###SBATCH -t 30:00:00   
+#SBATCH -t 12:00:00   
+#SBATCH --mail-user=bwils033@ucr.edu
+#SBATCH --mail-type=all
+
+export OMP_NUM_THREADS=64
+export KMP_AFFINITY="disabled"
+export KMP_LIBRARY=turnaround
+export KMP_SCHEDULE="static,balanced"
+export KMP_STACKSIZE=256M
+
+echo "starting plane parallel, fluctuating density parameter space study"
+date 
+###module load gcc
+home_dir=/expanse/lustre/projects/uot171/bwils033/master_1d_rt/
+
+cd $home_dir
+###sed -i "s/^  inline constexpr double Lum.*/  inline constexpr double Lum \{  ${L} \}\; /" user_inputs.h
+sed -i "s/^  inline constexpr bool spherical.*/  inline constexpr bool spherical        \{ FALSE \}\; \/\/If FALSE use plane-parallel/" user_inputs.h
+sed -i "s/^  inline constexpr bool input_grid.*/  inline constexpr bool input_grid        \{ TRUE \}\; \/\/User-defined input grid/" user_inputs.h
+sed -i "s/^  inline constexpr double scale_density_factor.*/  inline constexpr double scale_density_factor \{ 1 \}\; /" user_inputs.h 
+sed -i "s/^  inline constexpr double time_decay_index.*./  inline constexpr double time_decay_index \{ 0 \}\; /" user_inputs.h
+sed -i "s/^  inline constexpr double time_naught_decay.*/  inline constexpr double time_naught_decay \{ 20. \}\; \/\/Myr /" user_inputs.h 
+
+###temporary_L_list=('8.25e+46' '4.95e+47' '9.17e+47')
+###temp_i=0
+
+
+###input_params=(`cat /expanse/lustre/projects/uot171/bwils033/master_1d_rt/parameters_input/input_params/fd_planeParallel_params.txt`)
+input_params=(`cat /expanse/lustre/projects/uot171/bwils033/master_1d_rt/parameters_input/input_params/fd_April_params.txt`)
+let "len_input_params=${#input_params[@]}-7"
+###for i in $(seq 2548 21 $len_input_params)
+for i in $(seq 0 21 $len_input_params)
+do
+	alpha=${input_params[i]}
+	skewer=${input_params[i+1]}
+	L=${input_params[i+2]}
+	R_sim=${input_params[i+3]}
+	N_r=${input_params[i+4]}
+	R0=${input_params[i+5]}
+	t_max=${input_params[i+6]}
+	###if [[ "$alpha" == 2.5 ]]
+	if true 
+	###[[ "$alpha" == 1.5 ]]
+	then
+	        ###L=${temporary_L_list[temp_i]}
+		###temp_i=$((temp_i+1))
+
+		###Creating unique files to save each 1dRT run
+		echo $alpha $skewer $L $R_sim $N_r $R0 $t_max
+                cd $home_dir/output_files/gasprops/
+		saving_dir=fd_pp_a=${alpha}_sk${skewer}_L=${L}_v2
+		echo 'saving here: ' ${home_dir}output_files/gasprops/$saving_dir
+		rm -r $saving_dir
+		mkdir $saving_dir
+		chmod 775 $saving_dir
+                cd $home_dir
+
+		###Editing the user_inputs.h
+		sed -i "s/^  inline constexpr char skewer.*/  inline constexpr char skewer\[\] \{ \"${skewer}\" \}\; /" user_inputs.h
+		sed -i "s/^  inline constexpr char grid_input\[\].*/  inline constexpr char grid_input\[\] \{\"input_files\/hydro_skewers\/spec_xHeII1_007_ls_line${skewer}.dat\"\}\; /" user_inputs.h
+
+		sed -i "s/^  inline constexpr double R .*/  inline constexpr double R        \{ R0+${R_sim} \}\;  \/\/Total radius for the spatial grid \(in pkpc\) /" user_inputs.h
+                sed -i "s/^  inline constexpr double R0.*/  inline constexpr double R0       \{ ${R0} \}\; \/\/minimum radius of the grids, keep large to minimize geometric attenuation /" user_inputs.h
+                sed -i "s/^  inline constexpr int N_r.*/  inline constexpr int N_r \{ ${N_r} \}\;/" user_inputs.h
+                sed -i "s/^  inline constexpr double t_max.*/  inline constexpr double t_max \{ ${t_max} \}\; \/\/Runtime (in Myr)/" user_inputs.h
+                sed -i "s/^  inline constexpr char gas_output\[\].*/  inline constexpr char gas_output\[\] \{\"output_files\/gas_test_hydro_${t_max}myr\.txt\"\}\;/" user_inputs.h
+                sed -i "s/^  inline constexpr double alpha.*/  inline constexpr double alpha \{ ${alpha} \}\; \/\/spectral power law index if spectrum is a power law/" user_inputs.h
+                sed -i "s/^  inline constexpr double Lum.*/  inline constexpr double Lum \{  ${L} \}\; /" user_inputs.h
+		sed -i "s/^  inline constexpr char otf_dir\[\].*/  inline constexpr char otf_dir\[\] \{ \"output_files\/gasprops\/${saving_dir}\" \}\;/" user_inputs.h
+
+                make clean
+                make
+                echo "beginning ./1d_radtransfer.x" 
+               	./1d_radtransfer.x
+	fi
+	###[[ "$i" == '9' ]]
+	###echo $i
+	###if [[ "$i" == '14' ]]
+	###then
+	###	break	
+	###fi
+done
+
+echo "Parameter space study complete"
+date
+
+
+
+
+

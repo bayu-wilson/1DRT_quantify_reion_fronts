@@ -13,15 +13,12 @@ rho_crit_z_b = rho_crit_z*Omega_b
 m_H =  1.672622e-24 #g
 Y = 0.24
 n_H = (1-Y)*rho_crit_z_b/m_H
-print(n_H)
-n_H *=8 #BAYU MAY 16, 2023. Increasing mean density by 10. This should decrease IF width by 10!
-print(n_H)
 chi = 0.08
 
 
 cm_per_kpc = 3.086e+21
 cm_per_km  = 1e+5
-logvIF_min,logvIF_max,nbins = 3.0,4.5,4
+logvIF_min,logvIF_max,nbins = 2.5,4.5,4
 
 logvIF_bincenters = np.linspace(logvIF_min,logvIF_max,nbins)
 delta_logvIF = (logvIF_max-logvIF_min)/(nbins-1)
@@ -82,7 +79,7 @@ for i in range(len(vIF_binedges_cms)-1):
     print("")
 
 print("Four columns: L, R, R0, t")
-np.savetxt(fname="input_params/varyLum.txt",X=stack,fmt=('%.2e','%d','%.1e','%.1f'))
+#np.savetxt(fname="input_params/varyLum.txt",X=stack,fmt=('%.2e','%d','%.1e','%.1f'))
 print(np.loadtxt(fname="input_params/varyLum.txt",dtype=str))
 
 #stack = np.column_stack((skewer_temp,dotN_approx_arr,t_sim_arr))

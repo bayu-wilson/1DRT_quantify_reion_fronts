@@ -139,14 +139,11 @@ double cum_trapz_int(double y[], double x[], int n)  {
 	return *cumint;
 }
 
-double find_index(double x[],double x0,int n) // find the index that matches a certain element
-{
-	double index{};
-	for (int i{0};i<n;i++)
-	{
-		if ( ( (x[i] <= x0) && (x[i+1] >= x0) ) || ( (x[i] >= x0) && (x[i+1] <= x0) ) )
-		{
-			if (absd(x[i]-x0)>absd(x[i+1]-x0)) {
+double find_index(double x[],double x0,int n) { // find the index that matches a certain element
+	int index{};
+	for (int i{0};i<n-1;i++) {
+		if ( ( (x[i] <= x0) && (x[i+1] >= x0) ) || ( (x[i] >= x0) && (x[i+1] <= x0) ) ) { //check if x0 is between x[i] and x[i+1]
+			if (absd(x[i]-x0)>absd(x[i+1]-x0)) { // if it's closer to x[i+1] assign index i+1
 				index=i+1;
 			}
 			else {

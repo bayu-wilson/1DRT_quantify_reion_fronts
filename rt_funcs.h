@@ -8,6 +8,5 @@ void solve_planeparallel_rt();
 void solve_spherical_rt();
 void update_gamma_nu();
 void update_u_nu();
-//void artificial_attentuation(double t0, double eta_power);
 
 #endif

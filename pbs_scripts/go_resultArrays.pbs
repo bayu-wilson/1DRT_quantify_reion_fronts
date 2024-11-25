@@ -1,21 +1,28 @@
 #!/bin/bash                    
 #SBATCH --job-name="result_array"          
-#SBATCH --output="../dot_out/ra.%N.out"
-#SBATCH --account=TG-PHY210041
+#SBATCH --output="outfiles/ra.%N.out"
+###SBATCH --account=TG-PHY210041
+#SBATCH --account=TG-PHY230158
 #SBATCH --partition=shared
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=64
 #SBATCH --mem=128Gb   
 #SBATCH --export=ALL        
-#SBATCH -t 01:00:00   
+#SBATCH -t 08:00:00   
 #SBATCH --mail-user=bwils033@ucr.edu
 #SBATCH --mail-type=all
 
 ####module load gcc
-module load anaconda3/2020.11
+module load anaconda3/2021.05
 
+###codename="fd_array_results.py"
+codename="pp_results.py"
 echo "submitted batch file: go_result_array.pbs"
+
 cd ../results/
-echo "running array_results.py"
-python array_results.py 
+echo "running ${codename}"
+python ${codename}
+###echo "running array_results.py"
+###python array_results.py 
+###python ud_array_results.py
 cd ../pbs_scripts/

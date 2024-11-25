@@ -21,7 +21,11 @@ using g_constants::yr_to_s;
 
 void set_dlognu();
 
-extern int prev_index;
+//extern int prev_index;
+extern int equil_index;
+extern int equil_index_prev;
+extern int ifront_index;
+extern int ifront_index_prev;
 
 //default differentials
 extern double dr        ; //in kpc
@@ -175,8 +179,13 @@ extern double gamma_nu_tot[N_r][N_nu]; //total spectral absorption coefficient
 extern double I_nu_prev   [N_r][N_nu]; //previous timestep
 extern double I_nu        [N_r][N_nu]; //specific intensity
 extern double I_nu_initial[N_nu];      //initial intensity of source cell 
+
 //Lya emissivity from collisional excitations
 extern double j_lya [N_r];
 extern double q_eff_lya[N_r];
+
+//Measuring alpha for hardening
+//extern double I_nu_avg_sk [N_r][N_nu];
+//extern double alpha_meas [N_r];
 
 #endif
