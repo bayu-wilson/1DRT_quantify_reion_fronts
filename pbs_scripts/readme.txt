@@ -7,7 +7,7 @@ go_pp_fd.pbs
 Parameter space study using inhomogeneous density skewers where a time independent, plane parallel source luminosity is used. Different I-front speeds are explored using a few different source luminosities as well as the density fluctuations (I-fronts slow down through over-densities). The input parameters are from parameters_input/input_params/fd_April_params.txt.
 
 fd_cell_size_convergence.pbs
-For the inhomogeneous density field, cell size convergence test in the appendeix.
+For the inhomogeneous density field, cell size convergence test in the appendix.
 
 ud_cell_size_convergence.pbs
 For the uniform density field, cell size convergence test in the appendix.
