@@ -25,25 +25,24 @@ The outputs are tables of simulation input parameters that are used to explore t
 ### 4) Set up user-input parameters
 Other user-input parameters can be edited in ```user_inputs.h```. These parameters can be updated manually or automatically using one of the ```pbs_scripts/*.pbs``` files. The parameter space studies use the parameters defined in the previous step. See ```pbs_scripts/readme.txt``` for more details.
 
+### 5) 1D-RT outputs
+1D-RT will automatically produce output files located in ```output_files/gasprops/[simulation_directory]``. Each simulation is in its own directory. For the uniform density runs, these directories are named ```ud_pp_a=[X]_L=[Y]/``` where X is the spectral index and Y is the initial luminosity. For inhomogeneous density runs, these directories are names ```fd_pp_sk[Z]_a=[X]_L=[Y]``` where X and Y are the same as before and Z is the skewer number. Within each directory, each file contains on-the-fly outputs including incident spectral index, incident flux, gas density, and emitted Lyman-alpha produced from collisional excitations with file names ```n[n_otf]gasprops.txt``` where n\_otf is the number corresponding to the otf step which is equally spaced in time. It will also save the incident spectrum (I(nu)) saved in every grid cell as the I-front passes through. This file is located in the simulation directory above but with file name ```Inu_output.txt```.
 
-### 5) 1d-RT outputs
-1d-RT will automatically produce output files located here: ```output_files/gasprops/sk[X]_a=[X]/``` where `[X]` is placeholder for skewer number and spectral index alpha, respectively.
-
-### 5) Submit batch job to run the code and explore parameter space
-Edit ```go_skewers_1dRT.pbs``` to explore the desired parameter space as well as check user-input values. This code will automatically produce output files located here: ```output_files/gasprops/sk[X]_a=[X]/``` where `[X]` is placeholder for skewer number and spectral index alpha, respectively.
+### 6) Submit batch job
+Ensure the job scripts are set up correctly and then you can submit the job on a supercomputer. For example, this is what I did to submit the job on Expanse.
 ```
 cd pbs_scripts/
-sbatch go_skewers_1dRT.pbs
+sbatch [job script name].pbs
 ```
 
-### 6) On-the-fly outputs
+### 7) Reading and organizing output data
 Here we read in the output files to produce a table of on-the-fly outputs (like IF speed and incident flux at the IF location). This is saved in ```results/[otf directory]/otf.csv``` where the otf directory is defined within ```results/array_results.py```. 
 ```
 cd pbs_scripts/
 sbatch go_resultArrays.pbs
 ```
 
-### 7) Plotting routines and interpolation table
+### 8) Plotting routines and interpolation table
 We plot the flux ratio parameter space as well as an interpolation table that can be used given alpha and vIF. The interpolation tables are located in ```results/interp_tables/```
 ```
 cd plotting_routines/
