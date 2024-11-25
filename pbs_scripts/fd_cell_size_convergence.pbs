@@ -1,0 +1,102 @@
+#!/bin/bash                    
+#SBATCH --job-name="cs_convergence"          
+#SBATCH --output="outfiles/csc.%N.out"
+###SBATCH --account=TG-PHY210041
+#SBATCH --account=TG-PHY230158
+#SBATCH --partition=shared
+#SBATCH --nodes=1
+#SBATCH --ntasks-per-node=64
+#SBATCH --mem=128Gb   
+#SBATCH --export=ALL        
+#SBATCH -t 6:00:00   
+#SBATCH --mail-user=bwils033@ucr.edu
+#SBATCH --mail-type=all
+
+export OMP_NUM_THREADS=64
+export KMP_AFFINITY="disabled"
+export KMP_LIBRARY=turnaround
+export KMP_SCHEDULE="static,balanced"
+export KMP_STACKSIZE=256M
+
+module load gcc
+module load anaconda3/2020.11
+
+home_dir=/expanse/lustre/projects/uot171/bwils033/master_1d_rt/
+
+cd $home_dir
+### Using skewers from Matthew McQuinn's simulations
+sed -i "s/^  inline constexpr bool input_grid.*/  inline constexpr bool input_grid       \{ TRUE \}\; \/\/User-defined input grid\? /" user_inputs.h
+sed -i "s/^  inline constexpr bool correct_hardening.*/  inline constexpr bool correct_hardening \{ TRUE \}\; \/\/new BAYU July 15 2022 /" user_inputs.h  
+sed -i "s/^  inline constexpr double scale_density_factor.*/  inline constexpr double scale_density_factor \{ 1 \}\; /" user_inputs.h
+sed -i "s/^  inline constexpr double time_decay_index.*./  inline constexpr double time_decay_index \{ 0 \}\; /" user_inputs.h
+sed -i "s/^  inline constexpr double time_naught_decay.*/  inline constexpr double time_naught_decay \{ 20. \}\; \/\/Myr /" user_inputs.h
+
+### Setting constant skewer length, cell size, ionizing photon rate, time in Myr, spectral hardness
+Rsim='1500'
+###Rsim='1000'
+###N_r='10000'
+###Lum='2.52e+46'
+###t_max='217.7'
+alpha='1.500'
+###skewer='0013'
+###N_r_list=(`cat /expanse/lustre/projects/uot171/bwils033/master_1d_rt/input_files/fd_cell_size_convergence.txt`)
+N_r_list=('8333' '7500' '6000' '5000' '3000' '1500' '300')
+###N_r_list=('10000' '5000' '4000' '3333' '2000' '1000' '500')
+len_N_r="${#N_r_list[@]}"
+skewer_list=('0044' '0060' '0056' '0002' '0065')
+t_max_list=('4180' '1321' '420' '135' '45')
+Lum_list=('7.07e+44' '2.39e+45' '5.76e+45' '2.89e+46' '1.45e+47')
+###skewer_list=('0027' '0049' '0067' '0078' '0092')
+###t_max_list=('114' '75' '229' '158' '93')
+###Lum_list=('6.01e+46' '7.23e+46' '2.37e+46' '4.2e+46' '5.48e+46')
+###t_max_list=('240.6' '20555.7' '2025.7' '4886.6' '57.6')
+###Lum_list=('2.33e+46' '3.06e+44' '2.19e+45' '1.11e+45' '7.22e+46')
+###skewer_list=(`cat /expanse/lustre/projects/uot171/bwils033/master_1d_rt/input_files/skewer_list_no_SS.txt`)
+len_skewers="${#skewer_list[@]}"
+
+sed -i "s/^  inline constexpr double R .*/  inline constexpr double R        \{ R0+${Rsim} \}\;  \/\/Total radius for the spatial grid \(in pkpc\) /" user_inputs.h
+###sed -i "s/^  inline constexpr int N_r.*/  inline constexpr int N_r \{ ${N_r} \}\;/" user_inputs.h
+###sed -i "s/^  inline constexpr char skewer\[\].*/  inline constexpr char skewer\[\] \{\"${skewer}\"\} \;/" user_inputs.h
+###sed -i "s/^  inline constexpr char grid_input\[\].*/  inline constexpr char grid_input\[\] \{\"input_files\/hydro_skewers\/spec_xHeII1_007_ls_line${skewer}\.dat\"\}\;/" user_inputs.h
+###sed -i "s/^  inline constexpr double Lum.*/  inline constexpr double Lum\{  ${Lum} \}\; /" user_inputs.h
+###sed -i "s/^  inline constexpr double t_max.*/  inline constexpr double t_max \{ ${t_max} \}\; \/\/Runtime (in Myr)/" user_inputs.h
+###sed -i "s/^  inline constexpr char gas_output\[\].*/  inline constexpr char gas_output\[\] \{\"output_files\/gas_hardRun_${t_max}myr\.txt\"\}\;/" user_inputs.h
+sed -i "s/^  inline constexpr double alpha.*/  inline constexpr double alpha \{ ${alpha} \}\; \/\/spectral power law index if spectrum is a power law/" user_inputs.h
+
+
+let 'iter_skew=len_skewers-1'
+let 'iter_N_r=len_N_r-1'
+for i in $(seq 0 1 $iter_skew)
+do
+	skewer=${skewer_list[i]}
+        t_max=${t_max_list[i]}
+	Lum=${Lum_list[i]}
+	sed -i "s/^  inline constexpr char skewer\[\].*/  inline constexpr char skewer\[\] \{\"${skewer}\"\} \;/" user_inputs.h
+	sed -i "s/^  inline constexpr char grid_input\[\].*/  inline constexpr char grid_input\[\] \{\"input_files\/hydro_skewers\/spec_xHeII1_007_ls_line${skewer}\.dat\"\}\;/" user_inputs.h
+	sed -i "s/^  inline constexpr double t_max.*/  inline constexpr double t_max \{ ${t_max} \}\; \/\/Runtime (in Myr)/" user_inputs.h
+	sed -i "s/^  inline constexpr double Lum.*/  inline constexpr double Lum \{ ${Lum} \}\; /" user_inputs.h
+	sed -i "s/^  inline constexpr char gas_output\[\].*/  inline constexpr char gas_output\[\] \{\"output_files\/gas_hardRun_${t_max}myr\.txt\"\}\;/" user_inputs.h
+	for j in $(seq 0 1 $iter_N_r)
+	do
+		N_r=${N_r_list[j]}
+		###skewer=${skewer_list[j]}
+		echo $N_r
+		cd $home_dir/output_files/gasprops/
+		saving_dir=csc_fd_sk${skewer}_L${Lum}_N_r${N_r}_v2 
+		echo 'saving here: ' ${home_dir}output_files/gasprops/$saving_dir
+		rm -r $saving_dir
+		mkdir $saving_dir
+		chmod 775 $saving_dir
+		cd $home_dir
+
+		sed -i "s/^  inline constexpr int N_r.*/  inline constexpr int N_r \{ ${N_r} \}\;/" user_inputs.h
+		sed -i "s/^  inline constexpr char otf_dir\[\].*/  inline constexpr char otf_dir\[\] \{\"output_files\/gasprops\/${saving_dir}\"\}\;/" user_inputs.h  
+
+		make clean
+		make
+		./1d_radtransfer.x
+	done
+done
+cd $home_dir/pbs_scripts/
+
+date

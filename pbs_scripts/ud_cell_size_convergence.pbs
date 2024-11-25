@@ -1,0 +1,84 @@
+#!/bin/bash                    
+#SBATCH --job-name="ud_cs_convergence"          
+#SBATCH --output="outfiles/ud_csc.%N.out"
+#SBATCH --account=TG-PHY210041
+#SBATCH --partition=shared
+#SBATCH --nodes=1
+#SBATCH --ntasks-per-node=64
+#SBATCH --mem=128Gb   
+#SBATCH --export=ALL        
+#SBATCH -t 12:00:00   
+#SBATCH --mail-user=bwils033@ucr.edu
+#SBATCH --mail-type=all
+
+export OMP_NUM_THREADS=64
+export KMP_AFFINITY="disabled"
+export KMP_LIBRARY=turnaround
+export KMP_SCHEDULE="static,balanced"
+export KMP_STACKSIZE=256M
+
+module load gcc
+module load anaconda3/2020.11
+
+home_dir=/expanse/lustre/projects/uot171/bwils033/master_1d_rt/
+
+cd $home_dir
+sed -i "s/^  inline constexpr bool spherical.*/  inline constexpr bool spherical        \{ FALSE \}\; \/\/If FALSE use plane-parallel/" user_inputs.h
+sed -i "s/^  inline constexpr double scale_density_factor.*/  inline constexpr double scale_density_factor \{ 1 \}\; /" user_inputs.h
+sed -i "s/^  inline constexpr bool input_grid.*/  inline constexpr bool input_grid       \{ FALSE \}\; \/\/User-defined input grid\? /" user_inputs.h
+sed -i "s/^  inline constexpr bool correct_hardening.*/  inline constexpr bool correct_hardening \{ TRUE \}\; \/\/new BAYU July 15 2022 /" user_inputs.h  
+
+### Setting constant skewer length, cell size, ionizing photon rate, time in Myr, spectral hardness
+Rsim_list=('340.9' '945.5' '1355.2')
+len_Rsim="${#Rsim_list[@]}"
+Lum_list=('2.06e+46' '1.26e+47' '2.52e+47')
+t_max_list=('544.3' '125.9' '50.3')
+alpha='1.500'
+t0_list=('40' '20' '20')
+###N_r_list=(`cat /expanse/lustre/projects/uot171/bwils033/master_1d_rt/input_files/ud_cell_size_convergence.txt`)
+###len_N_r="${#N_r_list[@]}"
+N_r_matrix=(`cat /expanse/lustre/projects/uot171/bwils033/master_1d_rt/pbs_scripts/testing/ud_cell_size_convergence.txt`)
+let "len_N_r_matrix=${#N_r_matrix[@]}-3"
+
+
+sed -i "s/^  inline constexpr double time_decay_index.*./  inline constexpr double time_decay_index \{ 2 \}\; /" user_inputs.h
+sed -i "s/^  inline constexpr double alpha.*/  inline constexpr double alpha \{ ${alpha} \}\; \/\/spectral power law index if spectrum is a power law/" user_inputs.h
+
+
+###let 'iter_N_r=len_N_r_matrix-1'
+let 'iter_Rsim=len_Rsim-1'
+
+for i in $(seq 0 3 $len_N_r_matrix)
+do
+	for j in $(seq 0 1 $iter_Rsim)
+        do
+	N_r=${N_r_matrix[i+j]}
+	Rsim=${Rsim_list[j]}
+	Lum=${Lum_list[j]}
+	t_max=${t_max_list[j]}
+	t0=${t0_list[j]}
+	sed -i "s/^  inline constexpr double time_naught_decay.*/  inline constexpr double time_naught_decay \{ ${t0} \}\; \/\/Myr /" user_inputs.h
+	sed -i "s/^  inline constexpr double R .*/  inline constexpr double R        \{ R0+${Rsim} \}\;  \/\/Total radius for the spatial grid \(in pkpc\) /" user_inputs.h
+	sed -i "s/^  inline constexpr double Lum.*/  inline constexpr double Lum\{  ${Lum} \}\; /" user_inputs.h
+	sed -i "s/^  inline constexpr double t_max.*/  inline constexpr double t_max \{ ${t_max} \}\; \/\/Runtime (in Myr)/" user_inputs.h
+	sed -i "s/^  inline constexpr char gas_output\[\].*/  inline constexpr char gas_output\[\] \{\"output_files\/gas_hardRun_${t_max}myr\.txt\"\}\;/" user_inputs.h
+	echo $N_r
+	cd $home_dir/output_files/gasprops/
+	saving_dir=csc_ud_alpha${alpha}_Rsim${Rsim}_L${Lum}_N_r${N_r} 
+	echo 'saving here: ' ${home_dir}output_files/gasprops/$saving_dir
+	rm -r $saving_dir
+	mkdir $saving_dir
+	chmod 775 $saving_dir
+	cd $home_dir
+
+	sed -i "s/^  inline constexpr int N_r.*/  inline constexpr int N_r \{ ${N_r} \}\;/" user_inputs.h
+	sed -i "s/^  inline constexpr char otf_dir\[\].*/  inline constexpr char otf_dir\[\] \{\"output_files\/gasprops\/${saving_dir}\"\}\;/" user_inputs.h  
+
+	make clean
+	make
+	./1d_radtransfer.x
+	done
+done
+cd $home_dir/pbs_scripts/
+
+date
