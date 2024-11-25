@@ -52,7 +52,7 @@ if uniform_density:
     levels = np.insert(np.arange(-0.1,1.0,0.1),2,[0.01,0.03])
     label_levels =  levels #[::2]
     figname = "figures/pspace_lya_eff_ud.png"
-    save_path = "/expanse/lustre/projects/uot171/bwils033/master_1d_rt/results/final_results/ud_parameter_space_interp_table.txt"
+    save_path = "/expanse/lustre/projects/uot171/bwils033/master_1d_rt/results/interp_tables/ud_parameter_space_interp_table.txt"
 
     alpha_list = np.unique(df["alpha_i"])
     lya_eff = df["lya_eff"].values
@@ -72,7 +72,7 @@ else:
     levels = np.insert(np.arange(-0.1,1.0,0.1),2,[0.01,0.03])
     label_levels = levels
     figname = "figures/pspace_lya_eff_fd.png"
-    save_path = "/expanse/lustre/projects/uot171/bwils033/master_1d_rt/results/final_results/fd_parameter_space_interp_table.txt"
+    save_path = "/expanse/lustre/projects/uot171/bwils033/master_1d_rt/results/interp_tables/fd_parameter_space_interp_table.txt"
 
     title = "Fluctuating-density"
 

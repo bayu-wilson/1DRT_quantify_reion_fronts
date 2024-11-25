@@ -40,22 +40,6 @@ Here we read in the output files to produce a table of on-the-fly outputs (like 
 
 
 ### 8) Plotting routines and interpolation table
-We plot the flux ratio parameter space as well as an interpolation table that can be used given alpha and vIF. The interpolation tables are located in ```results/interp_tables/```
-```
-cd plotting_routines/
-module load anaconda3/2020.11
-python Frat_parameter_space.py
-```
-
-### 8) Other plotting routines
-```
-python flux_ratio.py
-python plot_coll_exc_coef.py
-python profileIF.py
-python emissivity_dependencies.py
-```
-
-
-
+In ```plotting_routines/``` you can reproduce the plots in the paper (from the main text). Most importantly, ```pspace_lya_eff.py``` calculates the parameter space table and saves it as an interpolation table in ```results/interp_tables/``` as well as in a plot. See ```plotting_routines/readme.txt``` for more details on the other plotting routines. 
 
 
