@@ -12,6 +12,9 @@ Figure 3. Parameter space of the I-front Lyman-alpha production efficiency.
 qual_movie.py
 I made nice movies to visualize the progress of an I-front ionizing a skewer for my qualifying exam and my dissertaion defense.
 
+user_input.txt
+Mainly this gives bin edges and centers for the I-front speeds and spectral indices.
+
 constants.py
 Helpful constants
 
