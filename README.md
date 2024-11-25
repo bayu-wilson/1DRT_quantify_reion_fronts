@@ -36,7 +36,7 @@ sbatch [job script name].pbs
 ```
 
 ### 7) Processing output data
-Here we read in the output files to produce a table of on-the-fly outputs (like IF speed and incident flux at the IF location). These are python scripts but they take a lot of memory and time so it is good practice to submit it with a job script. For processing the parameter space exporation simulation suite, use ```pbs_scripts/go_resultArrays.pbs```. This will save results in ```final_results/[processed table name].csv ``` 
+Here we read in the output files to produce a table of on-the-fly outputs (like IF speed and incident flux at the IF location). These are python scripts but they take a lot of memory and time so it is good practice to submit it with a job script. For processing the parameter space exporation simulation suite, use ```pbs_scripts/go_resultArrays.pbs```. This will run ```pp_results.py```  and save results in ```results/final_results/[processed table name].csv ```. See ```results/readme.txt``` for more details and options.  
 
 
 ### 8) Plotting routines and interpolation table
