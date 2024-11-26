@@ -71,3 +71,6 @@ alpha = 1.5 #spectral index
 estimated_Lya_efficiency = griddata(bb,Lya_efficiency,(logvIF_grid,alpha),method='linear',fill_value=0)
 ```
 
+### Final note
+If you are curious about the appendix plots, see [this repository](https://github.com/bayu-wilson/spectral_hardening/tree/main).
+
