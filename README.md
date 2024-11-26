@@ -1,6 +1,6 @@
 # 1D Radiative Transfer (1D-RT) code and analysis for "Quantifying Lyman-α emissions from reionization fronts" from [(Wilson et al. 2024)](https://arxiv.org/abs/2406.14622)
 
-The 1D-RT code was written originally by Christopher Cain and then modified, improved, and maintained by Bayu Wilson. All other analysis is done by Bayu. 
+The 1D-RT code was written originally by Christopher Cain and then modified, improved, and maintained by Bayu Wilson. All other analyses are done by Bayu. 
 
 <p align="center">
     <img src="https://github.com/user-attachments/assets/b25d7c00-ccf7-43b9-8b7a-f3b658115582" alt="Description" width="600"/>
@@ -55,4 +55,19 @@ Here we read in the output files to produce a table of on-the-fly outputs (like 
 ### 8) Plotting routines and interpolation table
 In ```plotting_routines/``` you can reproduce the plots in the paper (from the main text). Most importantly, ```pspace_lya_eff.py``` calculates the parameter space table and saves it as an interpolation table in ```results/interp_tables/``` as well as in a plot. See ```plotting_routines/readme.txt``` for more details on the other plotting routines. 
 
+### Note on how to use the interpolation table
+The following snippet of code can be used to get the estimated Lyman-alpha efficiency given a range of log10 I-front speed as well as a spectral index, $\alpha$. 
+```
+import numpy as np
+from scipy.interpolate import griddata
+
+interp_table = np.loadtxt("fd_parameter_space_interp_table.txt")  
+bb = np.column_stack((interp_table[:,0],interp_table[:,1])) #(vIF [km/s], alpha)
+Lya_efficiency = interp_table[:,2]
+vIF_grid = np.logspace(np.log10(300),np.log10(5e4),1000)
+logvIF_grid = np.log10(vIF_grid)
+
+alpha = 1.5 #spectral index
+estimated_Lya_efficiency = griddata(bb,Lya_efficiency,(logvIF_grid,alpha),method='linear',fill_value=0)
+```
 
